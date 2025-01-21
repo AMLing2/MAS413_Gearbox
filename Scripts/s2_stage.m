@@ -9,19 +9,23 @@ n_out = n_1/i_tot;
 
 
 % calculations for internal gears
-i_1 = 5; % first gear ratio of 2 stage from table 15-38, Lec2 pg12
-i_2 = i_tot/i_1;
+% i_1 = 4; % first gear ratio of 2 stage from table 15-38, Lec2 pg12
+% i_2 = i_tot/i_1;
 
 z_1_min = 19; % minimum 18-20 from teacher [# teeth]
-z_2 = i_1 * z_1_min
+% z_2 = i_1 * z_1_min
+z_2 = 97;
 
-z_1_divisors = alldivisors(z_1_min);
-z_2_divisors = alldivisors(z_2);
+z_1_divisors = alldivisors(z_1_min)
+z_2_divisors = alldivisors(z_2)
 stage1_divisors = intersect(z_1_divisors,z_2_divisors);
 
 if ~isempty(stage1_divisors) % greatest common denominator
     disp(["gcd stage 2: ",gcd(z_1_min,z_2)]);
-    warning("stage 1 gears are not relative prime")
+    warning("stage 1 gears are not relative prime") 
+else
+    disp(["gcd stage 2: ",gcd(z_1_min,z_2)]);
+    % disp("\nStage 1 gears ARE relative")
 end
 
 z_4 = 173; % from converting i_2 to rational
