@@ -10,7 +10,7 @@ i_totf
 % z_1 = gear 1 (stage 1), z_2 = gear 2 (stage 1)
 % z_3 = gear 3 (stage 2), z_4 = gear 4 (stage 2)
 
-% grat2stage(4.5,5,0.001,18,17.3);
+% grat2stage(4.5,5,0.001,18,17.3); % chosen
 % z_1: 18 , z_2: 79 
 % z_3: 18 , z_4: 71 
 % i_tot: 17.311728
