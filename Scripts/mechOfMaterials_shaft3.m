@@ -1,5 +1,5 @@
 clc; clear; close all;
-% MAS413 Project: Mechanics of Materials - Shaft 2
+% MAS413 Project: Mechanics of Materials - Shaft 3
 
 %% Constants
 
