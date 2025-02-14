@@ -1,7 +1,21 @@
 clc;close all;clear;
 
+%TODO: contact stress, usually sigma_o > sigma_b
+% change m_n to m_t for all calcs
+% check i_tot is 1% of 17.3
+
+%%% Chosen parameters
+material = "15 CrNi 6";
+c_dist_1 = 50e-3; % [m] center distance from first to second gear , temp val
+c_dist_2 = 150e-3; % [m] %TODO: remove
+
+%from requirements:
 alpha = 20; % [deg] helix angle, psi
 beta = 15;  % [deg] pressure angle, theta
+P1 = 12.5e3; % [W] input power
+i_tot_og = 17.3;
+V_b = 1.7; % bending safety factor, lec 4 pg 8
+V_o = 1.25; % contact safety factor, lec 4 pg 10
 
 % teeth #
 z_1 = 18;
@@ -14,35 +28,87 @@ i_s1 = z_2/z_1;
 i_s2 = z_4/z_3;
 i_tot = i_s1 * i_s2;
 
+if ( abs(i_tot - i_tot_og)/i_tot_og ) > 0.01 % check if new i_tot is within 1% of requirement
+    error("i_tot is greater than 1% of requirement")
+end
+
 % speed of gears [rpm]
 n_1 = 1450; % input
 n_2 = n_1 / i_s1;
 n_3 = n_2;
 n_4 = n_3/ i_s2;
 
-c_dist_1 = 50e-3; % [m] center distance from first to second gear , temp val
-c_dist_2 = 150e-3; % [m]
+% Torques in each gear [Nmm]
+T_1 = 82.32152229 * 1e3; % [Nm] -> [Nmm]
+T_2 = T_1 * i_s1;
+T_3 = T_2;
+T_4 = T_3 * i_s2;
 
+%%%% add helical module calcs
 
-% m_1 = (d_g1 / z_1) * 1e3 % [mm] module for stage 1, calc with diameter d_g1
-m_s1 = (2*c_dist_1 / (z_1 + z_2)) * 1e3; % [mm] module for stage 1
-m_s2 = (2*c_dist_2 / (z_3 + z_4)) * 1e3; % [mm] module for stage 2
+% Material limits
+sigma_b_lim_mat_list = [160,210,220,250,300,310,410,410]; % [MPa]
+sigma_o_lim_mat_list = [430,520,540,610,715,760,1600,1900]; % [MPa]
+mat_names = ["Fe 430", "Fe 590", "C 45 N", "C 60 N",...
+    "34 Cr 4 V", "42 CrMo 4 V", "16 MnCr 5", "15 CrNi 6"];
+sigma_b_lim_mat = dictionary(mat_names,sigma_b_lim_mat_list);
+sigma_o_lim_mat = dictionary(mat_names,sigma_o_lim_mat_list);
+
+K_L = 1.0; % lubrication factor 
+Z_v = 0.8; %FIX
+
+sigma_b_lim = sigma_b_lim_mat(material) / V_b;
+sigma_o_lim = (sigma_o_lim_mat(material) / V_o) * K_L * Z_v;
+
+%% Bending stress sigma_b from lectures
+A = 5; % [m/s] operating factor, tab 2 pg 6 lec 4
+K_a = 1.25; % external dynamic factor, electric motor with light shock, tab 1 pg 5 lec 4
+lambda = 10; % width factor, 8-12, pg 17 lec 1
+F_w = 271; % [sqrt(N/mm^2)] material factor, lec 4 pg 9
+F_c = 1.76; % edge form factor for alpha = 20, lec 4 pg 9
+
+%gammas for gears
+gamma_1 = 2.9; % teeth form factor, 18 teeth, tab 3 pg 7 lec 4
+gamma_2 = 2.24; % teeth form factor, 79 teeth, tab 3 pg 7 lec 4
+gamma_3 = 2.9; % teeth form factor, 18 teeth, tab 3 pg 7 lec 4
+gamma_4 = (2.30 + 2.24) / 2; % teeth form factor, 71 teeth, tab 3 pg 7 lec 4
+
+% calculating normal modules for each gear
+m_n_1 = module_calc(0.01, sigma_b_lim, sigma_o_lim, z_1, n_1, T_1, A, ...
+        K_a, lambda, gamma_1, F_w, F_c, "pinion", i_s1);
+m_n_2 = module_calc(0.01, sigma_b_lim, sigma_o_lim, z_2, n_2, T_2, A, ...
+        K_a, lambda, gamma_2, F_w, F_c, m_n_1 * z_1, i_s1);
+m_n_3 = module_calc(0.01, sigma_b_lim, sigma_o_lim, z_3, n_3, T_3, A, ...
+        K_a, lambda, gamma_3, F_w, F_c, "pinion", i_s2);
+m_n_4 = module_calc(0.01, sigma_b_lim, sigma_o_lim, z_4, n_4, T_4, A, ...
+        K_a, lambda, gamma_4, F_w, F_c, m_n_3 * z_3, i_s2);
+
+% converting to transverse (helical) module
+mt_1 = m_n_1 / cosd(alpha);
+mt_2 = m_n_2 / cosd(alpha);
+mt_3 = m_n_3 / cosd(alpha);
+mt_4 = m_n_4 / cosd(alpha);
+mt_s1 = max([mt_1,mt_2]) % 3.3181
+mt_s2 = max([mt_3,mt_4]) % 4.8243
+
+%%%%%%%% sizing calcs for helical gears
+
 
 % pitch circles [mm]
-d_g1 = m_s1 * z_1;
-d_g2 = m_s1 * z_2;
-d_g3 = m_s2 * z_3;
-d_g4 = m_s2 * z_4;
+d_g1 = mt_s1 * z_1;
+d_g2 = mt_s1 * z_2;
+d_g3 = mt_s2 * z_3;
+d_g4 = mt_s2 * z_4;
 
 % top (ht) and bottom (hf) heights [mm]
-ht_1 = m_s1; 
-ht_2 = m_s1; 
-ht_3 = m_s2; 
-ht_4 = m_s2; 
-hf_1 = 1.25 * m_s1; 
-hf_2 = 1.25 * m_s1; 
-hf_3 = 1.25 * m_s2; 
-hf_4 = 1.25 * m_s2; 
+ht_1 = mt_s1; 
+ht_2 = mt_s1; 
+ht_3 = mt_s2; 
+ht_4 = mt_s2; 
+hf_1 = 1.25 * mt_s1; 
+hf_2 = 1.25 * mt_s1; 
+hf_3 = 1.25 * mt_s2; 
+hf_4 = 1.25 * mt_s2; 
 
 % addedum [mm]
 dt_g1 = d_g1 + 2 * ht_1;
@@ -61,90 +127,33 @@ l_tot = (dt_g1 + d_g2/2 + d_g3/2 + dt_g4)/1e3
 l_in_to_out = c_dist_1 + c_dist_2
 
 % pitch [mm]
-p_s1 = pi*m_s1;
-p_s2 = pi*m_s2;
+p_s1 = pi*mt_s1;
+p_s2 = pi*mt_s2;
 
 % tooth thickness [mm]
-sn_s1 = p_s1/2 - 0.05 * m_s1;
-sn_s2 = p_s2/2 - 0.05 * m_s2;
+sn_s1 = p_s1/2 - 0.05 * mt_s1;
+sn_s2 = p_s2/2 - 0.05 * mt_s2;
 
 % hatch width [mm]
-en_s1 = p_s1/2 + 0.05 * m_s1;
-en_s2 = p_s2/2 + 0.05 * m_s2;
-
-% Torques in each gear [Nmm]
-T_1 = 82.32152229 * 1e3; % [Nm] -> [Nmm]
-T_2 = T_1 * i_s1;
-T_3 = T_2;
-T_4 = T_3 * i_s2;
-
-%% helical gear calcs
-
-%helical modules
-mt_s1 = m_s1 / cosd(alpha);
-mt_s2 = m_s2 / cosd(alpha);
-
-%width of helical gears
-lambda = 10; % width factor, 8-12, pg 17 lec 1
-b_s1 = mt_s1 * lambda;
-b_s2 = mt_s2 * lambda;
-
-% transverse pitch [mm] 
-pt_s1 = p_s1 / cosd(alpha);
-pt_s2 = p_s2 / cosd(alpha);
+en_s1 = p_s1/2 + 0.05 * mt_s1;
+en_s2 = p_s2/2 + 0.05 * mt_s2;
 
 % axial pitch [mm] 
 px_s1 = p_s1 / sind(alpha);
 px_s2 = p_s2 / sind(alpha);
 
 % diameteral pitch [mm]
-dp_s1 = pi/pt_s1;
-dp_s2 = pi/pt_s2;
+dp_s1 = pi/p_s1;
+dp_s2 = pi/p_s2;
 
-%% Bending stress sigma_b from lectures
-A = 5; % [m/s] operating factor, tab 2 pg 6 lec 4
-K_a = 1.25; % external dynamic factor, electric motor with light shock, tab 1 pg 5 lec 4
-V_b = 1.7; % safety factor, lec 4 pg 8
+%width of helical gears
+b_s1 = mt_s1 * lambda;
+b_s2 = mt_s2 * lambda;
 
-%gear 1
-gamma_1 = 2.9; % teeth form factor, 18 teeth, tab 3 pg 7 lec 4
-V_t_1 = n_1 * ((2*pi)/60) * ((d_g1*1e-3)/2); %pitch speed [m/s] 
-K_V_1 = (A + V_t_1) / A; % dynamic factor
-F_th_1 = T_1 / (d_g1 / 2); % theoretical tangential force component [N]
-%gear 2
-gamma_2 = 2.24; % teeth form factor, 79 teeth, tab 3 pg 7 lec 4
-V_t_2 = n_2 * ((2*pi)/60) * ((d_g2*1e-3)/2); %pitch speed [m/s] 
-K_V_2 = (A + V_t_2) / A; % dynamic factor
-F_th_2 = T_2 / (d_g2 / 2); % theoretical tangential force component [N]
-%gear 3
-gamma_3 = 2.9; % teeth form factor, 18 teeth, tab 3 pg 7 lec 4
-V_t_3 = n_3 * ((2*pi)/60) * ((d_g3*1e-3)/2); %pitch speed [m/s] 
-K_V_3 = (A + V_t_3) / A; % dynamic factor
-F_th_3 = T_3 / (d_g3 / 2); % theoretical tangential force component [N]
-%gear 4
-gamma_4 = (2.30 + 2.24) / 2; % teeth form factor, 71 teeth, tab 3 pg 7 lec 4
-V_t_4 = n_4 * ((2*pi)/60) * ((d_g4*1e-3)/2); %pitch speed [m/s] 
-K_V_4 = (A + V_t_4) / A; % dynamic factor
-F_th_4 = T_4 / (d_g4 / 2); % theoretical tangential force component [N]
-
-% Material bending limits
-sigma_b_lim_mat_list = [160,210,220,250,300,310,410,410]; % [MPa]
-sigma_b_lim_mat_names = ["Fe 430", "Fe 590", "C 45 N", "C 60 N",...
-    "34 Cr 4 V", "42 CrMo 4 V", "16 MnCr 5", "15 CrNi 6"];
-sigma_b_lim_mat = dictionary(sigma_b_lim_mat_names,sigma_b_lim_mat_list);
-sigma_b_lim = sigma_b_lim_mat("Fe 590") / V_b;
-
-% calculation of modules based on sigma_b_lim
-
-mt_1 = sqrt((F_th_1 * K_a * K_V_1 * gamma_1)/(sigma_b_lim * lambda));
-mt_2 = sqrt((F_th_2 * K_a * K_V_2 * gamma_2)/(sigma_b_lim * lambda));
-mt_3 = sqrt((F_th_3 * K_a * K_V_3 * gamma_3)/(sigma_b_lim * lambda));
-mt_4 = sqrt((F_th_4 * K_a * K_V_4 * gamma_4)/(sigma_b_lim * lambda));
-mt_s1 = max([mt_1,mt_2])
-mt_s2 = max([mt_3,mt_4])
 return
 %calculating bending stress with known module
 sigma_b_1 = (F_th_1* K_a * K_V_1 * gamma_1)/(b_s1*mt_s1) % [MPa]
+
 
 
 %% Bending stress sigma_b - from mechanics book
@@ -169,6 +178,8 @@ K_V_3 = dynamicFactor(n_3,Q_v,d_g3);
 K_V_4 = dynamicFactor(n_4,Q_v,d_g4);
 
 %TODO: continue with factors in page 758 machine design +
+
+
 
 return
 % bending stress of gear, (12.15si) pg 753 (spur) and pg 796 (helical)

@@ -23,26 +23,26 @@ m_n = max([m_n_b,m_n_o]);
 end
 
 function [m_n,sigma_b] = sigma_b_calc(step, sigma_b_lim, z, n, T, A, K_a, lambda, gamma)
-    m_n = 10; %start with high then go lower
-    new_sigma_b = -inf;
-    while new_sigma_b < sigma_b_lim
+    m_n = step; %start with step to prevent div by 0
+    new_sigma_b = inf;
+    while new_sigma_b > sigma_b_lim
         r = (m_n * z) / 2; % [mm] pitch circle radius
         V_t = n * ((2*pi)/60) * (r*1e-3); %pitch speed [m/s]
         K_V = (A + V_t) / A; % dynamic factor
         F_th = T/r; % theoretical tangential force component [N]
         new_sigma_b = (F_th * K_a * K_V * gamma) / (m_n^2 * lambda);
     
-        m_n = m_n - step;
+        m_n = m_n + step;
     end
     sigma_b = new_sigma_b;
 end
 
 function [m_n,sigma_o] = sigma_o_calc(step, sigma_o_lim, z, n, T, A, K_a, lambda, F_w, F_c, d_1, i)
-    m_n = 10; %start with high then go lower
-    new_sigma_o = -inf;
+    m_n = step; %start with step to prevent div by 0
+    new_sigma_o = inf;
     d_1_new = d_1;
-    while new_sigma_o < sigma_o_lim
-        if d_1 == "pinion"
+    while new_sigma_o > sigma_o_lim
+        if strcmp(d_1,"pinion")
             d_1_new = m_n * z;
         end
         r = (m_n * z) / 2;
@@ -52,7 +52,7 @@ function [m_n,sigma_o] = sigma_o_calc(step, sigma_o_lim, z, n, T, A, K_a, lambda
         new_sigma_o = F_w * F_c * sqrt((F_th * K_a * K_V * (i+1))/ ...
                                      (m_n * lambda * d_1_new * i ));
 
-        m_n = m_n - step;
+        m_n = m_n + step;
     end
     sigma_o = new_sigma_o;
 end
