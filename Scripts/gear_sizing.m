@@ -6,8 +6,6 @@ clc;close all;clear;
 
 %%% Chosen parameters
 material = "15 CrNi 6";
-c_dist_1 = 50e-3; % [m] center distance from first to second gear , temp val
-c_dist_2 = 150e-3; % [m] %TODO: remove
 
 %from requirements:
 alpha = 20; % [deg] helix angle, psi
@@ -123,8 +121,7 @@ df_g3 = d_g3 - 2 * hf_3;
 df_g4 = d_g4 - 2 * hf_4;
 
 %gearbox total length of gears
-l_tot = (dt_g1 + d_g2/2 + d_g3/2 + dt_g4)/1e3
-l_in_to_out = c_dist_1 + c_dist_2
+l_tot = (dt_g1 + d_g2/2 + d_g3/2 + dt_g4)/1e3; % [m]
 
 % pitch [mm]
 p_s1 = pi*mt_s1;
@@ -149,6 +146,12 @@ dp_s2 = pi/p_s2;
 %width of helical gears
 b_s1 = mt_s1 * lambda;
 b_s2 = mt_s2 * lambda;
+
+% fillet radius
+pd_in_s1 = 25.4/mt_s1; % [1/in] machine design eq 12.4d pg735
+r_f_1 = (0.3/pd_in_s1)*25.4; %[in] -> [mm] machine design tab 12-1 pg735
+pd_in_s2 = 25.4/mt_s2; % [1/in] machine design eq 12.4d pg735
+r_f_2 = (0.3/pd_in_s2)*25.4; %[in] -> [mm] machine design tab 12-1 pg735
 
 return
 %calculating bending stress with known module
