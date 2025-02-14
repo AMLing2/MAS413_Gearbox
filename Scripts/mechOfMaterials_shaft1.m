@@ -182,7 +182,7 @@ plot(x,T,'Color','#FF8800','LineWidth',2)
 
 x = linspace(L_AB, L_AG1, resolution);
 P = zeros(size(x)); % [N]
-V = ones(size(x)) * (F_Bz); % [N]
+V = ones(size(x)) * (-F_Bz); % [N]
 M = - F_Bz * (x - L_AB); % [Nm]
 T = ones(size(x)) * T_M; % [Nm]
 
@@ -203,7 +203,7 @@ plot(x,T,'Color','#FF8800','LineWidth',2)
 
 x = linspace(L_AG1, L_AC, resolution);
 P = ones(size(x)) * (-F_a1); % [N]
-V = ones(size(x)) * (F_Bz - F_r1); % [N]
+V = ones(size(x)) * (F_r1 - F_Bz); % [N]
 M = F_r1 * (x - L_AG1) - F_Bz * (x - L_AB) - F_a1 * r_G1; % [Nm]
 T = ones(size(x)) * (T_M - F_t1*r_G1); % [Nm]
 
