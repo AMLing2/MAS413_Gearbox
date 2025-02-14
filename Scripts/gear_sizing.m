@@ -54,11 +54,11 @@ mat_names = ["Fe 430", "Fe 590", "C 45 N", "C 60 N",...
 sigma_b_lim_mat = dictionary(mat_names,sigma_b_lim_mat_list);
 sigma_o_lim_mat = dictionary(mat_names,sigma_o_lim_mat_list);
 
-K_L = 1.0; % lubrication factor 
-Z_v = 0.8; %FIX
+K_L = 1.0; % lubrication factor pg 10 lec 4
 
 sigma_b_lim = sigma_b_lim_mat(material) / V_b;
-sigma_o_lim = (sigma_o_lim_mat(material) / V_o) * K_L * Z_v;
+% Z_v is calculated in the module_calc function
+sigma_o_lim = (sigma_o_lim_mat(material) / V_o) * K_L;
 
 %% Bending stress sigma_b from lectures
 A = 5; % [m/s] operating factor, tab 2 pg 6 lec 4
@@ -88,8 +88,8 @@ mt_1 = m_n_1 / cosd(alpha);
 mt_2 = m_n_2 / cosd(alpha);
 mt_3 = m_n_3 / cosd(alpha);
 mt_4 = m_n_4 / cosd(alpha);
-mt_s1 = max([mt_1,mt_2]) % 3.3181
-mt_s2 = max([mt_3,mt_4]) % 4.8243
+mt_s1 = max([mt_1,mt_2]) % 3.1180 w/ 15 CrNi 6
+mt_s2 = max([mt_3,mt_4]) % 4.5334 w/ 15 CrNi 6
 
 %%%%%%%% sizing calcs for helical gears
 
