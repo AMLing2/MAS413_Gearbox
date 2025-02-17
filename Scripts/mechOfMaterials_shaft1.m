@@ -26,8 +26,10 @@ T_M = P_1 / omega_1; % [Nm]
 F_t1 = T_M / r_G1; % [N]
 F_a1 = F_t1 * tand(beta); % [N]
 F_r1 = F_t1 * tand(alpha)/cosd(beta); % [N]
-    % For Reaction forces @ bearings
+    
+% For Reaction forces @ bearings
 L_BC = L_BG1 + L_G1C; % [m]
+
 F_By = F_t1*L_G1C/L_BC; % [N]
 F_Bz = F_r1*L_G1C/L_BC; % [N]
 
