@@ -1,19 +1,28 @@
 clc;close all;clear;
 
-%TODO: contact stress, usually sigma_o > sigma_b
-% change m_n to m_t for all calcs
-% check i_tot is 1% of 17.3
+%TODO: 
+% contact stress, usually sigma_o > sigma_b - done
+% change m_n to m_t for all calcs - done
+% check i_tot is 1% of 17.3 - done
+% contact ratio between 1 and 2 - checked
+% material factor see line 66
+% stages must obey tables 12-4 12-5 pg 737, add check z2,z4 < 1309 ?
+% increase lambda to 14?
 
 %%% Chosen parameters
 material = "15 CrNi 6";
+lambda = 12; % width factor, 8-12, pg 17 lec 1
 
 %from requirements:
-alpha = 20; % [deg] helix angle, psi
-beta = 15;  % [deg] pressure angle, theta
+beta = 15;   % [deg] helix angle, psi
+alpha = 20;  % [deg] pressure angle, theta
 P1 = 12.5e3; % [W] input power
 i_tot_og = 17.3;
 V_b = 1.7; % bending safety factor, lec 4 pg 8
 V_o = 1.25; % contact safety factor, lec 4 pg 10
+
+CR_min = 1.4; % machine design pg 738
+a_CR_min = 1.15; % machine design pg 796
 
 % teeth #
 z_1 = 18;
@@ -61,7 +70,6 @@ sigma_o_lim = (sigma_o_lim_mat(material) / V_o) * K_L;
 %% Bending stress sigma_b from lectures
 A = 5; % [m/s] operating factor, tab 2 pg 6 lec 4
 K_a = 1.25; % external dynamic factor, electric motor with light shock, tab 1 pg 5 lec 4
-lambda = 10; % width factor, 8-12, pg 17 lec 1
 F_w = 271; % [sqrt(N/mm^2)] material factor, lec 4 pg 9
 F_c = 1.76; % edge form factor for alpha = 20, lec 4 pg 9
 
@@ -82,10 +90,10 @@ m_n_4 = module_calc(0.01, sigma_b_lim, sigma_o_lim, z_4, n_4, T_4, A, ...
         K_a, lambda, gamma_4, F_w, F_c, m_n_3 * z_3, i_s2);
 
 % converting to transverse (helical) module
-mt_1 = m_n_1 / cosd(alpha);
-mt_2 = m_n_2 / cosd(alpha);
-mt_3 = m_n_3 / cosd(alpha);
-mt_4 = m_n_4 / cosd(alpha);
+mt_1 = m_n_1 / cosd(beta);
+mt_2 = m_n_2 / cosd(beta);
+mt_3 = m_n_3 / cosd(beta);
+mt_4 = m_n_4 / cosd(beta);
 mt_s1 = max([mt_1,mt_2]) % 3.1180 w/ 15 CrNi 6
 mt_s2 = max([mt_3,mt_4]) % 4.5334 w/ 15 CrNi 6
 
@@ -108,7 +116,7 @@ hf_2 = 1.25 * mt_s1;
 hf_3 = 1.25 * mt_s2; 
 hf_4 = 1.25 * mt_s2; 
 
-% addedum [mm]
+% addedum ? [mm]
 dt_g1 = d_g1 + 2 * ht_1;
 dt_g2 = d_g2 + 2 * ht_2;
 dt_g3 = d_g3 + 2 * ht_3;
@@ -136,16 +144,20 @@ en_s1 = p_s1/2 + 0.05 * mt_s1;
 en_s2 = p_s2/2 + 0.05 * mt_s2;
 
 % axial pitch [mm] 
-px_s1 = p_s1 / sind(alpha);
-px_s2 = p_s2 / sind(alpha);
+px_s1 = p_s1 / sind(beta);
+px_s2 = p_s2 / sind(beta);
 
 % diameteral pitch [mm]
 dp_s1 = pi/p_s1;
 dp_s2 = pi/p_s2;
 
-%width of helical gears
+% width of helical gears [mm]
 b_s1 = mt_s1 * lambda;
 b_s2 = mt_s2 * lambda;
+
+% rough sum of material for gears [cm^3]
+material_sum = (pi * b_s1 * (((d_g1/2)^2)+(d_g2/2)^2) + ...
+               pi * b_s2 * (((d_g3/2)^2)+(d_g4/2)^2)) * 1e-3
 
 % fillet radius
 pd_in_s1 = 25.4/mt_s1; % [1/in] machine design eq 12.4d pg735
@@ -153,47 +165,29 @@ r_f_1 = (0.3/pd_in_s1)*25.4; %[in] -> [mm] machine design tab 12-1 pg735
 pd_in_s2 = 25.4/mt_s2; % [1/in] machine design eq 12.4d pg735
 r_f_2 = (0.3/pd_in_s2)*25.4; %[in] -> [mm] machine design tab 12-1 pg735
 
-return
-%calculating bending stress with known module
-sigma_b_1 = (F_th_1* K_a * K_V_1 * gamma_1)/(b_s1*mt_s1) % [MPa]
+% center distance
+C_s1 = d_g1/2 + d_g2/2; % [mm]
+C_s2 = d_g3/2 + d_g4/2; % [mm]
 
-
-
-%% Bending stress sigma_b - from mechanics book
-return
-%TODO:
-%pg 753 machine design - assumptions
-%contact ratio between 1 and 2
-% stages must obey tables 12-4 12-5
-
-% gemoetry factor J (helical) pg 798 mechanical design
-% Tab 13-2 (psi = 20, theta = 20)
-J_1 = 0.47; % p = 17 teeth, g = 55 teeth
-J_2 = 0.54;
-J_3 = 0.47; % p = 17 teeth, g = 55 teeth
-J_4 = 0.54;
-
-% dynamic factor K_V
-Q_v = 9; % 6 to 11, based on lowest quality gear in stage, 12.17b pg 754
-K_V_1 = dynamicFactor(n_1,Q_v,d_g1);
-K_V_2 = dynamicFactor(n_2,Q_v,d_g2);
-K_V_3 = dynamicFactor(n_3,Q_v,d_g3);
-K_V_4 = dynamicFactor(n_4,Q_v,d_g4);
-
-%TODO: continue with factors in page 758 machine design +
-
-
-
-return
-% bending stress of gear, (12.15si) pg 753 (spur) and pg 796 (helical)
-sigma_b_s1 = (W_t/(F*m*J)) * (k_a*K_m/K_V) * K_s * K_B * K_I;
-
-
-%% FUNCTIONS
-function [K_V] = dynamicFactor(n,Q_V,d_g)
-% Q_V = 6 to 11, based on lowest quality gear in stage, 12.17b pg 754
-    V_t = n * ((2*pi)/60) * ((d_g*1e-3)/2); %pitch speed m/s 
-    B = ((12 - Q_V)^(2/3))/4;
-    A = 50 + 56 * (1-B);
-    K_V = (A/(A + sqrt(200 * V_t)))^B;
+% contact ratio:
+Z_s1 =  sqrt((d_g1/2 + ht_1)^2 - (d_g1/2 * cosd(alpha))^2) + ...
+        sqrt((d_g2/2 + ht_2)^2 - (d_g2/2 * cosd(alpha))^2) ...
+        - C_s1 * sind(alpha); % eq 12.2 machine design pg 730
+P_b_s1 = (pi * d_g1/ z_1) * cosd(alpha); % eq 12.3b machine design pg 734
+CR_s1 = Z_s1/P_b_s1; % eq 12.7a machine design pg 738
+Z_s2 =  sqrt((d_g3/2 + ht_3)^2 - (d_g3/2 * cosd(alpha))^2) + ...
+        sqrt((d_g4/2 + ht_4)^2 - (d_g4/2 * cosd(alpha))^2) ...
+        - C_s2 * sind(alpha); % eq 12.2 machine design pg 730
+P_b_s1 = (pi * d_g3/ z_3) * cosd(alpha); % eq 12.3b machine design pg 734
+CR_s2 = Z_s2/P_b_s1; % eq 12.7a machine design pg 738
+if or((CR_s1 < CR_min),(CR_s2 < CR_min))
+    error("Contact ratio is less than minimum")
+end
+% axial contact ratio:
+m_f_s1 = (b_s1 * (pd_in_s1 / 25.4) * tand(beta)) / pi; % eq 13.5 machine design pg 796
+m_f_s2 = (b_s2 * (pd_in_s2 / 25.4) * tand(beta)) / pi;
+if or((m_f_s1 < 1),(m_f_s2 < 1))
+    error("Axial contact ratio is under 1")
+elseif or((m_f_s1 < a_CR_min),(m_f_s2 < a_CR_min))
+    warning("Axial contact ratio is low")
 end
