@@ -1,11 +1,16 @@
 clc;close all;clear;
 
-%TODO: contact stress, usually sigma_o > sigma_b
-% change m_n to m_t for all calcs
+%TODO: 
+% contact stress, usually sigma_o > sigma_b - fixed
+% change m_n to m_t for all calcs - fixed
 % check i_tot is 1% of 17.3
+% contact ratio between 1 and 2 - checked
+% material factor see line 66
+% stages must obey tables 12-4 12-5
 
 %%% Chosen parameters
 material = "15 CrNi 6";
+CR_min = 1.4; % machine design pg 738
 
 %from requirements:
 alpha = 20; % [deg] helix angle, psi
@@ -108,7 +113,7 @@ hf_2 = 1.25 * mt_s1;
 hf_3 = 1.25 * mt_s2; 
 hf_4 = 1.25 * mt_s2; 
 
-% addedum [mm]
+% addedum ? [mm]
 dt_g1 = d_g1 + 2 * ht_1;
 dt_g2 = d_g2 + 2 * ht_2;
 dt_g3 = d_g3 + 2 * ht_3;
@@ -143,7 +148,7 @@ px_s2 = p_s2 / sind(alpha);
 dp_s1 = pi/p_s1;
 dp_s2 = pi/p_s2;
 
-%width of helical gears
+% width of helical gears
 b_s1 = mt_s1 * lambda;
 b_s2 = mt_s2 * lambda;
 
@@ -153,6 +158,31 @@ r_f_1 = (0.3/pd_in_s1)*25.4; %[in] -> [mm] machine design tab 12-1 pg735
 pd_in_s2 = 25.4/mt_s2; % [1/in] machine design eq 12.4d pg735
 r_f_2 = (0.3/pd_in_s2)*25.4; %[in] -> [mm] machine design tab 12-1 pg735
 
+% center distance
+C_s1 = d_g1/2 + d_g2/2; % [mm]
+C_s2 = d_g3/2 + d_g4/2; % [mm]
+
+% contact ratio:
+Z_s1 =  sqrt((d_g1/2 + ht_1)^2 - (d_g1/2 * cosd(beta))^2) + ...
+        sqrt((d_g2/2 + ht_2)^2 - (d_g2/2 * cosd(beta))^2) ...
+        - C_s1 * sind(beta); % eq 12.2 machine design pg 730
+P_b_s1 = (pi * d_g1/ z_1) * cosd(beta); % eq 12.3b machine design pg 734
+CR_s1 = Z_s1/P_b_s1; % eq 12.7a machine design pg 738
+Z_s2 =  sqrt((d_g3/2 + ht_3)^2 - (d_g3/2 * cosd(beta))^2) + ...
+        sqrt((d_g4/2 + ht_4)^2 - (d_g4/2 * cosd(beta))^2) ...
+        - C_s2 * sind(beta); % eq 12.2 machine design pg 730
+P_b_s1 = (pi * d_g3/ z_3) * cosd(beta); % eq 12.3b machine design pg 734
+CR_s2 = Z_s2/P_b_s1; % eq 12.7a machine design pg 738
+if or((CR_s1 < CR_min),(CR_s2 < CR_min))
+    error("Contact ratio is less than minimum")
+end
+% axial contact ratio:
+m_f_s1 = (b_s1 * (pd_in_s1 / 25.4) * tand(alpha)) / pi; % eq 13.5 machine design pg 796
+m_f_s2 = (b_s2 * (pd_in_s2 / 25.4) * tand(alpha)) / pi; % optimally 1.15
+if or((CR_s1 < 1),(CR_s2 < 1))
+    error("Axial contact ratio is low")
+end
+
 return
 %calculating bending stress with known module
 sigma_b_1 = (F_th_1* K_a * K_V_1 * gamma_1)/(b_s1*mt_s1) % [MPa]
@@ -161,10 +191,6 @@ sigma_b_1 = (F_th_1* K_a * K_V_1 * gamma_1)/(b_s1*mt_s1) % [MPa]
 
 %% Bending stress sigma_b - from mechanics book
 return
-%TODO:
-%pg 753 machine design - assumptions
-%contact ratio between 1 and 2
-% stages must obey tables 12-4 12-5
 
 % gemoetry factor J (helical) pg 798 mechanical design
 % Tab 13-2 (psi = 20, theta = 20)

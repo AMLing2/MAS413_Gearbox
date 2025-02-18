@@ -4,14 +4,14 @@
 % z_1 : number of teeth in first stage pinion
 % i_tot : total gear ratio requirement
 
-%[z_1_o,z_2_o,z_3_o,z_4_o,i_tot_o]
+% output format: [z_1,z_2,z_3,z_4,i_tot]
 function [z_smallest,z_closest] = grat2stage(i_s1_min,i_s1_max,inc,z_1,i_tot)
   z_smallest = inf(1,5);
   z_closest = zeros(1,5);
   z_closest(5) = inf;
   s2_z1_min = 18; % same min as z_1 min
-  s2_z1_max = 30; % arbitrary max, probably bad to go over this, both min and max subject to change
-  tol = 0.001;
+  s2_z1_max = 30; % arbitrary max, expensive to go over this, both min and max subject to change
+  tol = 0.001; % only used for printing
   for s1_grat = i_s1_min:inc:i_s1_max
     z_2 = round(s1_grat * z_1);
     while gcd(z_2,z_1) > 1 % -1 to z2 until its relative prime (-1 gave closer final results)
