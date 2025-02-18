@@ -4,9 +4,11 @@
 % z_1 : number of teeth in first stage pinion
 % i_tot : total gear ratio requirement
 
-function [z_1_o,z_2_o,z_3_o,z_4_o,i_tot_o] = grat2stage(i_s1_min,i_s1_max,inc,z_1,i_tot)
-  z_1_o = 0; z_2_o = 0; z_3_o = 0; z_4_o = 0;
-  i_tot_o = inf;
+%[z_1_o,z_2_o,z_3_o,z_4_o,i_tot_o]
+function [z_smallest,z_closest] = grat2stage(i_s1_min,i_s1_max,inc,z_1,i_tot)
+  z_smallest = inf(1,5);
+  z_closest = zeros(1,5);
+  z_closest(5) = inf;
   s2_z1_min = 18; % same min as z_1 min
   s2_z1_max = 30; % arbitrary max, probably bad to go over this, both min and max subject to change
   tol = 0.001;
@@ -22,11 +24,23 @@ function [z_1_o,z_2_o,z_3_o,z_4_o,i_tot_o] = grat2stage(i_s1_min,i_s1_max,inc,z_
         z_4 = z_4 + 1;
       end
       i_tot_t = (z_2/z_1) * (z_4/z_3); % calc total gear ratio
-      if (abs(i_tot_t - i_tot)) < (abs(i_tot_o - i_tot)) % compare to lowest found
-        i_tot_o = i_tot_t;
-        z_1_o = z_1; z_2_o = z_2;  z_3_o = z_3;  z_4_o = z_4;
-        if ismembertol(i_tot_o,i_tot,tol) % i_tot_o == i_tot
-          sprintf("close match found: \n z_1: %d , z_2: %d \n z_3: %d , z_4: %d \n i_tot: %.6f ",z_1,z_2, z_3, z_4, i_tot_o)
+
+      % compare to smallest total z found:
+      if ( abs(i_tot_t - i_tot)/i_tot ) < 0.01 % check if i_tot within 1% of i_tot
+        if sum([z_1,z_2,z_3,z_4]) < sum(z_smallest(1:4)) % check if smaller total z than prev
+            z_smallest(1) = z_1; z_smallest(2) = z_2; % save to array
+            z_smallest(3) = z_3; z_smallest(4) = z_4;
+            z_smallest(5) = i_tot_t;
+        end
+      end
+
+      % compare to closest to i_tot found:
+      if (abs(i_tot_t - i_tot)) < (abs(z_closest(5) - i_tot)) 
+        z_closest(1) = z_1; z_closest(2) = z_2; % save to array
+        z_closest(3) = z_3;  z_closest(4) = z_4;
+        z_closest(5) = i_tot_t;
+        if ismembertol(z_closest(5),i_tot,tol) % i_tot_o == i_tot
+          sprintf("close match found: \n z_1: %d , z_2: %d \n z_3: %d , z_4: %d \n i_tot: %.6f ",z_1,z_2, z_3, z_4, i_tot_t)
         end
       end
     end
