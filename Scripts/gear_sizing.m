@@ -5,7 +5,7 @@ clc;close all;clear;
 % change m_n to m_t for all calcs - done
 % check i_tot is 1% of 17.3 - done
 % contact ratio between 1 and 2 - checked
-% material factor see line 66
+% material factor see line 73
 % stages must obey tables 12-4 12-5 pg 737, add check z2,z4 < 1309 ?
 % increase lambda to 14?
 
@@ -53,13 +53,25 @@ T_4 = T_3 * i_s2;
 
 %%%% add helical module calcs
 
+% module of elasticity and material standards (no price):
+% Fe 430: https://matweb.com/search/DataSheet.aspx?MatGUID=c2ba59bb365942a7b6da46f1cee370b8
+% Fe 590: https://matweb.com/search/DataSheet.aspx?MatGUID=1dc0414bd1ea4061a5dc09382c455e2a
+% C 45 N: https://matweb.com/search/DataSheet.aspx?MatGUID=2ca9b42e83894e8a8a61385fd7da63ae
+% C 60 N: https://matweb.com/search/DataSheet.aspx?MatGUID=0a471605c1324daa910855e54a21fab3
+% 34 Cr 4 V: https://matweb.com/search/DataSheet.aspx?MatGUID=4877d405464f448a96786c8cbd00d3b5
+% 42 CrMo 4 V: https://matweb.com/search/DataSheet.aspx?MatGUID=38108bfd64c44b4c9c6a02af78d5b6c6
+% 16 MnCr 5: https://matweb.com/search/DataSheet.aspx?MatGUID=2ab813ffa05d40329dffe0ee7f58b5de
+% 15 CrNi 6: https://matweb.com/search/DataSheet.aspx?MatGUID=9ab3bf332758468ab36010790bd94349 ?
+
 % Material limits
 sigma_b_lim_mat_list = [160,210,220,250,300,310,410,410]; % [MPa]
 sigma_o_lim_mat_list = [430,520,540,610,715,760,1600,1900]; % [MPa]
+E_mat_list = [200 200 210 210 205 205 200 210]; %GPa
 mat_names = ["Fe 430", "Fe 590", "C 45 N", "C 60 N",...
     "34 Cr 4 V", "42 CrMo 4 V", "16 MnCr 5", "15 CrNi 6"];
 sigma_b_lim_mat = dictionary(mat_names,sigma_b_lim_mat_list);
 sigma_o_lim_mat = dictionary(mat_names,sigma_o_lim_mat_list);
+E_mat_dic = dictionary(mat_names,E_mat_list);
 
 K_L = 1.0; % lubrication factor pg 10 lec 4
 
@@ -70,10 +82,10 @@ sigma_o_lim = (sigma_o_lim_mat(material) / V_o) * K_L;
 %% Bending stress sigma_b from lectures
 A = 5; % [m/s] operating factor, tab 2 pg 6 lec 4
 K_a = 1.25; % external dynamic factor, electric motor with light shock, tab 1 pg 5 lec 4
-F_w = 271; % [sqrt(N/mm^2)] material factor, lec 4 pg 9
+F_w = sqrt(0.35 * (E_mat_dic(material)*1e3)); % [sqrt(N/mm^2)] material factor, lec 4 pg 9
 F_c = 1.76; % edge form factor for alpha = 20, lec 4 pg 9
 
-%gammas for gears
+% gammas for gears
 gamma_1 = 2.9; % teeth form factor, 18 teeth, tab 3 pg 7 lec 4
 gamma_2 = 2.24; % teeth form factor, 79 teeth, tab 3 pg 7 lec 4
 gamma_3 = 2.9; % teeth form factor, 18 teeth, tab 3 pg 7 lec 4
@@ -100,29 +112,29 @@ mt_s2 = max([mt_3,mt_4]) % 4.5334 w/ 15 CrNi 6
 %%%%%%%% sizing calcs for helical gears
 
 
-% pitch circles [mm]
+% pitch circle diameters [mm]
 d_g1 = mt_s1 * z_1;
 d_g2 = mt_s1 * z_2;
 d_g3 = mt_s2 * z_3;
-d_g4 = mt_s2 * z_4;
+d_g4 = mt_s2 * z_4
 
 % top (ht) and bottom (hf) heights [mm]
-ht_1 = mt_s1; 
-ht_2 = mt_s1; 
+ht_1 = mt_s1; % also called addendum
+ht_2 = mt_s1; % see figure 12-8 pg 734 machine element
 ht_3 = mt_s2; 
 ht_4 = mt_s2; 
-hf_1 = 1.25 * mt_s1; 
+hf_1 = 1.25 * mt_s1;  % also called dedendum
 hf_2 = 1.25 * mt_s1; 
 hf_3 = 1.25 * mt_s2; 
 hf_4 = 1.25 * mt_s2; 
 
-% addedum ? [mm]
+% addedum circle [mm]
 dt_g1 = d_g1 + 2 * ht_1;
 dt_g2 = d_g2 + 2 * ht_2;
 dt_g3 = d_g3 + 2 * ht_3;
 dt_g4 = d_g4 + 2 * ht_4;
 
-% dedendum [mm]
+% dedendum circle [mm]
 df_g1 = d_g1 - 2 * hf_1;
 df_g2 = d_g2 - 2 * hf_2;
 df_g3 = d_g3 - 2 * hf_3;
@@ -155,7 +167,7 @@ dp_s2 = pi/p_s2;
 b_s1 = mt_s1 * lambda;
 b_s2 = mt_s2 * lambda;
 
-% rough sum of material for gears [cm^3]
+% rough sum of material volume for gears [cm^3]
 material_sum = (pi * b_s1 * (((d_g1/2)^2)+(d_g2/2)^2) + ...
                pi * b_s2 * (((d_g3/2)^2)+(d_g4/2)^2)) * 1e-3
 
@@ -184,8 +196,8 @@ if or((CR_s1 < CR_min),(CR_s2 < CR_min))
     error("Contact ratio is less than minimum")
 end
 % axial contact ratio:
-m_f_s1 = (b_s1 * (pd_in_s1 / 25.4) * tand(beta)) / pi; % eq 13.5 machine design pg 796
-m_f_s2 = (b_s2 * (pd_in_s2 / 25.4) * tand(beta)) / pi;
+m_f_s1 = (b_s1 * tand(beta)) / (pi * mt_s1); % eq 13.5 machine design pg 796
+m_f_s2 = (b_s2 * tand(beta)) / (pi * mt_s2);
 if or((m_f_s1 < 1),(m_f_s2 < 1))
     error("Axial contact ratio is under 1")
 elseif or((m_f_s1 < a_CR_min),(m_f_s2 < a_CR_min))
