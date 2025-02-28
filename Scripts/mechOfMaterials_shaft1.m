@@ -3,6 +3,9 @@ clc; clear; close all;
 
 %% Constants
 
+% Plotting Area
+colFill = [0.7765 0.9176 0.9843];
+
 % Given information
 n_1 = 1450; % [RPM]
 omega_1 = n_1 * 2*pi / 60; % [rad/sec]
@@ -44,6 +47,13 @@ yPos = 3;
 wPlot = 22;
 hPlot = 16;
 
+% Initialize XY Plots
+xy_P = [];
+xy_V = [];
+xy_M = [];
+xy_T = [];
+xy_x = [];
+
 XYplaneFig = figure(figHandle);
 set(figHandle,'Units','Centimeter')
 set(figHandle,'Position',[xPos yPos wPlot hPlot]);
@@ -68,65 +78,42 @@ title('Axial Torque T(x)')
 % 0 < x < L_AB
 
 x = linspace(0, L_AB, resolution);
-P = zeros(size(x)); % [N]
-V = zeros(size(x)); % [N]
-M = zeros(size(x)); % [Nm]
-T = ones(size(x)) * T_M; % [Nm]
-
-subplot(2,2,1)
-hold on
-plot(x,P,'r','LineWidth',2)
-subplot(2,2,2)
-hold on
-plot(x,V,'r','LineWidth',2)
-subplot(2,2,3)
-hold on
-plot(x,M,'Color','#FF8800','LineWidth',2)
-subplot(2,2,4)
-hold on
-plot(x,T,'Color','#FF8800','LineWidth',2)
+xy_x = [xy_x, x];
+xy_P = [xy_P, zeros(size(x))]; % [N]
+xy_V = [xy_V, zeros(size(x))]; % [N]
+xy_M = [xy_M, zeros(size(x))]; % [Nm]
+xy_T = [xy_T, ones(size(x)) * T_M ]; % [Nm]
 
 % L_AB < x < L_AG1
 
 x = linspace(L_AB, L_AG1, resolution);
-P = zeros(size(x)); % [N]
-V = ones(size(x)) * (-F_By); % [N]
-M = F_By * (x - L_AB); % [Nm]
-T = ones(size(x)) * T_M; % [Nm]
-
-subplot(2,2,1)
-hold on
-plot(x,P,'r','LineWidth',2)
-subplot(2,2,2)
-hold on
-plot(x,V,'r','LineWidth',2)
-subplot(2,2,3)
-hold on
-plot(x,M,'Color','#FF8800','LineWidth',2)
-subplot(2,2,4)
-hold on
-plot(x,T,'Color','#FF8800','LineWidth',2)
+xy_x = [xy_x, x];
+xy_P = [xy_P, zeros(size(x))]; % [N]
+xy_V = [xy_V, ones(size(x)) * (-F_By)]; % [N]
+xy_M = [xy_M, F_By * (x - L_AB)]; % [Nm]
+xy_T = [xy_T, ones(size(x)) * T_M]; % [Nm]
 
 % L_AG1 < x < L_AC
 
 x = linspace(L_AG1, L_AC, resolution);
-P = ones(size(x)) * (-F_a1); % [N]
-V = ones(size(x)) * (F_By - F_t1); % [N]
-M = F_By * (x - L_AB) - F_t1 * (x - L_AG1); % [Nm]
-T = ones(size(x)) * (T_M - F_t1*r_G1); % [Nm]
+xy_x = [xy_x, x];
+xy_P = [xy_P, ones(size(x)) * (-F_a1)]; % [N]
+xy_V = [xy_V, ones(size(x)) * (F_By - F_t1)]; % [N]
+xy_M = [xy_M, F_By * (x - L_AB) - F_t1 * (x - L_AG1)]; % [Nm]
+xy_T = [xy_T, ones(size(x)) * (T_M - F_t1*r_G1)]; % [Nm]
 
 subplot(2,2,1)
 hold on
-plot(x,P,'r','LineWidth',2)
+plotLD(xy_x,xy_P, colFill)
 subplot(2,2,2)
 hold on
-plot(x,V,'r','LineWidth',2)
+plotLD(xy_x,xy_V, colFill)
 subplot(2,2,3)
 hold on
-plot(x,M,'Color','#FF8800','LineWidth',2)
+plotLD(xy_x,xy_M, colFill)
 subplot(2,2,4)
 hold on
-plot(x,T,'Color','#FF8800','LineWidth',2)
+plotLD(xy_x,xy_T, colFill)
 
 %% XZ - Plane
 
@@ -212,6 +199,7 @@ T = ones(size(x)) * (T_M - F_t1*r_G1); % [Nm]
 subplot(2,2,1)
 hold on
 plot(x,P,'r','LineWidth',2)
+
 subplot(2,2,2)
 hold on
 plot(x,V,'r','LineWidth',2)
