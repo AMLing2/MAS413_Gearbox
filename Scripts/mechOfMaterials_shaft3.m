@@ -3,6 +3,12 @@ clc; clear; close all;
 
 %% Constants
 
+% Common Plotting Constants
+colFill = [0.7765 0.9176 0.9843];
+resolution = 100;
+wPlot = 22;
+hPlot = 16;
+
 % Given information
 n_1 = 1450; % [RPM]
 omega_1 = n_1 * 2*pi / 60; % [rad/sec]
