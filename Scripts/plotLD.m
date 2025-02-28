@@ -17,11 +17,14 @@ function plotLD(x, f, colFill)
     yline(0, 'k')
 
     % Detect Jumps and Draw Line
-    jumpTol = 10;
+    jumpTol = 1;
     jumps = find( abs( diff(f) ) > jumpTol );
     for i = 1 : length(jumps)
         xJump = x(jumps(i) + 1);
-        plot( [ xJump xJump ], [ f(jumps(i), f(jumps(i)+1) )] )
+        fPreJump = f(jumps(i));
+        fPostJump = f(jumps(i));
+        plot( [ xJump xJump ], [ fPreJump, fPostJump] , ...
+              colLine, 'LineWidth', lineW)
     end
 
 end
