@@ -3,8 +3,11 @@ clc; clear; close all;
 
 %% Constants
 
-% Plotting Area
+% Common Plotting Constants
 colFill = [0.7765 0.9176 0.9843];
+resolution = 100;
+wPlot = 22;
+hPlot = 16;
 
 % Given information
 n_1 = 1450; % [RPM]
@@ -40,19 +43,16 @@ F_Bz = F_r1*L_G1C/L_BC; % [N]
 %% XY - Plane
 
 % Figure setup
-resolution = 100;
 figHandle = 1;
 xPos = 10;
 yPos = 3;
-wPlot = 22;
-hPlot = 16;
 
 % Initialize XY Plots
+xy_x = [];
 xy_P = [];
 xy_V = [];
 xy_M = [];
 xy_T = [];
-xy_x = [];
 
 XYplaneFig = figure(figHandle);
 set(figHandle,'Units','Centimeter')
@@ -76,7 +76,6 @@ ylabel('[Nm]')
 title('Axial Torque T(x)')
 
 % 0 < x < L_AB
-
 x = linspace(0, L_AB, resolution);
 xy_x = [xy_x, x];
 xy_P = [xy_P, zeros(size(x))]; % [N]
@@ -85,7 +84,6 @@ xy_M = [xy_M, zeros(size(x))]; % [Nm]
 xy_T = [xy_T, ones(size(x)) * T_M ]; % [Nm]
 
 % L_AB < x < L_AG1
-
 x = linspace(L_AB, L_AG1, resolution);
 xy_x = [xy_x, x];
 xy_P = [xy_P, zeros(size(x))]; % [N]
@@ -94,7 +92,6 @@ xy_M = [xy_M, F_By * (x - L_AB)]; % [Nm]
 xy_T = [xy_T, ones(size(x)) * T_M]; % [Nm]
 
 % L_AG1 < x < L_AC
-
 x = linspace(L_AG1, L_AC, resolution);
 xy_x = [xy_x, x];
 xy_P = [xy_P, ones(size(x)) * (-F_a1)]; % [N]
@@ -103,27 +100,27 @@ xy_M = [xy_M, F_By * (x - L_AB) - F_t1 * (x - L_AG1)]; % [Nm]
 xy_T = [xy_T, ones(size(x)) * (T_M - F_t1*r_G1)]; % [Nm]
 
 subplot(2,2,1)
-hold on
 plotLD(xy_x,xy_P, colFill)
 subplot(2,2,2)
-hold on
 plotLD(xy_x,xy_V, colFill)
 subplot(2,2,3)
-hold on
 plotLD(xy_x,xy_M, colFill)
 subplot(2,2,4)
-hold on
 plotLD(xy_x,xy_T, colFill)
 
 %% XZ - Plane
 
 % Figure setup
-resolution = 100;
 figHandle = 2;
 xPos = 10;
 yPos = 3;
-wPlot = 22;
-hPlot = 16;
+
+% Initialize XZ Plots
+xz_x = [];
+xz_P = [];
+xz_V = [];
+xz_M = [];
+xz_T = [];
 
 XZplaneFig = figure(figHandle);
 set(figHandle,'Units','Centimeter')
@@ -147,65 +144,34 @@ ylabel('[Nm]')
 title('Axial Torque T(x)')
 
 % 0 < x < L_AB
-
 x = linspace(0, L_AB, resolution);
-P = zeros(size(x)); % [N]
-V = zeros(size(x)); % [N]
-M = zeros(size(x)); % [Nm]
-T = ones(size(x)) * T_M; % [Nm]
-
-subplot(2,2,1)
-hold on
-plot(x,P,'r','LineWidth',2)
-subplot(2,2,2)
-hold on
-plot(x,V,'r','LineWidth',2)
-subplot(2,2,3)
-hold on
-plot(x,M,'Color','#FF8800','LineWidth',2)
-subplot(2,2,4)
-hold on
-plot(x,T,'Color','#FF8800','LineWidth',2)
+xz_x = [xz_x, x];
+xz_P = [xz_P, zeros(size(x))]; % [N]
+xz_V = [xz_V, zeros(size(x))]; % [N]
+xz_M = [xz_M, zeros(size(x))]; % [Nm]
+xz_T = [xz_T, ones(size(x)) * T_M]; % [Nm]
 
 % L_AB < x < L_AG1
-
 x = linspace(L_AB, L_AG1, resolution);
-P = zeros(size(x)); % [N]
-V = ones(size(x)) * (-F_Bz); % [N]
-M = - F_Bz * (x - L_AB); % [Nm]
-T = ones(size(x)) * T_M; % [Nm]
-
-subplot(2,2,1)
-hold on
-plot(x,P,'r','LineWidth',2)
-subplot(2,2,2)
-hold on
-plot(x,V,'r','LineWidth',2)
-subplot(2,2,3)
-hold on
-plot(x,M,'Color','#FF8800','LineWidth',2)
-subplot(2,2,4)
-hold on
-plot(x,T,'Color','#FF8800','LineWidth',2)
+xz_x = [xz_x, x];
+xz_P = [xz_P, zeros(size(x))]; % [N]
+xz_V = [xz_V, ones(size(x)) * (-F_Bz)]; % [N]
+xz_M = [xz_M, - F_Bz * (x - L_AB)]; % [Nm]
+xz_T = [xz_T, ones(size(x)) * T_M]; % [Nm]
 
 % L_AG1 < x < L_AC
-
 x = linspace(L_AG1, L_AC, resolution);
-P = ones(size(x)) * (-F_a1); % [N]
-V = ones(size(x)) * (F_r1 - F_Bz); % [N]
-M = F_r1 * (x - L_AG1) - F_Bz * (x - L_AB) - F_a1 * r_G1; % [Nm]
-T = ones(size(x)) * (T_M - F_t1*r_G1); % [Nm]
+xz_x = [xz_x, x];
+xz_P = [xz_P, ones(size(x)) * (-F_a1)]; % [N]
+xz_V = [xz_V, ones(size(x)) * (F_r1 - F_Bz)]; % [N]
+xz_M = [xz_M, F_r1 * (x - L_AG1) - F_Bz * (x - L_AB) - F_a1 * r_G1]; % [Nm]
+xz_T = [xz_T, ones(size(x)) * (T_M - F_t1*r_G1)]; % [Nm]
 
 subplot(2,2,1)
-hold on
-plot(x,P,'r','LineWidth',2)
-
+plotLD(xz_x,xz_P,colFill)
 subplot(2,2,2)
-hold on
-plot(x,V,'r','LineWidth',2)
+plotLD(xz_x,xz_V,colFill)
 subplot(2,2,3)
-hold on
-plot(x,M,'Color','#FF8800','LineWidth',2)
+plotLD(xz_x,xz_M,colFill)
 subplot(2,2,4)
-hold on
-plot(x,T,'Color','#FF8800','LineWidth',2)
+plotLD(xz_x,xz_T,colFill)
