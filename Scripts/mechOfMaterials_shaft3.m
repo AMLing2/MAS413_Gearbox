@@ -163,26 +163,26 @@ title('Axial Torque $T(x)$', 'Interpreter','latex')
 % 0 < x < L_FG4
 x = linspace(0, L_FG4, resolution);
 xz_x = [xz_x, x];
-xz_P = [xz_P, zeros(size(x))]; % [N]
-xz_V = [xz_V, zeros(size(x))]; % [N]
-xz_M = [xz_M, zeros(size(x))]; % [Nm]
-xz_T = [xz_T, ones(size(x)) * T_M]; % [Nm]
+xz_P = [xz_P, ones(size(x)) * (-F_Fx)]; % [N]
+xz_V = [xz_V, ones(size(x)) * (F_Fz)]; % [N]
+xz_M = [xz_M, ones(size(x)) * (F_Fz * x)]; % [Nm]
+xz_T = [xz_T, zeros(size(x))]; % [Nm]
 
 % L_FG4 < x < L_FG
 x = linspace(L_FG4, L_FG, resolution);
 xz_x = [xz_x, x];
-xz_P = [xz_P, zeros(size(x))]; % [N]
-xz_V = [xz_V, ones(size(x)) * (-F_Bz)]; % [N]
-xz_M = [xz_M, - F_Bz * (x - L_AB)]; % [Nm]
-xz_T = [xz_T, ones(size(x)) * T_M]; % [Nm]
+xz_P = [xz_P, ones(size(x)) * (-F_Fx + F_a4) ]; % [N]
+xz_V = [xz_V, ones(size(x)) * (F_Fz - F_r4)]; % [N]
+xz_M = [xz_M, F_Fz*x - F_r4 *(x-L_FG4) - F_a4*r_G4]; % [Nm]
+xz_T = [xz_T, ones(size(x)) * F_t4 *r_G4]; % [Nm]
 
 % L_FG < x < L_FH
 x = linspace(L_FG, L_FH, resolution);
 xz_x = [xz_x, x];
-xz_P = [xz_P, ones(size(x)) * (-F_a1)]; % [N]
-xz_V = [xz_V, ones(size(x)) * (F_r1 - F_Bz)]; % [N]
-xz_M = [xz_M, F_r1 * (x - L_AG1) - F_Bz * (x - L_AB) - F_a1 * r_G1]; % [Nm]
-xz_T = [xz_T, ones(size(x)) * (T_M - F_t1*r_G1)]; % [Nm]
+xz_P = [xz_P, ones(size(x)) * (-F_Fx + F_a4)]; % [N]
+xz_V = [xz_V, ones(size(x)) * (F_Fz - F_r4 + F_Gz)]; % [N]
+xz_M = [xz_M, F_Fz * (x) - F_r4 * (x - L_FG4) - F_a4 * r_G4 - F_Gz * (x - L_FG)]; % [Nm]
+xz_T = [xz_T, ones(size(x)) * (T_M - F_t4*r_G4)]; % [Nm]
 
 subplot(2,2,1)
 plotLD(xz_x,xz_P,colFill)
