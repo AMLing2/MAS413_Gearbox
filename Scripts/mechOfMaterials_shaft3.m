@@ -44,7 +44,6 @@ r_G4 = 0.25; % [m]
 % Calculated values
 L_FG = L_FG4 + L_G4G; % [m]
 L_FH = L_FG + L_GH; % [m]
-T_M = P_1 / omega_1; % [Nm]
 
 % Gear 3 forces
 F_t4 = (T_out*i_tot) / r_G4; % [N]
@@ -52,9 +51,14 @@ F_a4 = F_t4 * tand(beta); % [N]
 F_r4 = F_t4 * tand(alpha)/cosd(beta); % [N]
 
 % For Reaction forces @ bearings : Spør thomas
-L_G4H = L_G4G
-F_Fy = 0 % F_t4*L_G4G/L_FG; % [N]
-F_Fx = 0 % F_r1*L_G1C/L_BC; % [N]
+
+F_Fy = 1; % F_t4*L_G4G/L_FG; % [N]
+F_Fx = 1; % F_r1*L_G1C/L_BC; % [N]
+F_Fz = 1;
+
+F_Gy = 1;
+F_Gz = 1;
+
 
 
 %% XY - Plane
@@ -97,7 +101,7 @@ x = linspace(0, L_FG4, resolution);
 xy_x = [xy_x, x];
 xy_P = [xy_P, ones(size(x)) * (-F_Fx)]; % [N]
 xy_V = [xy_V, ones(size(x)) * F_Fy]; % [N]
-xy_M = [xy_M, ones(size(x)) *  (F_Fy*x)]; % [Nm]
+xy_M = [xy_M, (F_Fy*x)]; % [Nm]
 xy_T = [xy_T, zeros(size(x) )]; % [Nm]
 
 % L_FG4 < x < L_FG
@@ -112,8 +116,8 @@ xy_T = [xy_T, ones(size(x))*(F_t4*r_G4)]; % [Nm]
 x = linspace(L_FG, L_FH, resolution);
 xy_x = [xy_x, x];
 xy_P = [xy_P, ones(size(x)) * (-F_Fx+F_a4)]; % [N]
-xy_V = [xy_V, ones(size(x)) * (F_By - F_t1)]; % [N]
-xy_M = [xy_M, F_By * (x - L_AB) - F_t1 * (x - L_AG1)]; % [Nm]
+xy_V = [xy_V, ones(size(x)) * (F_Fy - F_t4 + F_Gy)]; % [N]
+xy_M = [xy_M, F_Fy * (x) - F_t4 * (x - L_FG4) + F_Gy * (x -L_FG)]; % [Nm]
 xy_T = [xy_T, ones(size(x))*(F_t4*r_G4)]; % [Nm]
 
 subplot(2,2,1)
@@ -165,7 +169,7 @@ x = linspace(0, L_FG4, resolution);
 xz_x = [xz_x, x];
 xz_P = [xz_P, ones(size(x)) * (-F_Fx)]; % [N]
 xz_V = [xz_V, ones(size(x)) * (F_Fz)]; % [N]
-xz_M = [xz_M, ones(size(x)) * (F_Fz * x)]; % [Nm]
+xz_M = [xz_M, F_Fz * x]; % [Nm]
 xz_T = [xz_T, zeros(size(x))]; % [Nm]
 
 % L_FG4 < x < L_FG
