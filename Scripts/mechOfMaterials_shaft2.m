@@ -1,27 +1,33 @@
  clc; clear; close all;
- % MAS413 Project: Mechanics of Materials - Shaft 2
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ % MAS413 Project: Mechanics of Materials - Shaft 2%
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
- %% Constants
+ % Common Plotting Constants
+ colFill = [0.7765 0.9176 0.9843];
+ resolution = 100;
+ wPlot = 22;
+ hPlot = 16;
+
  % Given information from project description - Needs adjustment of values
  i_tot = 17.3; % [-]
- 
- n_in = 1450; % [RPM]
- omega_in = n_in * 2*pi / 60; % [rad/sec]
- 
- n_out = (n_in/i_tot); %[RPM]
- omega_out = n_out * 2*pi / 60; %[rad/sec]
-
- 
- P_in = 12.5e3; % [W]
- eta = 0.96; %[-] Efficiency
- eta_tot = eta^2;
- P_out = P_in*eta_tot; %[W] (Squared efficiency because there are two stages)
-    
- T_M = P_in/omega_in; %[Nm]
- T_out = P_out/omega_out; %[Nm] 
-
  i_1 = 1; % [-]
  i_2 = 2; % [-]
+
+
+ n_in = 1450; % [RPM]
+ omega_in = n_in * 2*pi / 60; % [rad/sec]
+ n_out = (n_in/i_tot); %[RPM]
+ omega_out = n_out * 2*pi / 60; %[rad/sec]
+ 
+ eta = 0.96; %[-] Efficiency
+ eta_tot = eta^2;
+
+ P_in = 12.5e3; % [W]
+ P_out = P_in*eta_tot; %[W] (Squared efficiency because there are two stages)
+ T_M = P_in/omega_in; %[Nm]
+ T_out = P_out/omega_out; %[Nm] 
+ 
  alpha = 20; % [degrees] Helix Angle
  beta = 15;  % [degrees] Pressure Angle
 
@@ -48,7 +54,6 @@
  F_r2 = F_t2 * tand(alpha)/cosd(beta); % [N]
  
  % Gear 3 forces
- 
  F_t3 = (T_out*i_tot) / r_G4; % [N]
  F_a3 = F_t3 * tand(beta); % [N]
  F_r3 = F_t3 * tand(alpha)/cosd(beta); % [N]
