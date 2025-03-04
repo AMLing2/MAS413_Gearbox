@@ -52,12 +52,12 @@ F_r4 = F_t4 * tand(alpha)/cosd(beta); % [N]
 
 % For Reaction forces @ bearings : Spør thomas
 
-F_Fy = 1; % F_t4*L_G4G/L_FG; % [N]
-F_Fx = 1; % F_r1*L_G1C/L_BC; % [N]
-F_Fz = 1;
+F_Fy = 0; % F_t4*L_G4G/L_FG; % [N]
+F_Fx = 0; % F_r1*L_G1C/L_BC; % [N]
+F_Fz = 0;
 
-F_Gy = 1;
-F_Gz = 1;
+F_Gy = 0;
+F_Gz = 0;
 
 
 
