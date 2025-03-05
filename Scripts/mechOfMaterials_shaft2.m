@@ -141,7 +141,7 @@ plotLD(xy_x,xy_M, colFill)
 subplot(2,2,4)
 plotLD(xy_x,xy_T, colFill)
 
-%% XZ - Plane -- Needs to correct the stuff under
+%% XZ - Plane
  
 
 % Figure setup
@@ -177,33 +177,33 @@ xlabel('[m]', 'interpreter', 'latex')
 ylabel('[Nm]', 'interpreter', 'latex')
 title('Axial Torque $T(x)$', 'Interpreter','latex')
  
-% 
-% % 0 < x < L_E_G3
-% 
-% x = linspace(0, L_EG3, resolution);
-% xy_x = [xy_x, x];
-% xy_P = ones(size(x))*(-F_Ex); % [N]
-% xy_V = ones(size(x))*(-F_Ez); % [N]
-% xy_M = ones(size(x)).* (x *(-F_Ex)); % [Nm]
-% xy_T = zeros(size(x)); % [Nm]
-% 
+ 
+ % 0 < x < L_E_G3
+ 
+ x = linspace(0, L_EG3, resolution);
+ xz_x = [xz_x, x];
+ xz_P = [xz_P,ones(size(x))*(-F_Ex)]; % [N]
+ xz_V = [xz_V,ones(size(x))*(-F_Ez)]; % [N]
+ xz_M = [xz_M,ones(size(x)).* (x *(-F_Ex))]; % [Nm]
+ xz_T = [xz_T,zeros(size(x))]; % [Nm]
+ 
 
 % L_E_G3 < x < L_G3_G2
 x = linspace(L_EG3, L_G3G2, resolution);
 xz_x = [xz_x, x];
-xz_P = ones(size(x))* -(F_Ex+F_a3); % [N]
-xz_V = ones(size(x)) * (F_r3-F_Ez); % [N]
-xz_M = F_Ez*x - F_r3*(x - L_EG3); % [Nm]
-xz_T = ones(size(x)) * F_t3*r_G3; % [Nm]
+xz_P = [xz_P,ones(size(x))* -(F_Ex+F_a3)]; % [N]
+xz_V = [xz_V,ones(size(x)) * (F_r3-F_Ez)]; % [N]
+xz_M = [xz_M,F_Ez*x - F_r3*(x - L_EG3)]; % [Nm]
+xz_T = [xz_T,ones(size(x)) * F_t3*r_G3]; % [Nm]
  
 % L_G3_G2 < x < L_G2_D
 
 x = linspace(L_G3G2, L_G2D, resolution);
 xz_x = [xz_x, x];
-xz_P = ones(size(x)) * (F_a2 - F_a3 - F_Ex); % [N]
-xz_V = ones(size(x)) * (F_r3 - F_Ez - F_r2); % [N]
-xz_M = F_Ez * x - F_r3*(x - L_EG3) + F_a3 * r_G3 * (x - L_EG3) + F_a2*r_G2*(x-L_G3G2); % [Nm]
-xz_T = ones(size(x)) * (F_t3*r_G3 - F_t2*r_G2); % [Nm]
+xz_P = [xz_P,ones(size(x)) * (F_a2 - F_a3 - F_Ex)]; % [N]
+xz_V = [xz_V,ones(size(x)) * (F_r3 - F_Ez - F_r2)]; % [N]
+xz_M = [xz_M,F_Ez * x - F_r3*(x - L_EG3) + F_a3 * r_G3 * (x - L_EG3) + F_a2*r_G2*(x-L_G3G2)]; % [Nm]
+xz_T = [xz_T, ones(size(x)) * (F_t3*r_G3 - F_t2*r_G2)]; % [Nm]
  
 subplot(2,2,1)
 plotLD(xz_x,xz_P,colFill)
