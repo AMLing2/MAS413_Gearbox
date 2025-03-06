@@ -194,3 +194,26 @@ subplot(2,2,3)
 plotLD(xz_x,xz_M,colFill)
 subplot(2,2,4)
 plotLD(xz_x,xz_T,colFill)
+
+
+%% Loading Diagram: Combined Bending Moment
+
+M = sqrt(xz_M.^2 + xy_M.^2); % [Nm]
+
+% Figure setup
+figHandle = 3;
+wPlotM = wPlot;
+hPlotM = hPlot/2;
+
+comboMomentFig = figure(figHandle);
+set(figHandle,'Units','Centimeter')
+set(figHandle,'Position',[xPos yPos+hPlotM/2 wPlotM hPlotM]);
+plotLD(xy_x, M, colFill)
+title('Combined Moment', 'interpreter', 'latex', 'FontSize',fSize)
+xlabel('[m]', 'interpreter', 'latex')
+ylabel('[Nm]', 'interpreter', 'latex')
+xlim([0 L_FH])
+
+[M_max, M_max_idx] = max(M);
+L = xy_x(M_max_idx);
+dashLineV(L, 3, 2, 2)

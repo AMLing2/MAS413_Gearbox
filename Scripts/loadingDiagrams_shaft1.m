@@ -201,22 +201,3 @@ xlim([0 L_AC])
 [M_max, M_max_idx] = max(M);
 L = xy_x(M_max_idx);
 dashLineV(L, 3, 2, 2)
-
-%% Add dashed line to all figures
-function dashLineV(L, figNr, spRow, spCol)
-    for i = 1 : figNr
-        if i < figNr
-            figure(i)
-            for row = 1 : spRow
-                for col = 1 : spCol
-                    spIdx = (row-1) * spCol + col;
-                    subplot(spRow,spCol,spIdx)
-                    xline(L, 'm--', 'LineWidth', 1)
-                end
-            end
-        else
-            figure(i)
-            xline(L, 'm--', 'LineWidth', 1)
-        end
-    end
-end
