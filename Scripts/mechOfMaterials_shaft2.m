@@ -1,14 +1,16 @@
- clc; clear; close all;
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- % MAS413 Project: Mechanics of Materials - Shaft 2%
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- 
+clc; clear; close all;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MAS413 Project: Loading Diagrams - Shaft 2 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Constants
+
 % Common Plotting Constants
 colFill = [0.7765 0.9176 0.9843];
 resolution = 100;
 wPlot = 22;
 hPlot = 16;
-
+fSize = 16;
 
 % Given information from project description - Needs adjustment of values
 i_tot = 17.3; % [-]
@@ -86,7 +88,7 @@ xy_T = [];
 XYplaneFig = figure(figHandle);
 set(figHandle,'Units','Centimeter')
 set(figHandle,'Position',[xPos yPos wPlot hPlot]);
-sgtitle('\textbf{Shaft 1: XY - Plane}', 'interpreter', 'latex')
+sgtitle('\textbf{Shaft 2: XY - Plane}', 'interpreter', 'latex')
 subplot(2,2,1)
 xlabel('[m]', 'interpreter', 'latex')
 ylabel('[N]', 'interpreter', 'latex')
@@ -159,7 +161,7 @@ xz_T = [];
 XZplaneFig = figure(figHandle);
 set(figHandle,'Units','Centimeter')
 set(figHandle,'Position',[xPos yPos wPlot hPlot]);
-sgtitle('\textbf{Shaft 1: XZ - Plane}', 'interpreter', 'latex')
+sgtitle('\textbf{Shaft 2: XZ - Plane}', 'interpreter', 'latex')
 subplot(2,2,1)
 xlabel('[m]', 'interpreter', 'latex')
 ylabel('[N]', 'interpreter', 'latex')

@@ -1,5 +1,7 @@
 clc; clear; close all;
-% MAS413 Project: Mechanics of Materials - Shaft 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MAS413 Project: Loading Diagrams - Shaft 1 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Constants
 

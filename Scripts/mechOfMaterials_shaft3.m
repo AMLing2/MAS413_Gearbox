@@ -1,7 +1,7 @@
 clc; clear; close all;
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% MAS413 Project: Mechanics of Materials - Shaft 2%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MAS413 Project: Loading Diagrams - Shaft 3 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Constants
 
@@ -10,28 +10,28 @@ colFill = [0.7765 0.9176 0.9843];
 resolution = 100;
 wPlot = 22;
 hPlot = 16;
+fSize = 16;
 
 % Given information
- i_tot = 17.3; % [-]
- i_1 = 1; % [-]
- i_2 = 2; % [-]
+i_tot = 17.3; % [-]
+i_1 = 1; % [-]
+i_2 = 2; % [-]
 
+n_in = 1450; % [RPM]
+omega_in = n_in * 2*pi / 60; % [rad/sec]
+n_out = (n_in/i_tot); % [RPM]
+omega_out = n_out * 2*pi / 60; % [rad/sec]
 
- n_in = 1450; % [RPM]
- omega_in = n_in * 2*pi / 60; % [rad/sec]
- n_out = (n_in/i_tot); %[RPM]
- omega_out = n_out * 2*pi / 60; %[rad/sec]
- 
- eta = 0.96; %[-] Efficiency
- eta_tot = eta^2;
+eta = 0.96; % [-] Efficiency
+eta_tot = eta^2; % (Squared efficiency because there are two stages)
 
- P_in = 12.5e3; % [W]
- P_out = P_in*eta_tot; %[W] (Squared efficiency because there are two stages)
- T_M = P_in/omega_in; %[Nm]
- T_out = P_out/omega_out; %[Nm] 
- 
- alpha = 20; % [degrees] Helix Angle
- beta = 15;  % [degrees] Pressure Angle
+P_in = 12.5e3; % [W]
+P_out = P_in*eta_tot; % [W]
+T_M = P_in/omega_in; % [Nm]
+T_out = P_out/omega_out; % [Nm] 
+
+alpha = 20; % [degrees] Helix Angle
+beta = 15;  % [degrees] Pressure Angle
 
 % Chosen Parameters
 L_FG4  = 0.05; % [m]
@@ -50,15 +50,13 @@ F_t4 = (T_out*i_tot) / r_G4; % [N]
 F_a4 = F_t4 * tand(beta); % [N]
 F_r4 = F_t4 * tand(alpha)/cosd(beta); % [N]
 
-% For Reaction forces @ bearings : Spør thomas
-
-F_Fy = 0; % F_t4*L_G4G/L_FG; % [N]
-F_Fx = 0; % F_r1*L_G1C/L_BC; % [N]
-F_Fz = 0;
-
-F_Gy = 0;
-F_Gz = 0;
-
+% Reaction forces @ bearings
+F_Fz = (F_a4*r_G4 + F_r4*L_G4G) / L_FG;
+F_Fy = (F_t4*L_G4G) / L_FG; % [N]
+F_Fx = F_a4; % [N]
+    % F_r1*L_G1C/L_BC; % [N] <-- ? -TLS
+F_Gz = F_r4 - F_Fz; % [N]
+F_Gy = F_t4 - F_Fy; % [N]
 
 
 %% XY - Plane
@@ -78,7 +76,7 @@ xy_T = [];
 XYplaneFig = figure(figHandle);
 set(figHandle,'Units','Centimeter')
 set(figHandle,'Position',[xPos yPos wPlot hPlot]);
-sgtitle('\textbf{Shaft 1: XY - Plane}', 'interpreter', 'latex')
+sgtitle('\textbf{Shaft 3: XY - Plane}', 'interpreter', 'latex')
 subplot(2,2,1)
 xlabel('[m]', 'interpreter', 'latex')
 ylabel('[N]', 'interpreter', 'latex')
@@ -146,7 +144,7 @@ xz_T = [];
 XZplaneFig = figure(figHandle);
 set(figHandle,'Units','Centimeter')
 set(figHandle,'Position',[xPos yPos wPlot hPlot]);
-sgtitle('\textbf{Shaft 1: XZ - Plane}', 'interpreter', 'latex')
+sgtitle('\textbf{Shaft 3: XZ - Plane}', 'interpreter', 'latex')
 subplot(2,2,1)
 xlabel('[m]', 'interpreter', 'latex')
 ylabel('[N]', 'interpreter', 'latex')
