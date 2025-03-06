@@ -8,6 +8,7 @@ colFill = [0.7765 0.9176 0.9843];
 resolution = 100;
 wPlot = 22;
 hPlot = 16;
+fSize = 16;
 
 % Given information
 n_1 = 1450; % [RPM]
@@ -175,3 +176,45 @@ subplot(2,2,3)
 plotLD(xz_x,xz_M,colFill)
 subplot(2,2,4)
 plotLD(xz_x,xz_T,colFill)
+
+
+%% Loading Diagram: Combined Bending Moment
+
+M = sqrt(xz_M.^2 + xy_M.^2); % [Nm]
+
+% Figure setup
+figHandle = 3;
+wPlotM = wPlot;
+hPlotM = hPlot/2;
+
+comboMomentFig = figure(figHandle);
+set(figHandle,'Units','Centimeter')
+set(figHandle,'Position',[xPos yPos+hPlotM/2 wPlotM hPlotM]);
+plotLD(xy_x, M, colFill)
+title('Combined Moment', 'interpreter', 'latex', 'FontSize',fSize)
+xlabel('[m]', 'interpreter', 'latex')
+ylabel('[Nm]', 'interpreter', 'latex')
+xlim([0 L_AC])
+
+[M_max, M_max_idx] = max(M);
+L = xy_x(M_max_idx);
+dashLineV(L, 3, 2, 2)
+
+%% Add dashed line to all figures
+function dashLineV(L, figNr, spRow, spCol)
+    for i = 1 : figNr
+        if i < figNr
+            figure(i)
+            for row = 1 : spRow
+                for col = 1 : spCol
+                    spIdx = (row-1) * spCol + col;
+                    subplot(spRow,spCol,spIdx)
+                    xline(L, 'm--', 'LineWidth', 1)
+                end
+            end
+        else
+            figure(i)
+            xline(L, 'm--', 'LineWidth', 1)
+        end
+    end
+end
