@@ -28,7 +28,7 @@ cycles_lifetime_sh1 = lifetime * 365.25 * work_cycle*60 * n_1
 cycles_lifetime_sh2 = lifetime * 365.25 * work_cycle*60 * n_2
 cycles_lifetime_sh3 = lifetime * 365.25 * work_cycle*60 * n_4
 
-% Loads from mechOfMaterials_shaftx.m scripts:
+% Loads from loadingDiagrams_shaft1.m scripts:
 % - radial [N]:
 F_r_sh1 = 20;
 F_r_sh2 = 20;
@@ -43,8 +43,15 @@ d_min_sh1 = 0;
 d_min_sh2 = 0;
 d_min_sh3 = 0;
 
-K_R = 0.62; % Reliability factor for weibull distribution, tab 11-5 pg 7-1 machine design
-taper_ang = 20;
+K_R = 0.62; % Reliability factor for weibull distribution 95% R%, tab 11-5 pg 701 machine design
+
+% rough calculation of angle since not specified in datasheets
+op = (200-150)/4; 
+h = sqrt(op^2 + 44^2);
+theta = asind(op/h);
+taper_ang_list = 20:5:40;
+[~,ang_index] = min(taper_ang_list-theta);
+taper_ang = taper_ang_list(ang_index);
 % bearing value lists from KRW
 % https://www.krw.de/en/products/product-database/?tx_cskrwproducts_krwproducts%5Baction%5D=filter&tx_cskrwproducts_krwproducts%5Bcontroller%5D=Product&tx_cskrwproducts_krwproducts%5BcurrentPage%5D=15&tx_cskrwproducts_krwproducts%5BfilterRequest%5D%5Bcategories%5D%5B0%5D=31&tx_cskrwproducts_krwproducts%5BfilterRequest%5D%5BmaxInternalDiameter%5D=200&tx_cskrwproducts_krwproducts%5BfilterRequest%5D%5BminInternalDiameter%5D=10&cHash=feb6871c5b5e6249330c3cd6fdd08930
 
@@ -53,11 +60,11 @@ bearing_name = ["32912" "32914" "32916" "32918" "32920" "32922" "32924" "32928" 
 c_dyn_list = [49.5 76.8 80.6 105 136 143 185 222 228 305] * 1e3;% [kN] -> [N]
 c_st_list = [82.3 123 136 178 231 253 326 428 545] * 1e3; % [kN] -> [N]
 
-[b_index_1,l1] = tapered_bearing_sizing(d_min_sh1 ,F_r_sh1,F_a_sh1,cycles_lifetime_sh1, ...
+[b_index_1,n1] = tapered_bearing_sizing(d_min_sh1 ,F_r_sh1,F_a_sh1,cycles_lifetime_sh1, ...
     taper_ang, K_R, d_list, c_dyn_list, c_st_list)
-[b_index_2,l2] = tapered_bearing_sizing(d_min_sh2 ,F_r_sh1,F_a_sh1,cycles_lifetime_sh1, ...
+[b_index_2,n2] = tapered_bearing_sizing(d_min_sh2 ,F_r_sh1,F_a_sh1,cycles_lifetime_sh1, ...
     taper_ang, K_R, d_list, c_dyn_list, c_st_list);
-[b_index_3,l3] = tapered_bearing_sizing(d_min_sh3 ,F_r_sh1,F_a_sh1,cycles_lifetime_sh1, ...
+[b_index_3,n3] = tapered_bearing_sizing(d_min_sh3 ,F_r_sh1,F_a_sh1,cycles_lifetime_sh1, ...
     taper_ang, K_R, d_list, c_dyn_list, c_st_list);
 
 function [bearing_index,lifetime] = tapered_bearing_sizing(d_min,F_r,F_a,cycles,taper_ang,K_R,d_list,C_dyn_list,C_st_list)
@@ -98,6 +105,7 @@ function [bearing_index,lifetime] = tapered_bearing_sizing(d_min,F_r,F_a,cycles,
         error("taper angle needs to be 20, 25, 30, 35, or 40 deg")
     end
     if (F_a/(F_r*V)) <= e
+        fprintf("ignoring axial factor\n")
         X = 1; % eq. 11.22b
         Y = 0;
     end
@@ -106,10 +114,10 @@ function [bearing_index,lifetime] = tapered_bearing_sizing(d_min,F_r,F_a,cycles,
     lifetime = -1;
     for i = 1:length(d_list)
         if d_list(i) > d_min
-            L_10 = K_R*(C_dyn_list(i)/P)^(10/3);
-            if (L_10 > cycles) && (P < C_st_list(i))
+            L_P = ( K_R*(C_dyn_list(i)/P)^(10/3) ) * 1e6;
+            if (L_P > cycles) && (P < C_st_list(i))
                 bearing_index = i;
-                lifetime = L_10;
+                lifetime = L_P;
                 break
             end
         end
