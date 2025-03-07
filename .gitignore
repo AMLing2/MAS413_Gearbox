@@ -1,3 +1,4 @@
 # Remove temporary MATLAB files
 *.asv
 *.DS_Store
+*.mat

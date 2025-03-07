@@ -11,7 +11,7 @@ clc;close all;clear;
 
 %%% Chosen parameters
 material = "15 CrNi 6";
-lambda = 12; % width factor, 8-12, pg 17 lec 1
+lambda = 12; % width factor, processed,  8-12, pg 17 lec 1
 
 %from requirements:
 beta = 15;   % [deg] helix angle, psi
@@ -63,7 +63,7 @@ T_4 = T_3 * i_s2;
 % 16 MnCr 5: https://matweb.com/search/DataSheet.aspx?MatGUID=2ab813ffa05d40329dffe0ee7f58b5de
 % 15 CrNi 6: https://matweb.com/search/DataSheet.aspx?MatGUID=9ab3bf332758468ab36010790bd94349 ?
 
-% Material limits
+% Material limits, table 5 forelesning 4, pg 11
 sigma_b_lim_mat_list = [160,210,220,250,300,310,410,410]; % [MPa]
 sigma_o_lim_mat_list = [430,520,540,610,715,760,1600,1900]; % [MPa]
 E_mat_list = [200 200 210 210 205 205 200 210]; %GPa
@@ -170,6 +170,8 @@ b_s2 = mt_s2 * lambda;
 % rough sum of material volume for gears [cm^3]
 material_sum = (pi * b_s1 * (((d_g1/2)^2)+(d_g2/2)^2) + ...
                pi * b_s2 * (((d_g3/2)^2)+(d_g4/2)^2)) * 1e-3
+material_price = 4.3175e3; % [dollar/m^3]
+rough_mat_price = material_sum*1e-6 * material_price
 
 % fillet radius
 pd_in_s1 = 25.4/mt_s1; % [1/in] machine design eq 12.4d pg735
@@ -187,6 +189,7 @@ Z_s1 =  sqrt((d_g1/2 + ht_1)^2 - (d_g1/2 * cosd(alpha))^2) + ...
         - C_s1 * sind(alpha); % eq 12.2 machine design pg 730
 P_b_s1 = (pi * d_g1/ z_1) * cosd(alpha); % eq 12.3b machine design pg 734
 CR_s1 = Z_s1/P_b_s1; % eq 12.7a machine design pg 738
+
 Z_s2 =  sqrt((d_g3/2 + ht_3)^2 - (d_g3/2 * cosd(alpha))^2) + ...
         sqrt((d_g4/2 + ht_4)^2 - (d_g4/2 * cosd(alpha))^2) ...
         - C_s2 * sind(alpha); % eq 12.2 machine design pg 730
@@ -203,3 +206,11 @@ if or((m_f_s1 < 1),(m_f_s2 < 1))
 elseif or((m_f_s1 < a_CR_min),(m_f_s2 < a_CR_min))
     warning("Axial contact ratio is low")
 end
+
+T = table([d_g1; d_g2; d_g3; d_g4], [b_s1; b_s1; b_s2; b_s2], ...
+    'VariableNames', {'Diameter', 'Width'}, ...
+    'RowNames', {'gear 1', 'gear 2', 'gear 3', 'gear 4'});
+
+disp(T)
+
+save("gear_sizes.mat")
