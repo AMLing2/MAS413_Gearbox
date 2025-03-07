@@ -40,7 +40,7 @@ F_r1 = F_t1 * tand(alpha)/cosd(beta); % [N]
 L_BC = L_BG1 + L_G1C; % [m]
 
 F_By = F_t1*L_G1C/L_BC; % [N]
-F_Bz = F_r1*L_G1C/L_BC; % [N]
+F_Bz = (F_r1*L_G1C - F_a1*r_G1)/L_BC; % [N]
 
 
 %% XY - Plane
