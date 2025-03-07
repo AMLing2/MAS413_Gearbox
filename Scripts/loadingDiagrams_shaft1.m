@@ -25,8 +25,14 @@ L_AB  = 0.05; % [m]
 L_BG1 = 0.10; % [m]
 L_G1C = 0.15; % [m]
 
-% Calculated Elsewhere
-r_G1 = 0.25; % [m]
+% Import from Gear Sizing
+load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4')
+
+% Convert from Gear Sizing
+r_G1 = d_g1/2; % [m]
+r_G2 = d_g2/2; % [m]
+r_G3 = d_g3/2; % [m]
+r_G4 = d_g4/2; % [m]
 
 % Calculated values
 L_AG1 = L_AB + L_BG1; % [m]
