@@ -1,26 +1,23 @@
 close all; clear; clc;
 
-% TODO: Konverter inpit S_ut fra MPa til ksi og velg nærmeste verdi fra
-% tabell, konverter så tilbake til MPa
-
 % Input parameters
 n_f = 2; % Safety factor
-material = 4130; % (1045 4130 4140 4340)
-% S_ut = 1080; % [MPa] Material ultimate tensilte strength PLACEHLDER VALUE
-% S_y = 800; % [MPa] Material tensilte yield strength PLACEHLDER VALUE
-d_shaft = 131.8; % [mm] Shaft diameter PLACEHLDER VALUE
-r_fillet = 1; % [mm] Fillet radius PLACEHLDER VALUE
+material = 1045; % (1045 4130 4140 4340)    ! PLACEHOLDER
+d_shaft = 167; % [mm] Shaft diameter        ! PLACEHLDER VALUE
+r_fillet = 1; % [mm] Fillet radius          ! PLACEHLDER VALUE
 D_d = 1.2; % PLACEHLDER VALUE
 load_type = "Complex axial";  % ("Pure bending" "Pure axial" "Pure torsion" "Complex axial" "Complex non axial");
 surface_finish = "Machined"; % ("Ground" "Machined" "Hot-rolled" "As-forged") For other types, see Machine Design page 368, Figure 6-26
 reliability = 99; % [%] reliability factor (50 90 95 99 99.9 99.99 99.999 99.9999)
 operating_temperature = 70; % Celsius (Defined by Kjell, only significant if > 450)
 
+% Conversion factors
 Mpa_to_ksi = 0.1450377377; % Mpa to ksi conversion factor
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % From mecOfMaterials_shaft2.m 
-% (Values are not accurate and must be updated)
+
+% Values are not accurate and must be updated
 M_y_max = 1200*1e3; % [Nmm]
 M_y_min = -1200*1e3; % [Nmm]
 M_z_max = 3800*1e3; % [Nmm]
@@ -29,7 +26,7 @@ M_z_min = -3800*1e3; % [Nmm]
 T_max = 22700*1e3; % [Nmm]
 T_min =  22700*1e3; % [Nmm]
 
-% Lecture 3 slide 7
+% (Maskinelementer, lecture 3 slide 7)
 M_max = sqrt(M_y_max^2 + M_z_max^2); % [Nmm]
 M_min = -sqrt(M_y_min^2 + M_z_min^2); % [Nmm]
 M_mean = (M_max + M_min)/2; % [Nmm]
@@ -157,13 +154,12 @@ end
 S_e = C_load*C_size*C_surf*C_temp*C_reliab*S_e_prime; % (Maskinelementer, lecture 4 slide 5)
 
 
-d = ( (32*n_f/ip) * (sqrt((K_f_bend*M_amp)^2 + (3/4)*(K_f_tor*T_amp)^2)/S_e) + (sqrt((K_f_bend*M_mean)^2 + (3/4)*(K_f_tor*T_mean)^2)/S_e) )^(1/3)
-
+% Diameter eq......
 d = ((16*n_f/pi)*(sqrt(4*(K_f_bend*M_amp)^2+3*(K_f_tor*T_amp)^2)/S_e)+(sqrt(4*(K_f_bend*M_mean)^2+3*(K_f_tor*T_mean)^2/S_ut)))^(1/3)
 
 % Quick check: failure againt yels at the first cycle (Maskinelementer, lecture 5 slide 7) 
-sigma_prime_amp = sqrt(((32*K_f*M_amp)/(pi*d_shaft^3)) + 3*((16*K_f*T_amp)/(pi*d_shaft^3)));
-sigma_prime_mean = sqrt(((32*K_f*M_mean)/(pi*d_shaft^3)) + 3*((16*K_f*T_mean)/(pi*d_shaft^3))); 
+sigma_prime_amp = sqrt(((32*K_f_bend*M_amp)/(pi*d_shaft^3)) + 3*((16*K_f_tor*T_amp)/(pi*d_shaft^3)));
+sigma_prime_mean = sqrt(((32*K_f_bend*M_mean)/(pi*d_shaft^3)) + 3*((16*K_f_tor*T_mean)/(pi*d_shaft^3))); 
 sigma_max = sigma_prime_mean + sigma_prime_amp;
 n_y = S_y / sigma_max
 
@@ -226,8 +222,9 @@ d1 = ((16*n_f/pi)*(sqrt(4*(K_f_bend*M_amp)^2+3*(K_f_tor*T_amp)^2)/S_e)+(sqrt(4*(
 
 
 
-% Under er det mye feil, jobber med å rydde opp og tyde (lecture 5 slide 3)
+% KLADD:
 
+% (Maskinelementer, lecture 5 slide 3)
 % sigma_amp = K_f-bend*(32*M_amp)/(pi*d_shaft^3);
 % sigma_mean = K_f-bend*(32*M_mean)/(pi*d_shaft^3);
 
@@ -241,6 +238,19 @@ d1 = ((16*n_f/pi)*(sqrt(4*(K_f_bend*M_amp)^2+3*(K_f_tor*T_amp)^2)/S_e)+(sqrt(4*(
 %     fprintf("sigma_mean = ", sigma_mean, " Non nully reversed loading!")
 % end
 % sigma_amp = (sigma_max - sigma_min)/2; % Alternating stress amplitude
+
+
+% (Maskinelementer, lecture 2 slide 46)
+% R = (d/2);
+% A = pi*R^2;
+% I = (pi/4)*R^4;
+% I_p = (pi/2)*R^4 
+
+% Von Mises for state of stress (Maskinelementer, lecture 2 slide 32)
+% sigma_von_mises = sqrt((sigma_x-sigma_y)^2 + (sigma_y-sigma_z)^2 + (sigma_z-sigma_x)^2 + 6*(tau_xy^2+tau_yz^2tau_zx^2)/2);
+
+
+
 
 
 % Function to find the closest value rounded down in the list (Most conservative approach)
