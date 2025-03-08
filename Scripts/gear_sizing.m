@@ -11,7 +11,7 @@ clc;close all;clear;
 
 %%% Chosen parameters
 material = "15 CrNi 6";
-lambda = 12; % width factor, processed,  8-12, pg 17 lec 1
+lambda = 12; % width factor, processed:  8-12, pg 17 lec 1
 
 %from requirements:
 beta = 15;   % [deg] helix angle, psi
@@ -35,7 +35,8 @@ i_s1 = z_2/z_1;
 i_s2 = z_4/z_3;
 i_tot = i_s1 * i_s2;
 
-if ( abs(i_tot - i_tot_og)/i_tot_og ) > 0.01 % check if new i_tot is within 1% of requirement
+% check if new i_tot is within 1% of requirement
+if ( abs(i_tot - i_tot_og)/i_tot_og ) > 0.01
     error("i_tot is greater than 1% of requirement")
 end
 
@@ -116,14 +117,14 @@ mt_s2 = max([mt_3,mt_4]) % 4.5334 w/ 15 CrNi 6
 d_g1 = mt_s1 * z_1;
 d_g2 = mt_s1 * z_2;
 d_g3 = mt_s2 * z_3;
-d_g4 = mt_s2 * z_4
+d_g4 = mt_s2 * z_4;
 
 % top (ht) and bottom (hf) heights [mm]
-ht_1 = mt_s1; % also called addendum
+ht_1 = mt_s1;
 ht_2 = mt_s1; % see figure 12-8 pg 734 machine element
 ht_3 = mt_s2; 
 ht_4 = mt_s2; 
-hf_1 = 1.25 * mt_s1;  % also called dedendum
+hf_1 = 1.25 * mt_s1;
 hf_2 = 1.25 * mt_s1; 
 hf_3 = 1.25 * mt_s2; 
 hf_4 = 1.25 * mt_s2; 
@@ -183,7 +184,7 @@ r_f_2 = (0.3/pd_in_s2)*25.4; %[in] -> [mm] machine design tab 12-1 pg735
 C_s1 = d_g1/2 + d_g2/2; % [mm]
 C_s2 = d_g3/2 + d_g4/2; % [mm]
 
-% contact ratio:
+%%% contact ratio %%%
 Z_s1 =  sqrt((d_g1/2 + ht_1)^2 - (d_g1/2 * cosd(alpha))^2) + ...
         sqrt((d_g2/2 + ht_2)^2 - (d_g2/2 * cosd(alpha))^2) ...
         - C_s1 * sind(alpha); % eq 12.2 machine design pg 730
@@ -195,10 +196,34 @@ Z_s2 =  sqrt((d_g3/2 + ht_3)^2 - (d_g3/2 * cosd(alpha))^2) + ...
         - C_s2 * sind(alpha); % eq 12.2 machine design pg 730
 P_b_s1 = (pi * d_g3/ z_3) * cosd(alpha); % eq 12.3b machine design pg 734
 CR_s2 = Z_s2/P_b_s1; % eq 12.7a machine design pg 738
-if or((CR_s1 < CR_min),(CR_s2 < CR_min))
+if or( (CR_s1 < CR_min), (CR_s2 < CR_min) )
     error("Contact ratio is less than minimum")
 end
-% axial contact ratio:
+%%% contact ratio %%%
+
+%%% contact ratio - alternate from Lecture 3 page 12 %%%
+    % More readable table from:
+    % https://brainly.in/question/3177379
+% Variable shift for consistency with table, copy existing
+a_x = C_s1;                  % Center Distance
+m_t = mt_s1;                 % Transverse Module
+% alpha_t = atand( tand(alpha)/cosd(beta) );
+alpha_t = alpha;             % Transverse (Helical) Angle
+d_a1 = dt_g1;                % Addendum Diameter
+d_a2 = dt_g2;                % Addendum Diameter
+d_b1 = d_g1 * cosd(alpha_t); % Base Diameter
+d_b2 = d_g2 * cosd(alpha_t); % Base Diameter
+% From L3p12 - Common for all in table
+alpha_wt = acosd( (d_b1 + d_b2) / (2*a_x) );
+% From L3p12 - Contact Ratio of Helical Pair
+epsilon_a = ( sqrt( (d_a1/2)^2 - (d_b1/2)^2 ) + ...
+              sqrt( (d_a2/2)^2 - (d_b2/2)^2 ) - ...
+              a_x * sind(alpha_wt) ) / ...
+            pi*m_t*cosd(alpha_t);
+%%% contact ratio - alternate from Lecture 3 page 12 %%%
+contactRatioStep1 = table(CR_s1, epsilon_a)
+
+%%% axial contact ratio %%%
 m_f_s1 = (b_s1 * tand(beta)) / (pi * mt_s1); % eq 13.5 machine design pg 796
 m_f_s2 = (b_s2 * tand(beta)) / (pi * mt_s2);
 if or((m_f_s1 < 1),(m_f_s2 < 1))
@@ -206,7 +231,9 @@ if or((m_f_s1 < 1),(m_f_s2 < 1))
 elseif or((m_f_s1 < a_CR_min),(m_f_s2 < a_CR_min))
     warning("Axial contact ratio is low")
 end
+%%% axial contact ratio %%%
 
+% Display results
 T = table([d_g1; d_g2; d_g3; d_g4], [b_s1; b_s1; b_s2; b_s2], ...
     'VariableNames', {'Diameter', 'Width'}, ...
     'RowNames', {'gear 1', 'gear 2', 'gear 3', 'gear 4'});
