@@ -8,11 +8,12 @@
 % E_i : Young's modulus of shaft material [GPa]
 % V_o : poisson's ratio of gear / hub material
 % V_i : poisson's ratio of shaft material
+% size_part : either "hub" or "shaft", changes relevant radius of chosen part
 
 %%%OUTPUTS:
 % p : pressure in the interference [Mpa]
 % T_max : maximum torque the joint can withstand [Nm]
-% r_h_i : radius of gear / hub inner hole [mm]
+% r_c : changed radius of specified part (inner hole for hub, outer radius for shaft) [mm]
 % h : gear hole diameter tolerence 
 % s : shaft diameter tolerence 
 % sigma_t_s = tangenial stress in shaft [Mpa]
@@ -20,12 +21,12 @@
 % sigma_r_s = tangenial stress in hub / gear [Mpa]
 % sigma_r_o = radial stress in hub / gear [Mpa]
 
-function [p,T_max,r_h_i,h,s,sigma_t_s,sigma_t_o,sigma_r_s,sigma_r_o] = pressFits(d_o,d_s,l,mu ,E_o,E_i,V_o,V_i)
+function [p,T_max,r_c,h,s,sigma_t_s,sigma_t_o,sigma_r_s,sigma_r_o] = pressFits(d_o,d_s,l,mu ,E_o,E_i,V_o,V_i,size_part)
     r_i = 0; % [mm] solid shaft, no hollow inner diameter
     r_o = d_o/2; % [mm] hub / gear outer radius
     r = d_s/2; % [mm] shaft radius
 
-    % class 8 fit, Appendix E-1 fundamentals of machine component design pg 854
+    % class 8 fit (h8), Appendix E-1 fundamentals of machine component design pg 854
     C_h = 0.0052;
     C_s = 0.0052;
     C_i = 0.0010;
@@ -34,9 +35,16 @@ function [p,T_max,r_h_i,h,s,sigma_t_s,sigma_t_o,sigma_r_s,sigma_r_o] = pressFits
     i = C_i * d_s; % [mm] average interference
     
     delta_r = i/2; % is dividing by 2 correct here?
-    r_h_i = r - delta_r; % [mm] radius of gear / hub inner hole
-    if (r_h_i > r_o)
-        warning("Shaft larger than gear")
+    if size_part == "hub"
+        r_c = r - delta_r; % [mm] radius of gear / hub inner hole
+        if (r_c > r_o)
+            warning("Shaft larger than gear")
+        end
+    elseif size_part == "shaft"
+        r = r + delta_r;
+        r_c = r; % [mm] radius of shaft
+    else
+        error('size_part must be either "shaft" or "hub"')
     end
     sigma = 2 * delta_r;
 
