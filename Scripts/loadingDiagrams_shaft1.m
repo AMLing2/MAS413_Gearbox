@@ -86,6 +86,7 @@ title('Axial Torque $T(x)$', 'Interpreter','latex')
 
 % 0 < x < L_AB
 x = linspace(0, L_AB, resolution);
+x(size(x))
 xy_x = [xy_x, x];
 xy_P = [xy_P, zeros(size(x))]; % [N]
 xy_V = [xy_V, zeros(size(x))]; % [N]
@@ -96,7 +97,7 @@ xy_T = [xy_T, ones(size(x)) * T_M ]; % [Nm]
 x = linspace(L_AB, L_AG1, resolution);
 xy_x = [xy_x, x];
 xy_P = [xy_P, zeros(size(x))]; % [N]
-xy_V = [xy_V, ones(size(x)) * (-F_By)]; % [N]
+xy_V = [xy_V, ones(size(x)) * F_By]; % [N] %%% changed sign
 xy_M = [xy_M, F_By * (x - L_AB)]; % [Nm]
 xy_T = [xy_T, ones(size(x)) * T_M]; % [Nm]
 
@@ -153,7 +154,7 @@ ylabel('[Nm]', 'interpreter', 'latex')
 title('Axial Torque $T(x)$', 'Interpreter','latex')
 
 % 0 < x < L_AB
-x = linspace(0, L_AB, resolution);
+x = linspace(0, L_AB, resolution); % L_AB blir duplikert i xz_[n] listene
 xz_x = [xz_x, x];
 xz_P = [xz_P, zeros(size(x))]; % [N]
 xz_V = [xz_V, zeros(size(x))]; % [N]

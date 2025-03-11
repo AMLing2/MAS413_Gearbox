@@ -110,7 +110,7 @@ title('Axial Torque $T(x)$', 'Interpreter','latex')
 % 0 < x < L_E_G3
 x = linspace(0, L_EG3, resolution);
 xy_x = [xy_x, x];
-xy_P = [xy_P, ones(size(x)) * F_Ex]; % [N]
+xy_P = [xy_P, ones(size(x)) * (-F_Ex)]; % [N] %%% changed sign of F_Ex
 xy_V = [xy_V, ones(size(x)) * (-F_Ey)]; % [N]
 xy_M = [xy_M, (-F_Ey * x)]; % [Nm]
 xy_T = [xy_T, zeros(size(x))]; % [Nm]
@@ -121,7 +121,7 @@ xy_T = [xy_T, zeros(size(x))]; % [Nm]
 x = linspace(L_EG3, L_G3G2, resolution);
 xy_x = [xy_x, x];
 xy_P = [xy_P, ones(size(x))* -(F_Ex+F_a3)]; % [N]
-xy_V = [xy_V, ones(size(x)) * -(F_Ey+F_t3)]; % [N]
+xy_V = [xy_V, ones(size(x)) * (-F_Ey+F_t3)]; % [N] %%% changed sign of F_t3
 xy_M = [xy_M,-F_Ey*x + F_t3*(x - L_EG3)]; % [Nm]
 xy_T = [xy_T,ones(size(x)) * F_t3*r_G3]; % [Nm]
  
@@ -129,7 +129,7 @@ xy_T = [xy_T,ones(size(x)) * F_t3*r_G3]; % [Nm]
 % L_G3_G2 < x < L_G2_D 
 x = linspace(L_G3G2, L_G2D, resolution);
 xy_x = [xy_x, x];
-xy_P = [xy_P, ones(size(x)) * (F_Ex - F_a2 - F_a3)]; % [N]
+xy_P = [xy_P, ones(size(x)) * (-F_Ex - F_a2 + F_a3)]; % [N] %%% changed sign of F_Ex and F_a3
 xy_V = [xy_V,ones(size(x)) * (F_t2 - F_Ey + F_t3)]; % [N]
 xy_M = [xy_M,F_t2 * (x- L_E_G2) - F_Ey*x + F_t3 * (x - L_EG3)]; % [Nm]
 xy_T = [xy_T,ones(size(x)) * (F_t3*r_G3 - F_t2*r_G2)]; % [Nm]
@@ -186,7 +186,7 @@ title('Axial Torque $T(x)$', 'Interpreter','latex')
  xz_x = [xz_x, x];
  xz_P = [xz_P,ones(size(x))*(-F_Ex)]; % [N]
  xz_V = [xz_V,ones(size(x))*(-F_Ez)]; % [N]
- xz_M = [xz_M,ones(size(x)).* (x *(-F_Ex))]; % [Nm]
+ xz_M = [xz_M,ones(size(x)).* (x *-(F_Ez))]; % [Nm] %%% changed -(F_ex) to -(F_ez)
  xz_T = [xz_T,zeros(size(x))]; % [Nm]
  
 
@@ -195,7 +195,7 @@ x = linspace(L_EG3, L_G3G2, resolution);
 xz_x = [xz_x, x];
 xz_P = [xz_P,ones(size(x))* -(F_Ex+F_a3)]; % [N]
 xz_V = [xz_V,ones(size(x)) * (F_r3-F_Ez)]; % [N]
-xz_M = [xz_M,F_Ez*x - F_r3*(x - L_EG3)]; % [Nm]
+xz_M = [xz_M,F_Ez*x - F_r3*(x - L_EG3)]; % [Nm] %%%%%%%%%%%%%%% missing F_a3*r_G3
 xz_T = [xz_T,ones(size(x)) * F_t3*r_G3]; % [Nm]
  
 % L_G3_G2 < x < L_G2_D
@@ -203,8 +203,8 @@ xz_T = [xz_T,ones(size(x)) * F_t3*r_G3]; % [Nm]
 x = linspace(L_G3G2, L_G2D, resolution);
 xz_x = [xz_x, x];
 xz_P = [xz_P,ones(size(x)) * (F_a2 - F_a3 - F_Ex)]; % [N]
-xz_V = [xz_V,ones(size(x)) * (F_r3 - F_Ez - F_r2)]; % [N]
-xz_M = [xz_M,F_Ez * x - F_r3*(x - L_EG3) + F_a3 * r_G3 * (x - L_EG3) + F_a2*r_G2*(x-L_G3G2)]; % [Nm]
+xz_V = [xz_V,ones(size(x)) * (F_r3 - F_Ez - F_r2)]; % [N] %%%%%%%%%%%%%  wrong
+xz_M = [xz_M,F_Ez * x - F_r3*(x - L_EG3) + F_a3 * r_G3 * (x - L_EG3) + F_a2*r_G2*(x-L_G3G2)]; % [Nm] %%%%% Nm^2 for F_a2...
 xz_T = [xz_T, ones(size(x)) * (F_t3*r_G3 - F_t2*r_G2)]; % [Nm]
  
 subplot(2,2,1)
