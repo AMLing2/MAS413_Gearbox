@@ -97,7 +97,7 @@ xy_T = [xy_T, ones(size(x)) * T_M ]; % [Nm]
 x = linspace(L_AB, L_AG1, resolution);
 xy_x = [xy_x, x];
 xy_P = [xy_P, zeros(size(x))]; % [N]
-xy_V = [xy_V, ones(size(x)) * F_By]; % [N] %%% changed sign
+xy_V = [xy_V, ones(size(x)) * F_By]; % [N]
 xy_M = [xy_M, F_By * (x - L_AB)]; % [Nm]
 xy_T = [xy_T, ones(size(x)) * T_M]; % [Nm]
 

@@ -39,7 +39,7 @@ L_EG3  = 0.05; % [m]
 L_G3G2 = 0.10; % [m]
 L_G2D = 0.15; % [m]
 L_tot = L_EG3 + L_G3G2 + L_G2D; % [m]
-L_G3D = L_G3G2+L_G2D; % [m]
+L_G3D = L_G3G2 + L_G2D; % [m]
  
 % Radius of gears - Calculated Elsewhere - Needs adjustment of value
 r_G1 = 0.25; % [m]
@@ -107,29 +107,26 @@ ylabel('[Nm]', 'interpreter', 'latex')
 title('Axial Torque $T(x)$', 'Interpreter','latex')
 
  
-% 0 < x < L_E_G3
+% 0 < x < L_EG3
 x = linspace(0, L_EG3, resolution);
 xy_x = [xy_x, x];
-xy_P = [xy_P, ones(size(x)) * (-F_Ex)]; % [N] %%% changed sign of F_Ex
+xy_P = [xy_P, ones(size(x)) * (-F_Ex)]; % [N]
 xy_V = [xy_V, ones(size(x)) * (-F_Ey)]; % [N]
 xy_M = [xy_M, (-F_Ey * x)]; % [Nm]
 xy_T = [xy_T, zeros(size(x))]; % [Nm]
 
-
- 
-% L_E_G3 < x < L_G3_G2
+% L_EG3 < x < L_EG2
 x = linspace(L_EG3, L_G3G2, resolution);
 xy_x = [xy_x, x];
-xy_P = [xy_P, ones(size(x))* -(F_Ex+F_a3)]; % [N]
-xy_V = [xy_V, ones(size(x)) * (-F_Ey+F_t3)]; % [N] %%% changed sign of F_t3
+xy_P = [xy_P, ones(size(x))* (-F_Ex-F_a3)]; % [N]
+xy_V = [xy_V, ones(size(x)) * (-F_Ey+F_t3)]; % [N]
 xy_M = [xy_M,-F_Ey*x + F_t3*(x - L_EG3)]; % [Nm]
 xy_T = [xy_T,ones(size(x)) * F_t3*r_G3]; % [Nm]
- 
- 
-% L_G3_G2 < x < L_G2_D 
+
+% L_EG2 < x < L_ED
 x = linspace(L_G3G2, L_G2D, resolution);
 xy_x = [xy_x, x];
-xy_P = [xy_P, ones(size(x)) * (-F_Ex - F_a2 + F_a3)]; % [N] %%% changed sign of F_Ex and F_a3 %%%% Still wrong sign for F_a2 and F_a3?
+xy_P = [xy_P, ones(size(x)) * (-F_Ex - F_a2 + F_a3)]; % [N]
 xy_V = [xy_V,ones(size(x)) * (F_t2 - F_Ey + F_t3)]; % [N]
 xy_M = [xy_M,F_t2 * (x- L_E_G2) - F_Ey*x + F_t3 * (x - L_EG3)]; % [Nm]
 xy_T = [xy_T,ones(size(x)) * (F_t3*r_G3 - F_t2*r_G2)]; % [Nm]
@@ -144,7 +141,7 @@ subplot(2,2,4)
 plotLD(xy_x,xy_T, colFill)
 
 %% XZ - Plane
- 
+
 
 % Figure setup
 figHandle = 2;
@@ -180,22 +177,21 @@ ylabel('[Nm]', 'interpreter', 'latex')
 title('Axial Torque $T(x)$', 'Interpreter','latex')
  
  
- % 0 < x < L_E_G3
- 
- x = linspace(0, L_EG3, resolution);
- xz_x = [xz_x, x];
- xz_P = [xz_P,ones(size(x))*(-F_Ex)]; % [N]
- xz_V = [xz_V,ones(size(x))*(-F_Ez)]; % [N]
- xz_M = [xz_M,ones(size(x)).* (x *-(F_Ez))]; % [Nm] %%% changed -(F_ex) to -(F_ez)
- xz_T = [xz_T,zeros(size(x))]; % [Nm]
- 
+% 0 < x < L_E_G3
+x = linspace(0, L_EG3, resolution);
+xz_x = [xz_x, x];
+xz_P = [xz_P,ones(size(x))*(-F_Ex)]; % [N]
+xz_V = [xz_V,ones(size(x))*(-F_Ez)]; % [N]
+xz_M = [xz_M,(x *-(F_Ez))]; % [Nm]
+xz_T = [xz_T,zeros(size(x))]; % [Nm]
+
 
 % L_E_G3 < x < L_G3_G2
 x = linspace(L_EG3, L_G3G2, resolution);
 xz_x = [xz_x, x];
 xz_P = [xz_P,ones(size(x))* -(F_Ex+F_a3)]; % [N]
 xz_V = [xz_V,ones(size(x)) * (F_r3-F_Ez)]; % [N]
-xz_M = [xz_M,F_Ez*x - F_r3*(x - L_EG3)]; % [Nm] %%%%%%%%%%%%%%% missing F_a3*r_G3, wrong sign for F_Ez and F_r3
+xz_M = [xz_M,( -F_Ez*x + F_r3*(x - L_EG3) - F_a3*r_G3 )]; % [Nm]
 xz_T = [xz_T,ones(size(x)) * F_t3*r_G3]; % [Nm]
  
 % L_G3_G2 < x < L_G2_D
@@ -203,8 +199,9 @@ xz_T = [xz_T,ones(size(x)) * F_t3*r_G3]; % [Nm]
 x = linspace(L_G3G2, L_G2D, resolution);
 xz_x = [xz_x, x];
 xz_P = [xz_P,ones(size(x)) * (F_a2 - F_a3 - F_Ex)]; % [N]
-xz_V = [xz_V,ones(size(x)) * (F_r3 - F_Ez - F_r2)]; % [N] %%%%%%%%%%%%%  wrong
-xz_M = [xz_M,F_Ez * x - F_r3*(x - L_EG3) + F_a3 * r_G3 * (x - L_EG3) + F_a2*r_G2*(x-L_G3G2)]; % [Nm] %%%%% Nm^2 for F_a2...
+xz_V = [xz_V,ones(size(x)) * (F_r3 - F_Ez - F_r2)]; % [N]
+xz_M = [xz_M,( -F_Ez*x + F_r3*(x - L_EG3) - F_r2*(x - L_EG2) - ...
+                F_a2*r_G2 - F_a3*r_G3)]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * (F_t3*r_G3 - F_t2*r_G2)]; % [Nm]
  
 subplot(2,2,1)
@@ -238,3 +235,5 @@ xlim([0 L_ED])
 [M_max, M_max_idx] = max(M);
 L = xy_x(M_max_idx);
 dashLineV(L, 3, 2, 2)
+
+%% Remember to fix lengths

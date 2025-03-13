@@ -183,8 +183,8 @@ x = linspace(L_FG, L_FH, resolution);
 xz_x = [xz_x, x];
 xz_P = [xz_P, ones(size(x)) * (-F_Fx + F_a4)]; % [N]
 xz_V = [xz_V, ones(size(x)) * (F_Fz - F_r4 + F_Gz)]; % [N]
-xz_M = [xz_M, F_Fz * (x) - F_r4 * (x - L_FG4) - F_a4 * r_G4 + F_Gz * (x - L_FG)]; % [Nm] %%%changed sign of F_Gz
-xz_T = [xz_T, ones(size(x)) * (F_t4*r_G4)]; % [Nm] %%%% removed T_M, changed sign of F_t4
+xz_M = [xz_M, ( F_Fz * (x) - F_r4 * (x - L_FG4) - F_a4 * r_G4 + F_Gz * (x - L_FG) )]; % [Nm]
+xz_T = [xz_T, ones(size(x)) * (F_t4*r_G4)]; % [Nm]
 
 subplot(2,2,1)
 plotLD(xz_x,xz_P,colFill)
