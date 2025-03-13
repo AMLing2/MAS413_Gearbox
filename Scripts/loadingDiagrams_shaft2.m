@@ -129,7 +129,7 @@ xy_T = [xy_T,ones(size(x)) * F_t3*r_G3]; % [Nm]
 % L_G3_G2 < x < L_G2_D 
 x = linspace(L_G3G2, L_G2D, resolution);
 xy_x = [xy_x, x];
-xy_P = [xy_P, ones(size(x)) * (-F_Ex - F_a2 + F_a3)]; % [N] %%% changed sign of F_Ex and F_a3
+xy_P = [xy_P, ones(size(x)) * (-F_Ex - F_a2 + F_a3)]; % [N] %%% changed sign of F_Ex and F_a3 %%%% Still wrong sign for F_a2 and F_a3?
 xy_V = [xy_V,ones(size(x)) * (F_t2 - F_Ey + F_t3)]; % [N]
 xy_M = [xy_M,F_t2 * (x- L_E_G2) - F_Ey*x + F_t3 * (x - L_EG3)]; % [Nm]
 xy_T = [xy_T,ones(size(x)) * (F_t3*r_G3 - F_t2*r_G2)]; % [Nm]
