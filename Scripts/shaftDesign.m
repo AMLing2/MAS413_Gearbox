@@ -1,5 +1,8 @@
 close all; clear; clc;
 
+% TO DO:
+% - Create function for diameter equation with option for 1st itteration
+
 % Input parameters
 n_f = 2; % Safety factor
 material = 1045; % (1045 4130 4140 4340)    ! PLACEHOLDER
@@ -15,8 +18,7 @@ operating_temperature = 70; % Celsius (Defined by Kjell, only significant if > 4
 Mpa_to_ksi = 0.1450377377; % Mpa to ksi conversion factor
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% From mecOfMaterials_shaft2.m 
-
+% From loadingDiagrams_shaft2.m 
 % Values are not accurate and must be updated
 M_y_max = 1200*1e3; % [Nmm]
 M_y_min = -1200*1e3; % [Nmm]
@@ -25,6 +27,7 @@ M_z_min = -3800*1e3; % [Nmm]
 
 T_max = 22700*1e3; % [Nmm]
 T_min =  22700*1e3; % [Nmm]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % (Maskinelementer, lecture 3 slide 7)
 M_max = sqrt(M_y_max^2 + M_z_max^2); % [Nmm]
@@ -34,7 +37,6 @@ M_amp = (M_max - M_min)/2; % [Nmm]
 
 T_mean = (T_max + T_min)/2; % [Nmm]
 T_amp = (T_max - T_min)/2; % [Nmm]
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Material data (Machine Design, Table A8 & A9 page 1039-1040)
 material_key = [1045, 4130, 4140, 4340];
@@ -177,32 +179,26 @@ K_t_tor = 1.5;
 K_t_bend = 1.9;
 
 % End-mill keyset (r/d = 0.02)
-K_t_bend = 2.14;
-K_t_tor = 3;
-% K_t_bend = - 
+% K_t_bend = 2.14;
+% K_t_tor = 3;
+% K_t_bend = -; 
 
 % Sled runner keyset
-K_t_bend = 1.7;
-% K_t_tor = -
-% K_t_bend = -
+% K_t_bend = 1.7;
+% K_t_tor = -;
+% K_t_bend = -;
 
 % Retaining ring groove
-K_t_bend = 5;
-K_t_tor = 3;
-K_t_bend = 5;
-
-% Fatigue concentration foactor (Maskinelementer, lecture 5 slide 11)
-% K_f_bend = 1 + q * (K_t_bend - 1); % q unknown
-% K_f_tor = 1 + q * (K_t_tor - 1); % q unknown
-% K_f_axial = 1 + q * (K_t_axial - 1); % q unknown
+% K_t_bend = 5;
+% K_t_tor = 3;
+% K_t_bend = 5;
 
 % Conservative estimate for preliminary stage
 K_f_bend = K_t_bend;
 K_f_tor = K_t_tor;
 K_f_axial = K_t_bend;
 
-% % Correction factors for preliminary stage, lecture 5 slide 12
-% % S_e = C_load * C_size * C_surf * C_temp * C_reliab * S_ePrime;
+% Correction factors for preliminary stage % (Maskinelementer, lecture 5 slide 12)
 C_load = 1; % Bending
 C_size = 1;
 % C_surf = C_surf;
@@ -212,17 +208,12 @@ C_size = 1;
 % Endurance limit
 S_e = C_load*C_size*C_surf*C_temp*C_reliab*S_e_prime; % (Maskinelementer, lecture 4 slide 5)
 
-
-% Lecture 5 slide 6
-% sigma_rev = sigma_amp_prime/(1-(simga_mean_prime/S_ut)); % 
-% n_f = S_e / sigma_rev; %
-
-% First itteration
+% Shaft diameter
 d1 = ((16*n_f/pi)*(sqrt(4*(K_f_bend*M_amp)^2+3*(K_f_tor*T_amp)^2)/S_e)+(sqrt(4*(K_f_bend*M_mean)^2+3*(K_f_tor*T_mean)^2/S_ut)))^(1/3)
 
 
 
-% KLADD:
+%% KLADD:
 
 % (Maskinelementer, lecture 5 slide 3)
 % sigma_amp = K_f-bend*(32*M_amp)/(pi*d_shaft^3);
@@ -238,6 +229,17 @@ d1 = ((16*n_f/pi)*(sqrt(4*(K_f_bend*M_amp)^2+3*(K_f_tor*T_amp)^2)/S_e)+(sqrt(4*(
 %     fprintf("sigma_mean = ", sigma_mean, " Non nully reversed loading!")
 % end
 % sigma_amp = (sigma_max - sigma_min)/2; % Alternating stress amplitude
+
+
+% (Maskinelementer, lecture 5 slide 6)
+% sigma_rev = sigma_amp_prime/(1-(simga_mean_prime/S_ut)); % 
+% n_f = S_e / sigma_rev; %
+
+
+% Fatigue concentration foactor (Maskinelementer, lecture 5 slide 11)
+% K_f_bend = 1 + q * (K_t_bend - 1); % q unknown
+% K_f_tor = 1 + q * (K_t_tor - 1); % q unknown
+% K_f_axial = 1 + q * (K_t_axial - 1); % q unknown
 
 
 % (Maskinelementer, lecture 2 slide 46)
