@@ -195,7 +195,7 @@ x = linspace(L_EG3, L_G3G2, resolution);
 xz_x = [xz_x, x];
 xz_P = [xz_P,ones(size(x))* -(F_Ex+F_a3)]; % [N]
 xz_V = [xz_V,ones(size(x)) * (F_r3-F_Ez)]; % [N]
-xz_M = [xz_M,F_Ez*x - F_r3*(x - L_EG3)]; % [Nm] %%%%%%%%%%%%%%% missing F_a3*r_G3
+xz_M = [xz_M,F_Ez*x - F_r3*(x - L_EG3)]; % [Nm] %%%%%%%%%%%%%%% missing F_a3*r_G3, wrong sign for F_Ez and F_r3
 xz_T = [xz_T,ones(size(x)) * F_t3*r_G3]; % [Nm]
  
 % L_G3_G2 < x < L_G2_D
