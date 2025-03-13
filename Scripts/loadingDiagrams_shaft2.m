@@ -104,24 +104,24 @@ x = linspace(0, L_EG3, resolution);
 xy_x = [xy_x, x];
 xy_P = [xy_P, ones(size(x)) * (-F_Ex)]; % [N]
 xy_V = [xy_V, ones(size(x)) * (-F_Ey)]; % [N]
-xy_M = [xy_M, (-F_Ey * x)]; % [Nm]
+xy_M = [xy_M, ( - F_Ey*(x) )]; % [Nm]
 xy_T = [xy_T, zeros(size(x))]; % [Nm]
 
 % L_EG3 < x < L_EG2
 x = linspace(L_EG3, L_EG2, resolution);
 xy_x = [xy_x, x];
-xy_P = [xy_P, ones(size(x))* (-F_Ex-F_a3)]; % [N]
-xy_V = [xy_V, ones(size(x)) * (-F_Ey+F_t3)]; % [N]
-xy_M = [xy_M,-F_Ey*x + F_t3*(x - L_EG3)]; % [Nm]
+xy_P = [xy_P, ones(size(x)) * (-F_Ex - F_a3)]; % [N]
+xy_V = [xy_V, ones(size(x)) * (-F_Ey + F_t3)]; % [N]
+xy_M = [xy_M, ( - F_Ey*(x) + F_t3*(x - L_EG3) )]; % [Nm]
 xy_T = [xy_T,ones(size(x)) * F_t3*r_G3]; % [Nm]
 
 % L_EG2 < x < L_ED
 x = linspace(L_EG2, L_ED, resolution);
 xy_x = [xy_x, x];
 xy_P = [xy_P, ones(size(x)) * (-F_Ex - F_a2 + F_a3)]; % [N]
-xy_V = [xy_V,ones(size(x)) * (F_t2 - F_Ey + F_t3)]; % [N]
-xy_M = [xy_M,F_t2 * (x- L_EG2) - F_Ey*x + F_t3 * (x - L_EG3)]; % [Nm]
-xy_T = [xy_T,ones(size(x)) * (F_t3*r_G3 - F_t2*r_G2)]; % [Nm]
+xy_V = [xy_V, ones(size(x)) * (F_t2 - F_Ey + F_t3)]; % [N]
+xy_M = [xy_M, ( F_t2*(x- L_EG2) - F_Ey*(x) + F_t3*(x - L_EG3) )]; % [Nm]
+xy_T = [xy_T, ones(size(x)) * (F_t3*r_G3 - F_t2*r_G2)]; % [Nm]
  
 subplot(2,2,1)
 plotLD(xy_x,xy_P, colFill)
@@ -173,15 +173,15 @@ x = linspace(0, L_EG3, resolution);
 xz_x = [xz_x, x];
 xz_P = [xz_P,ones(size(x))*(-F_Ex)]; % [N]
 xz_V = [xz_V,ones(size(x))*(-F_Ez)]; % [N]
-xz_M = [xz_M,(x *-(F_Ez))]; % [Nm]
+xz_M = [xz_M,( -F_Ez*(x) )]; % [Nm]
 xz_T = [xz_T,zeros(size(x))]; % [Nm]
 
 % L_EG3 < x < L_EG2
 x = linspace(L_EG3, L_EG2, resolution);
 xz_x = [xz_x, x];
-xz_P = [xz_P,ones(size(x))* -(F_Ex+F_a3)]; % [N]
-xz_V = [xz_V,ones(size(x)) * (F_r3-F_Ez)]; % [N]
-xz_M = [xz_M,( -F_Ez*x + F_r3*(x - L_EG3) - F_a3*r_G3 )]; % [Nm]
+xz_P = [xz_P,ones(size(x))* -(F_Ex + F_a3)]; % [N]
+xz_V = [xz_V,ones(size(x)) * (F_r3 - F_Ez)]; % [N]
+xz_M = [xz_M, ( -F_Ez*(x) + F_r3*(x - L_EG3) - F_a3*(r_G3) )]; % [Nm]
 xz_T = [xz_T,ones(size(x)) * F_t3*r_G3]; % [Nm]
 
 % L_EG2 < x < L_ED
@@ -189,8 +189,8 @@ x = linspace(L_EG2, L_ED, resolution);
 xz_x = [xz_x, x];
 xz_P = [xz_P,ones(size(x)) * (F_a2 - F_a3 - F_Ex)]; % [N]
 xz_V = [xz_V,ones(size(x)) * (F_r3 - F_Ez - F_r2)]; % [N]
-xz_M = [xz_M,( -F_Ez*x + F_r3*(x - L_EG3) - F_r2*(x - L_EG2) - ...
-                F_a2*r_G2 - F_a3*r_G3)]; % [Nm]
+xz_M = [xz_M,( -F_Ez*(x) + F_r3*(x - L_EG3) - F_r2*(x - L_EG2) - ...
+                F_a2*(r_G2) - F_a3*(r_G3) )]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * (F_t3*r_G3 - F_t2*r_G2)]; % [Nm]
  
 subplot(2,2,1)
