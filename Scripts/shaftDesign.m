@@ -2,20 +2,19 @@ close all; clear; clc;
 
 % TO DO:
 % - Create function for diameter equation with option for 1st itteration
+% - Lecture 2 slide 6-8, how to implement? 
+
 
 % Input parameters
 n_f = 2; % Safety factor
 material = 1045; % (1045 4130 4140 4340)    ! PLACEHOLDER
 d_shaft = 167; % [mm] Shaft diameter        ! PLACEHLDER VALUE
 r_fillet = 1; % [mm] Fillet radius          ! PLACEHLDER VALUE
-D_d = 1.2; % PLACEHLDER VALUE
+D_d = 1.2; %                                ! PLACEHLDER VALUE
 load_type = "Complex axial";  % ("Pure bending" "Pure axial" "Pure torsion" "Complex axial" "Complex non axial");
 surface_finish = "Machined"; % ("Ground" "Machined" "Hot-rolled" "As-forged") For other types, see Machine Design page 368, Figure 6-26
 reliability = 99; % [%] reliability factor (50 90 95 99 99.9 99.99 99.999 99.9999)
 operating_temperature = 70; % Celsius (Defined by Kjell, only significant if > 450)
-
-% Conversion factors
-Mpa_to_ksi = 0.1450377377; % Mpa to ksi conversion factor
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % From loadingDiagrams_shaft2.m 
@@ -28,6 +27,9 @@ M_z_min = -3800*1e3; % [Nmm]
 T_max = 22700*1e3; % [Nmm]
 T_min =  22700*1e3; % [Nmm]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Conversion factors
+Mpa_to_ksi = 0.1450377377; % Mpa to ksi conversion factor
 
 % (Maskinelementer, lecture 3 slide 7)
 M_max = sqrt(M_y_max^2 + M_z_max^2); % [Nmm]
@@ -95,6 +97,7 @@ K_t_axial = A_axial*(r_fillet/d_shaft)^b_axial;
 % Fatigue (dynamic) stress concentration foactors:
 K_f_bend = 1 + q * (K_t_bend - 1);    % for normal stress, Appendix C
 K_f_tor = 1 + q * (K_t_tor - 1);    % for shear stress
+K_f_axial = 1 + q * (K_t_axial - 1); %  for ??
 
 
 %%% Correction factors %%%
@@ -193,7 +196,7 @@ K_t_bend = 1.9;
 % K_t_tor = 3;
 % K_t_bend = 5;
 
-% Conservative estimate for preliminary stage
+% Conservative estimate for preliminary stage (q is unknown)
 K_f_bend = K_t_bend;
 K_f_tor = K_t_tor;
 K_f_axial = K_t_bend;
@@ -213,7 +216,7 @@ d1 = ((16*n_f/pi)*(sqrt(4*(K_f_bend*M_amp)^2+3*(K_f_tor*T_amp)^2)/S_e)+(sqrt(4*(
 
 
 
-%% KLADD:
+%% WORK IN PROGRESS (in no particular order)
 
 % (Maskinelementer, lecture 5 slide 3)
 % sigma_amp = K_f-bend*(32*M_amp)/(pi*d_shaft^3);
@@ -235,23 +238,86 @@ d1 = ((16*n_f/pi)*(sqrt(4*(K_f_bend*M_amp)^2+3*(K_f_tor*T_amp)^2)/S_e)+(sqrt(4*(
 % sigma_rev = sigma_amp_prime/(1-(simga_mean_prime/S_ut)); % 
 % n_f = S_e / sigma_rev; %
 
-
-% Fatigue concentration foactor (Maskinelementer, lecture 5 slide 11)
-% K_f_bend = 1 + q * (K_t_bend - 1); % q unknown
-% K_f_tor = 1 + q * (K_t_tor - 1); % q unknown
-% K_f_axial = 1 + q * (K_t_axial - 1); % q unknown
-
-
 % (Maskinelementer, lecture 2 slide 46)
 % R = (d/2);
 % A = pi*R^2;
 % I = (pi/4)*R^4;
 % I_p = (pi/2)*R^4 
 
+% Nominal stress (no stress concentration)
+% sigma_x_axial_nom = abs(P)/A;
+% sigma_x_bend_nom = abs(M*R)/I;
+% sigma_x_nom = sigma_x_axial+sigma_x_bending;
+% 
+% sigma_y_axial_nom = abs(P)/A;
+% sigma_y_bend_nom = abs(M*R)/I;
+% sigma_y_nom = sigma_x_axial+sigma_x_bending;
+% 
+% sigma_z_axial_nom = abs(P)/A;
+% sigma_z_bend_nom = abs(M*R)/I;
+% sigma_z_nom = sigma_x_axial+sigma_x_bending;
+% 
+% tau_shear_nom = (4/3)*(V/A);
+% tau_tor_nom = (abs(T)*R)/I_p;
+
+% Stresses with stress concentration factor
+% sigma_x_axial = sigma_x_axial_nom * K_f_axial;
+% sigma_x_bend = sigma_x_bend_nom * K_f_bend;
+% sigma_x = sigma_x_axial + sigma_x_bend;
+% 
+% sigma_y_axial = sigma_y_axial_nom * K_f_axial;
+% sigma_y_bend = sigma_y_bend_nom * K_f_bend;
+% sigma_y = sigma_y_axial + sigma_y_bend;
+% 
+% sigma_z_axial = sigma_z_axial_nom * K_f_axial;
+% sigma_z_bend = sigma_z_bend_nom * K_f_bend;
+% sigma_z = sigma_z_axial + sigma_z_bend;
+% 
+% tau_shear = tau_shear_nom * K_f_tor;
+% tau_tor = tau_tor_nom * K_f_tor;
+
+
 % Von Mises for state of stress (Maskinelementer, lecture 2 slide 32)
 % sigma_von_mises = sqrt((sigma_x-sigma_y)^2 + (sigma_y-sigma_z)^2 + (sigma_z-sigma_x)^2 + 6*(tau_xy^2+tau_yz^2tau_zx^2)/2);
 
 
+
+%% Modified-Goodman Graph (Work in progress)
+% (Maskinelementer, lecture 4 slide 12-22)
+
+% Define mean stress range
+sigma_m = linspace(0, S_ut, 100);
+
+sigma_mean_goodman = S_ut * (1 - sigma_amp/S_e);
+
+% Static yeilding line (first cycle)
+S_y_goodman = sigma_mean + sigma_amp;
+S_yc_goodman = - (sigma_mean + sigma_amp);
+
+
+% Modified-Goodman equation: sigma_a vs. sigma_m
+sigma_a_goodman = S_e * (1 - sigma_m / S_ut);
+
+% Yield Line (infinite life boundary based on yielding)
+sigma_a_yield = S_y - sigma_m;
+
+% Plot the Modified-Goodman diagram
+figure;
+plot(sigma_m, sigma_a_goodman, 'r', 'LineWidth', 2); hold on;
+plot(sigma_m, sigma_a_yield, 'b', 'LineWidth', 2);
+
+% Highlight points
+plot(0, S_e, 'ro', 'MarkerFaceColor', 'r', 'MarkerSize', 8); % Se point
+plot(S_ut, 0, 'ro', 'MarkerFaceColor', 'r', 'MarkerSize', 8); % Sut point
+plot(S_y, 0, 'bo', 'MarkerFaceColor', 'b', 'MarkerSize', 8); % Sy point
+
+% Labels and formatting
+grid on;
+xlabel('\sigma_m [MPa]');
+ylabel('\sigma_a [MPa]');
+title('Modified-Goodman Graph');
+% legend('Modified Goodman Line', 'Yield Line', 'Location', 'Northeast');
+axis([0 S_ut 0 S_y]);
 
 
 
