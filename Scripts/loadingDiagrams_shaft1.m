@@ -97,8 +97,8 @@ xy_T = [xy_T, ones(size(x)) * T_M ]; % [Nm]
 x = linspace(L_AB, L_AG1, resolution);
 xy_x = [xy_x, x];
 xy_P = [xy_P, zeros(size(x))]; % [N]
-xy_V = [xy_V, ones(size(x)) * F_By]; % [N] %%% changed sign
-xy_M = [xy_M, F_By * (x - L_AB)]; % [Nm]
+xy_V = [xy_V, ones(size(x)) * F_By]; % [N]
+xy_M = [xy_M, ( F_By*(x - L_AB) )]; % [Nm]
 xy_T = [xy_T, ones(size(x)) * T_M]; % [Nm]
 
 % L_AG1 < x < L_AC
@@ -106,7 +106,7 @@ x = linspace(L_AG1, L_AC, resolution);
 xy_x = [xy_x, x];
 xy_P = [xy_P, ones(size(x)) * (-F_a1)]; % [N]
 xy_V = [xy_V, ones(size(x)) * (F_By - F_t1)]; % [N]
-xy_M = [xy_M, F_By * (x - L_AB) - F_t1 * (x - L_AG1)]; % [Nm]
+xy_M = [xy_M, ( F_By*(x - L_AB) - F_t1*(x - L_AG1) )]; % [Nm]
 xy_T = [xy_T, ones(size(x)) * (T_M - F_t1*r_G1)]; % [Nm]
 
 subplot(2,2,1)
@@ -166,7 +166,7 @@ x = linspace(L_AB, L_AG1, resolution);
 xz_x = [xz_x, x];
 xz_P = [xz_P, zeros(size(x))]; % [N]
 xz_V = [xz_V, ones(size(x)) * (-F_Bz)]; % [N]
-xz_M = [xz_M, - F_Bz * (x - L_AB)]; % [Nm]
+xz_M = [xz_M, ( - F_Bz*(x - L_AB) )]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * T_M]; % [Nm]
 
 % L_AG1 < x < L_AC
@@ -174,7 +174,7 @@ x = linspace(L_AG1, L_AC, resolution);
 xz_x = [xz_x, x];
 xz_P = [xz_P, ones(size(x)) * (-F_a1)]; % [N]
 xz_V = [xz_V, ones(size(x)) * (F_r1 - F_Bz)]; % [N]
-xz_M = [xz_M, F_r1 * (x - L_AG1) - F_Bz * (x - L_AB) - F_a1 * r_G1]; % [Nm]
+xz_M = [xz_M, ( F_r1*(x - L_AG1) - F_Bz*(x - L_AB) - F_a1*(r_G1) )]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * (T_M - F_t1*r_G1)]; % [Nm]
 
 subplot(2,2,1)

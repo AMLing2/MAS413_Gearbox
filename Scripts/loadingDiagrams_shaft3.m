@@ -107,7 +107,7 @@ x = linspace(L_FG4, L_FG, resolution);
 xy_x = [xy_x, x];
 xy_P = [xy_P, ones(size(x))* (F_a4 - F_Fx)]; % [N]
 xy_V = [xy_V, ones(size(x)) * (F_Fy - F_t4)]; % [N]
-xy_M = [xy_M, F_Fy * (x) - F_t4 *(x-  L_FG4)]; % [Nm]
+xy_M = [xy_M, ( F_Fy*(x) - F_t4*(x - L_FG4) )]; % [Nm]
 xy_T = [xy_T, ones(size(x))*(F_t4*r_G4)]; % [Nm]
 
 % L_FG < x < L_FH
@@ -115,7 +115,7 @@ x = linspace(L_FG, L_FH, resolution);
 xy_x = [xy_x, x];
 xy_P = [xy_P, ones(size(x)) * (-F_Fx+F_a4)]; % [N]
 xy_V = [xy_V, ones(size(x)) * (F_Fy - F_t4 + F_Gy)]; % [N]
-xy_M = [xy_M, F_Fy * (x) - F_t4 * (x - L_FG4) + F_Gy * (x -L_FG)]; % [Nm]
+xy_M = [xy_M, ( F_Fy*(x) - F_t4*(x - L_FG4) + F_Gy*(x - L_FG) )]; % [Nm]
 xy_T = [xy_T, ones(size(x))*(F_t4*r_G4)]; % [Nm]
 
 subplot(2,2,1)
@@ -167,7 +167,7 @@ x = linspace(0, L_FG4, resolution);
 xz_x = [xz_x, x];
 xz_P = [xz_P, ones(size(x)) * (-F_Fx)]; % [N]
 xz_V = [xz_V, ones(size(x)) * (F_Fz)]; % [N]
-xz_M = [xz_M, F_Fz * x]; % [Nm]
+xz_M = [xz_M, ( F_Fz*(x) )]; % [Nm]
 xz_T = [xz_T, zeros(size(x))]; % [Nm]
 
 % L_FG4 < x < L_FG
@@ -175,7 +175,7 @@ x = linspace(L_FG4, L_FG, resolution);
 xz_x = [xz_x, x];
 xz_P = [xz_P, ones(size(x)) * (-F_Fx + F_a4) ]; % [N]
 xz_V = [xz_V, ones(size(x)) * (F_Fz - F_r4)]; % [N]
-xz_M = [xz_M, F_Fz*x - F_r4 *(x-L_FG4) - F_a4*r_G4]; % [Nm]
+xz_M = [xz_M, ( F_Fz*(x) - F_r4*(x - L_FG4) - F_a4*(r_G4) )]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * F_t4 *r_G4]; % [Nm]
 
 % L_FG < x < L_FH
@@ -183,8 +183,9 @@ x = linspace(L_FG, L_FH, resolution);
 xz_x = [xz_x, x];
 xz_P = [xz_P, ones(size(x)) * (-F_Fx + F_a4)]; % [N]
 xz_V = [xz_V, ones(size(x)) * (F_Fz - F_r4 + F_Gz)]; % [N]
-xz_M = [xz_M, F_Fz * (x) - F_r4 * (x - L_FG4) - F_a4 * r_G4 + F_Gz * (x - L_FG)]; % [Nm] %%%changed sign of F_Gz
-xz_T = [xz_T, ones(size(x)) * (F_t4*r_G4)]; % [Nm] %%%% removed T_M, changed sign of F_t4
+xz_M = [xz_M, ( F_Fz*(x) - F_r4*(x - L_FG4) - F_a4*(r_G4) + ...
+                F_Gz*(x - L_FG) )]; % [Nm]
+xz_T = [xz_T, ones(size(x)) * (F_t4*r_G4)]; % [Nm]
 
 subplot(2,2,1)
 plotLD(xz_x,xz_P,colFill)
