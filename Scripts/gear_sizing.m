@@ -241,3 +241,5 @@ T = table([d_g1; d_g2; d_g3; d_g4], [b_s1; b_s1; b_s2; b_s2], ...
 disp(T)
 
 save("gear_sizes.mat")
+
+

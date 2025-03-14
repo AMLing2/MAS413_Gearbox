@@ -31,14 +31,10 @@ L_G3G2 = 0.10; % [m]
 L_G2D = 0.15; % [m]
  
 % Radius of gears - Calculated Elsewhere - Needs adjustment of value
-r_G1 = 0.25; % [m]
-r_G2 = 0.25; % [m]
-r_G3 = 0.25; % [m]
-r_G4 = 0.25; % [m]
-
-% Needs adjustment of values
-i_1 = 1; % [-]
-i_2 = 2; % [-]
+r_G1 = mm_to_m(50.873); % [m]
+r_G2 = mm_to_m(223.28); % [m]
+r_G3 = mm_to_m(74.354); % [m]
+r_G4 = mm_to_m(293.28); % [m]
 
 % Calculated Values
 eta = 0.96; % [-] Efficiency
@@ -224,3 +220,12 @@ xlim([0 L_ED])
 [M_max, M_max_idx] = max(M);
 L = xy_x(M_max_idx);
 dashLineV(L, 3, 2, 2)
+
+
+function meters = mm_to_m(millimeters)
+    % mm_to_m converts millimeters to meters
+    % Input: millimeters - Value in millimeters
+    % Output: meters - Converted value in meters
+    
+    meters = millimeters / 1000;
+end
