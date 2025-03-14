@@ -12,34 +12,23 @@ wPlot = 22;
 hPlot = 16;
 fSize = 16;
 
-% Given information from project description - Needs adjustment of values
-i_tot = 17.3; % [-]
-i_1 = 1; % [-]
-i_2 = 2; % [-]
-
-
-n_in = 1450; % [RPM]
-omega_in = n_in * 2*pi / 60; % [rad/sec]
-n_out = (n_in/i_tot); %[RPM]
-omega_out = n_out * 2*pi / 60; %[rad/sec]
- 
-eta = 0.96; %[-] Efficiency
-eta_tot = eta^2;
-
-P_in = 12.5e3; % [W]
-P_out = P_in*eta_tot; %[W] (Squared efficiency because there are two stages)
-T_M = P_in/omega_in; %[Nm]
-T_out = P_out/omega_out; %[Nm] 
- 
+% Given information
+n_1 = 1450; % [RPM]
+omega_1 = n_1 * 2*pi / 60; % [rad/sec]
+P_in = 12.5e3; % [W] also referred to as P_1
+i_tot = 17.3;
 alpha = 20; % [degrees] Helix Angle
 beta = 15;  % [degrees] Pressure Angle
 
-% Lengths on shaft - Needs adjustment of value
+n_in = 1450; % [RPM]
+omega_in = n_in * 2*pi / 60; % [rad/sec]
+n_out = (n_in/i_tot); % [RPM]
+omega_out = n_out * 2*pi / 60; % [rad/sec]
+
+% Chosen Parameters
 L_EG3  = 0.05; % [m]
 L_G3G2 = 0.10; % [m]
 L_G2D = 0.15; % [m]
-L_tot = L_EG3 + L_G3G2 + L_G2D; % [m]
-L_G3D = L_G3G2 + L_G2D; % [m]
  
 % Radius of gears - Calculated Elsewhere - Needs adjustment of value
 r_G1 = 0.25; % [m]
@@ -47,28 +36,32 @@ r_G2 = 0.25; % [m]
 r_G3 = 0.25; % [m]
 r_G4 = 0.25; % [m]
 
-%% Calculations
-% Calculated lengths & Torques
-L_E_G2 = L_EG3 + L_G3G2; % [m]
- 
-%Gear 2 forces
+% Needs adjustment of values
+i_1 = 1; % [-]
+i_2 = 2; % [-]
+
+% Calculated Values
+eta = 0.96; % [-] Efficiency
+eta_tot = eta^2; % [-] Squared because there are two stages
+P_out = P_in*eta_tot; % [W]
+T_M   = P_in/omega_in; % [Nm]
+T_out = P_out/omega_out; %[Nm] 
+    % Lengths
+L_G3D = L_G3G2 + L_G2D; % [m]
+L_EG2 = L_EG3 + L_G3G2; % [m]
+L_ED = L_EG2 + L_G2D; % [m]
+    % Gear 2 forces
 F_t2 = T_M/r_G1; % [N]
 F_a2 = F_t2 * tand(beta); % [N]
 F_r2 = F_t2 * tand(alpha)/cosd(beta); % [N]
-
-% Gear 3 forces
+    % Gear 3 forces
 F_t3 = (T_out*i_tot) / r_G4; % [N]
 F_a3 = F_t3 * tand(beta); % [N]
 F_r3 = F_t3 * tand(alpha)/cosd(beta); % [N]
-
-%% Reaction forces @ bearings
-L_ED = L_tot;
-
-F_Ex = F_a2-F_a3;
-
+    % Reaction forces @ bearings
+F_Ex = F_a2 - F_a3;
 F_Ez = (F_r3*L_G3D - F_r2*L_G2D - F_a3*r_G3 - F_a2*r_G2)/L_ED;
-
-F_Ey= (F_t3*L_G3D + F_t2*L_G2D)/L_ED;
+F_Ey = (F_t3*L_G3D + F_t2*L_G2D)/L_ED;
 
  
 %% XY - Plane
@@ -106,30 +99,29 @@ xlabel('[m]', 'interpreter', 'latex')
 ylabel('[Nm]', 'interpreter', 'latex')
 title('Axial Torque $T(x)$', 'Interpreter','latex')
 
- 
 % 0 < x < L_EG3
 x = linspace(0, L_EG3, resolution);
 xy_x = [xy_x, x];
 xy_P = [xy_P, ones(size(x)) * (-F_Ex)]; % [N]
 xy_V = [xy_V, ones(size(x)) * (-F_Ey)]; % [N]
-xy_M = [xy_M, (-F_Ey * x)]; % [Nm]
+xy_M = [xy_M, ( - F_Ey*(x) )]; % [Nm]
 xy_T = [xy_T, zeros(size(x))]; % [Nm]
 
 % L_EG3 < x < L_EG2
-x = linspace(L_EG3, L_G3G2, resolution);
+x = linspace(L_EG3, L_EG2, resolution);
 xy_x = [xy_x, x];
-xy_P = [xy_P, ones(size(x))* (-F_Ex-F_a3)]; % [N]
-xy_V = [xy_V, ones(size(x)) * (-F_Ey+F_t3)]; % [N]
-xy_M = [xy_M,-F_Ey*x + F_t3*(x - L_EG3)]; % [Nm]
+xy_P = [xy_P, ones(size(x)) * (-F_Ex - F_a3)]; % [N]
+xy_V = [xy_V, ones(size(x)) * (-F_Ey + F_t3)]; % [N]
+xy_M = [xy_M, ( - F_Ey*(x) + F_t3*(x - L_EG3) )]; % [Nm]
 xy_T = [xy_T,ones(size(x)) * F_t3*r_G3]; % [Nm]
 
 % L_EG2 < x < L_ED
-x = linspace(L_G3G2, L_G2D, resolution);
+x = linspace(L_EG2, L_ED, resolution);
 xy_x = [xy_x, x];
 xy_P = [xy_P, ones(size(x)) * (-F_Ex - F_a2 + F_a3)]; % [N]
-xy_V = [xy_V,ones(size(x)) * (F_t2 - F_Ey + F_t3)]; % [N]
-xy_M = [xy_M,F_t2 * (x- L_E_G2) - F_Ey*x + F_t3 * (x - L_EG3)]; % [Nm]
-xy_T = [xy_T,ones(size(x)) * (F_t3*r_G3 - F_t2*r_G2)]; % [Nm]
+xy_V = [xy_V, ones(size(x)) * (F_t2 - F_Ey + F_t3)]; % [N]
+xy_M = [xy_M, ( F_t2*(x- L_EG2) - F_Ey*(x) + F_t3*(x - L_EG3) )]; % [Nm]
+xy_T = [xy_T, ones(size(x)) * (F_t3*r_G3 - F_t2*r_G2)]; % [Nm]
  
 subplot(2,2,1)
 plotLD(xy_x,xy_P, colFill)
@@ -140,8 +132,8 @@ plotLD(xy_x,xy_M, colFill)
 subplot(2,2,4)
 plotLD(xy_x,xy_T, colFill)
 
-%% XZ - Plane
 
+%% XZ - Plane
 
 % Figure setup
 figHandle = 2;
@@ -176,32 +168,29 @@ xlabel('[m]', 'interpreter', 'latex')
 ylabel('[Nm]', 'interpreter', 'latex')
 title('Axial Torque $T(x)$', 'Interpreter','latex')
  
- 
-% 0 < x < L_E_G3
+% 0 < x < L_EG3
 x = linspace(0, L_EG3, resolution);
 xz_x = [xz_x, x];
 xz_P = [xz_P,ones(size(x))*(-F_Ex)]; % [N]
 xz_V = [xz_V,ones(size(x))*(-F_Ez)]; % [N]
-xz_M = [xz_M,(x *-(F_Ez))]; % [Nm]
+xz_M = [xz_M,( -F_Ez*(x) )]; % [Nm]
 xz_T = [xz_T,zeros(size(x))]; % [Nm]
 
-
-% L_E_G3 < x < L_G3_G2
-x = linspace(L_EG3, L_G3G2, resolution);
+% L_EG3 < x < L_EG2
+x = linspace(L_EG3, L_EG2, resolution);
 xz_x = [xz_x, x];
-xz_P = [xz_P,ones(size(x))* -(F_Ex+F_a3)]; % [N]
-xz_V = [xz_V,ones(size(x)) * (F_r3-F_Ez)]; % [N]
-xz_M = [xz_M,( -F_Ez*x + F_r3*(x - L_EG3) - F_a3*r_G3 )]; % [Nm]
+xz_P = [xz_P,ones(size(x))* -(F_Ex + F_a3)]; % [N]
+xz_V = [xz_V,ones(size(x)) * (F_r3 - F_Ez)]; % [N]
+xz_M = [xz_M, ( -F_Ez*(x) + F_r3*(x - L_EG3) - F_a3*(r_G3) )]; % [Nm]
 xz_T = [xz_T,ones(size(x)) * F_t3*r_G3]; % [Nm]
- 
-% L_G3_G2 < x < L_G2_D
 
-x = linspace(L_G3G2, L_G2D, resolution);
+% L_EG2 < x < L_ED
+x = linspace(L_EG2, L_ED, resolution);
 xz_x = [xz_x, x];
 xz_P = [xz_P,ones(size(x)) * (F_a2 - F_a3 - F_Ex)]; % [N]
 xz_V = [xz_V,ones(size(x)) * (F_r3 - F_Ez - F_r2)]; % [N]
-xz_M = [xz_M,( -F_Ez*x + F_r3*(x - L_EG3) - F_r2*(x - L_EG2) - ...
-                F_a2*r_G2 - F_a3*r_G3)]; % [Nm]
+xz_M = [xz_M,( -F_Ez*(x) + F_r3*(x - L_EG3) - F_r2*(x - L_EG2) - ...
+                F_a2*(r_G2) - F_a3*(r_G3) )]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * (F_t3*r_G3 - F_t2*r_G2)]; % [Nm]
  
 subplot(2,2,1)
