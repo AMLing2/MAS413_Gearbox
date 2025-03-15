@@ -1,4 +1,4 @@
-function modifiedGoodman(S_yc, S_ut, S_e)
+function modifiedGoodman(S_y, S_yc, S_ut, S_e, sigma_vm_mean, sigma_vm_amp)
     % Modified-Goodman Graph (Maskinelementer, lecture 4 slide 12-22)
     % (Work in progress)
 
@@ -14,12 +14,38 @@ function modifiedGoodman(S_yc, S_ut, S_e)
     S_y_goodman_L = S_y * (1 - sigma_mean_goodman_L / S_yc);
     S_y_goodman_R = S_y * (1 - sigma_mean_goodman_R / S_y);
     
-    % Check for static failure
-    % n_y = S_y/simga_max;
+    % Static safety factor
+    if sigma_vm_mean >= 0
+        n_y = S_y/(sigma_vm_mean + sigma_vm_amp);
+    else
+        n_y = S_y/abs(sigma_vm_mean - sigma_vm_amp);
+    end
+
+    if n_y > 1
+        fprintf('n_y = %.2f --> No static failure\n', n_y)
+    else
+        fprintf('n_y = %.2f --> Static failure\n', n_y)
+    end
     
-    % Check for fatigue failure
-    % sigma_rev = sigma_amp_vm/(1-(sigma_mean_vm/S_ut));
-    % n_f = S_e/simga_rev;
+    % Fatigue safety factor
+    if sigma_vm_mean >= 0 && sigma_vm_mean + sigma_vm_amp < S_y
+        sigma_rev = sigma_vm_amp/(1-(sigma_vm_mean/S_ut));
+    elseif sigma_vm_mean >= 0 && sigma_vm_mean + sigma_vm_amp > S_y
+        sigma_rev = S_y;
+    elseif sigma_vm_mean < 0 && abs(sigma_vm_mean - sigma_vm_amp) < abs(S_yc)
+        sigma_rev = sigma_vm_amp;
+    elseif sigma_vm_mean < 0 && abs(sigma_vm_mean - sigma_vm_amp) > abs(S_yc)
+        sigma_rev = abs(S_yc);
+    else
+        fprintf('\sigma_{rev} error in Modified Goodman Diagram')
+    end
+    n_f = S_e/sigma_rev;
+
+    if n_f > 1
+        fprintf('n_f = %.2f --> No fatigue failure, infinete life\n', n_f)
+    else
+        fprintf('n_f = %.2f --> Fatigue failure, finete life\n', n_f)
+    end
     
     % Intersecting points for indexing
     [~, intersect_L] = min(abs(sigma_amp_goodman_L - S_y_goodman_L));
@@ -43,6 +69,9 @@ function modifiedGoodman(S_yc, S_ut, S_e)
     plot(S_y, 0, 'ko', 'MarkerFaceColor', [0.6350 0.0780 0.1840], 'MarkerSize', 6); % S_y point
     plot(S_yc, 0, 'ko', 'MarkerFaceColor', [0.6350 0.0780 0.1840], 'MarkerSize', 6); % S_yc point
     axis([S_yc-100 S_ut+100 0 S_y+100]);
+
+    % Calculated point
+    plot(sigma_vm_mean, sigma_vm_amp, 'ko', 'MarkerFaceColor', 'y', 'MarkerSize', 6);
     
     % Axis labels ! NEEDS ADJUSTMENT
     xticks([S_yc, S_y, S_ut]); % Set x-axis tick positions

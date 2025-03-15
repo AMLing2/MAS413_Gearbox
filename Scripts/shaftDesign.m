@@ -3,17 +3,11 @@ close all; clear; clc;
 % TO DO:
 % - Create function for diameter equation with option for 1st itteration
 % - Lecture 2 slide 6-8, how to implement?
-% - Modified-Godman
-%   * Restructure as function in separate file
-%   * Adjust formatting to match other plots
-%   * Move x- and y-labels to the ends of axis
-%   * Fill inn missing for safety factors
-
 
 % Input parameters
 n_f = 2; % Safety factor
 material = 1045; % (1045 4130 4140 4340)    ! PLACEHOLDER
-d_shaft = 167; % [mm] Shaft diameter        ! PLACEHLDER VALUE
+d_shaft = 10; % [mm] Shaft diameter        ! PLACEHLDER VALUE
 r_fillet = 1; % [mm] Fillet radius          ! PLACEHLDER VALUE
 D_d = 1.2; %                                ! PLACEHLDER VALUE
 load_type = "Complex axial";  % ("Pure bending" "Pure axial" "Pure torsion" "Complex axial" "Complex non axial");
@@ -34,7 +28,6 @@ Mpa_to_ksi = 0.1450377377; % Mpa to ksi conversion factor
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % From loadingDiagrams_shaft1.m  ! MUST BE UPDATED 
-
 % Axial
 P_x = -1; % [N]
 
@@ -196,8 +189,8 @@ tau_xz_tor_mean = tau_xz_tor_mean_nom * K_f_tor; % [Mpa]
 tau_xz_tor_amp =  tau_xz_tor_amp_nom  * K_f_tor; % [Mpa]
 
 % Resultant mean and amplitude (Maskinelementer, lecture 3 slide 23-24)
-simga_x_mean = sigma_x_axial_mean + sigma_x_bend_mean; % [Mpa]
-simga_x_amp =  sigma_x_axial_amp + sigma_x_bend_amp;   % [Mpa]
+sigma_x_mean = sigma_x_axial_mean + sigma_x_bend_mean; % [Mpa]
+sigma_x_amp =  sigma_x_axial_amp + sigma_x_bend_amp;   % [Mpa]
 
 tau_xy_mean = tau_xy_shear_mean + tau_xy_tor_mean; % [Mpa]
 tau_xy_amp =  tau_xy_shear_amp + tau_xy_tor_amp;   % [Mpa]
@@ -321,6 +314,10 @@ S_e = C_load*C_size*C_surf*C_temp*C_reliab*S_e_prime; % (Maskinelementer, lectur
 
 % Shaft diameter
 d1 = ((16*n_f/pi)*(sqrt(4*(K_f_bend*M_amp)^2+3*(K_f_tor*T_amp)^2)/S_e)+(sqrt(4*(K_f_bend*M_mean)^2+3*(K_f_tor*T_mean)^2/S_ut)))^(1/3)
+
+
+%%%%% Modified Goodman Diagram %%%%%
+modifiedGoodman(S_y, S_yc, S_ut, S_e, sigma_vm_mean, sigma_vm_amp);
 
 %% Notes
 
