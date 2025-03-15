@@ -216,7 +216,7 @@ xlim([0 L_AC])
 L = xy_x(M_max_idx);
 dashLineV(L, 3, 2, 2)
 
-%% Lenght sanity check
+%% Length sanity check
 lW = 3;
 
 figure(99)
