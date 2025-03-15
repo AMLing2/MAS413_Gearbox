@@ -10,7 +10,7 @@ clc;close all;clear;
 % increase lambda to 14?
 
 %%% Chosen parameters
-material = "15 CrNi 6";
+material = "Fe 590";
 lambda = 12; % width factor, processed:  8-12, pg 17 lec 1
 
 %from requirements:
@@ -21,19 +21,25 @@ i_tot_og = 17.3;
 V_b = 1.7; % bending safety factor, lec 4 pg 8
 V_o = 1.25; % contact safety factor, lec 4 pg 10
 
-CR_min = 1.4; % machine design pg 738
-a_CR_min = 1.15; % machine design pg 796
+% Contact Ratio Minimum Requirement
+mp_min = 1.4; % machine design pg 738 - Contact Ratio
+mF_min = 1.15; % machine design pg 796 - Transverse Contact Ratio
 
-% teeth #
-z_1 = 18;
-z_2 = 79;
-z_3 = 18;
-z_4 = 71;
+% Min & max from Rollof: Figure 15-38 KGR Lecture 2
+i1_min = 4.5;
+i1_max = 5;
+delta = 1e-3; % Iteration resolution
+z_1 = 18; % Machine Design p737 Table 12-4: pressure angle
+% zSmallest & zClosest are lists with format: [z_1,z_2,z_3,z_4,i_tot]
+[zSmallest, zClosest] = grat2stage(i1_min, i1_max, delta, z_1, i_tot_og);
+z_2 = zClosest(2);
+z_3 = zClosest(3);
+z_4 = zClosest(4);
+i_tot = zClosest(5);
 
 % gear ratios of stages
 i_s1 = z_2/z_1;
 i_s2 = z_4/z_3;
-i_tot = i_s1 * i_s2;
 
 % check if new i_tot is within 1% of requirement
 if ( abs(i_tot - i_tot_og)/i_tot_og ) > 0.01
@@ -196,7 +202,7 @@ Z_s2 =  sqrt((d_g3/2 + ht_3)^2 - (d_g3/2 * cosd(alpha))^2) + ...
         - C_s2 * sind(alpha); % eq 12.2 machine design pg 730
 P_b_s1 = (pi * d_g3/ z_3) * cosd(alpha); % eq 12.3b machine design pg 734
 CR_s2 = Z_s2/P_b_s1; % eq 12.7a machine design pg 738
-if or( (CR_s1 < CR_min), (CR_s2 < CR_min) )
+if or( (CR_s1 < mp_min), (CR_s2 < mp_min) )
     error("Contact ratio is less than minimum")
 end
 %%% contact ratio %%%
@@ -228,7 +234,7 @@ m_f_s1 = (b_s1 * tand(beta)) / (pi * mt_s1); % eq 13.5 machine design pg 796
 m_f_s2 = (b_s2 * tand(beta)) / (pi * mt_s2);
 if or((m_f_s1 < 1),(m_f_s2 < 1))
     error("Axial contact ratio is under 1")
-elseif or((m_f_s1 < a_CR_min),(m_f_s2 < a_CR_min))
+elseif or((m_f_s1 < mF_min),(m_f_s2 < mF_min))
     warning("Axial contact ratio is low")
 end
 %%% axial contact ratio %%%
