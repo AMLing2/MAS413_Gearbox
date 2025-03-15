@@ -82,7 +82,7 @@ title('Bending Moment $M_z(x)$', 'Interpreter','latex')
 subplot(2,2,4)
 xlabel('[m]', 'interpreter', 'latex')
 ylabel('[Nm]', 'interpreter', 'latex')
-title('Axial Torque $T(x)$', 'Interpreter','latex')
+title('Torque $T(x)$', 'Interpreter','latex')
 
 % 0 < x < L_AB
 x = linspace(0, L_AB, resolution);
@@ -151,7 +151,7 @@ title('Bending Moment $M_y(x)$', 'Interpreter','latex')
 subplot(2,2,4)
 xlabel('[m]', 'interpreter', 'latex')
 ylabel('[Nm]', 'interpreter', 'latex')
-title('Axial Torque $T(x)$', 'Interpreter','latex')
+title('Torque $T(x)$', 'Interpreter','latex')
 
 % 0 < x < L_AB
 x = linspace(0, L_AB, resolution); % L_AB blir duplikert i xz_[n] listene

@@ -93,7 +93,7 @@ title('Bending Moment $M_z(x)$', 'Interpreter','latex')
 subplot(2,2,4)
 xlabel('[m]', 'interpreter', 'latex')
 ylabel('[Nm]', 'interpreter', 'latex')
-title('Axial Torque $T(x)$', 'Interpreter','latex')
+title('Torque $T(x)$', 'Interpreter','latex')
 
 % 0 < x < L_EG3
 x = linspace(0, L_EG3, resolution);
@@ -162,7 +162,7 @@ title('Bending Moment $M_y(x)$', 'Interpreter','latex')
 subplot(2,2,4)
 xlabel('[m]', 'interpreter', 'latex')
 ylabel('[Nm]', 'interpreter', 'latex')
-title('Axial Torque $T(x)$', 'Interpreter','latex')
+title('Torque $T(x)$', 'Interpreter','latex')
  
 % 0 < x < L_EG3
 x = linspace(0, L_EG3, resolution);
