@@ -2,7 +2,12 @@ close all; clear; clc;
 
 % TO DO:
 % - Create function for diameter equation with option for 1st itteration
-% - Lecture 2 slide 6-8, how to implement? 
+% - Lecture 2 slide 6-8, how to implement?
+% - Modified-Godman
+%   * Restructure as function in separate file
+%   * Adjust formatting to match other plots
+%   * Move x- and y-labels to the ends of axis
+%   * Fill inn missing for safety factors
 
 
 % Input parameters
@@ -14,33 +19,94 @@ D_d = 1.2; %                                ! PLACEHLDER VALUE
 load_type = "Complex axial";  % ("Pure bending" "Pure axial" "Pure torsion" "Complex axial" "Complex non axial");
 surface_finish = "Machined"; % ("Ground" "Machined" "Hot-rolled" "As-forged") For other types, see Machine Design page 368, Figure 6-26
 reliability = 99; % [%] reliability factor (50 90 95 99 99.9 99.99 99.999 99.9999)
-operating_temperature = 70; % Celsius (Defined by Kjell, only significant if > 450)
+operating_temperature = 70; % Celsius, defined by Kjell (only significant if > 450)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% From loadingDiagrams_shaft2.m 
-% Values are not accurate and must be updated
-M_y_max = 1200*1e3; % [Nmm]
-M_y_min = -1200*1e3; % [Nmm]
-M_z_max = 3800*1e3; % [Nmm]
-M_z_min = -3800*1e3; % [Nmm]
+S_yc = -800; % [Mpa] Complressive yeild strength ! PLACEHOLDER VALUE must be incorporated with material data table
 
-T_max = 22700*1e3; % [Nmm]
-T_min =  22700*1e3; % [Nmm]
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Calculated values
+R = (d/2); % [mm] Shaft radius
+A = pi*R^2; % [mm^2] Shaft area
+I = (pi/4)*R^4; % [mm^4] Moment of inertia
+I_p = (pi/2)*R^4; % [mm^4] Polar moment of inertia
 
 % Conversion factors
 Mpa_to_ksi = 0.1450377377; % Mpa to ksi conversion factor
 
-% (Maskinelementer, lecture 3 slide 7)
-M_max = sqrt(M_y_max^2 + M_z_max^2); % [Nmm]
-M_min = -sqrt(M_y_min^2 + M_z_min^2); % [Nmm]
-M_mean = (M_max + M_min)/2; % [Nmm]
-M_amp = (M_max - M_min)/2; % [Nmm]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% From loadingDiagrams_shaft1.m  ! MUST BE UPDATED 
 
-T_mean = (T_max + T_min)/2; % [Nmm]
-T_amp = (T_max - T_min)/2; % [Nmm]
+% Axial
+P_x = -1; % [N]
 
-% Material data (Machine Design, Table A8 & A9 page 1039-1040)
+% Shear
+V_xy = 2; % [N]
+V_xz = 90; % [N]
+
+% Bending
+M_z = 1*1e3; % [Nmm]
+M_y = 13*1e3; % [Nmm]
+
+% Tourqe
+T = 83; % [Nmm]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Axial (constant)
+P_x_max = P_x; % [N]
+P_x_min = P_x; % [N]
+
+% Shear (fully reversed)
+V_xy_max =  V_xy; % [N]
+V_xy_min = -V_xy; % [N]
+V_xz_max =  V_xz; % [N]
+V_xz_min = -V_xz; % [N]
+
+% Bending (fully reversed)
+M_z_max =  M_z; % [Nmm]
+M_z_min = -M_z; % [Nmm]
+M_y_max =  M_y; % [Nmm]
+M_y_min = -M_y; % [Nmm]
+
+% Tourqe (constant)
+T_max = T; % [Nmm]
+T_min = T; % [Nmm]
+
+%%%%% Mean & Amplitude nominal stress %%%%% (Maskinelementer, lecture 3 slide 15-18)
+% Axial
+sigma_x_axial_max_nom = P_x_max/A; % [Mpa]
+sigma_x_axial_min_nom = P_x_min/A; % [Mpa]
+sigma_x_axial_mean_nom = (sigma_x_axial_max_nom + sigma_x_axial_min_nom)/2; % [Mpa]
+sigma_x_axial_amp_nom =  (sigma_x_axial_max_nom - sigma_x_axial_min_nom)/2; % [Mpa]
+
+% Shear
+tau_xy_shear_max_nom = (4/3)*(V_xy_max/A); % [Mpa]
+tau_xy_shear_min_nom = (4/3)*(V_xy_min/A); % [Mpa]
+tau_xy_shear_mean_nom = (tau_xy_shear_max_nom + tau_xy_shear_min_nom)/2; % [Mpa]
+tau_xy_shear_amp_nom =  (tau_xy_shear_max_nom - tau_xy_shear_min_nom)/2; % [Mpa]
+
+tau_xz_shear_max_nom = (4/3)*(V_xz_max/A); % [Mpa]
+tau_xz_shear_min_nom = (4/3)*(V_xz_min/A); % [Mpa]
+tau_xz_shear_mean_nom = (tau_xz_shear_max_nom + tau_xz_shear_min_nom)/2; % [Mpa]
+tau_xz_shear_amp_nom =  (tau_xz_shear_max_nom - tau_xz_shear_min_nom)/2; % [Mpa]
+
+% Bending
+sigma_x_bend_max_nom = (M_max*R)/I; % [Mpa]
+sigma_x_bend_min_nom = (M_min*R)/I; % [Mpa]
+sigma_x_bend_mean_nom = (sigma_x_bend_max_nom + sigma_x_bend_min_nom)/2; % [Mpa]
+sigma_x_bend_amp_nom =  (sigma_x_bend_max_nom - sigma_x_bend_min_nom)/2; % [Mpa]
+
+% Torsion
+tau_xy_tor_max_nom = (T_max*R)/I_p; % [Mpa]
+tau_xy_tor_min_nom = (T_min*R)/I_p; % [Mpa]
+tau_xy_tor_mean_nom = (tau_xy_tor_max_nom + tau_xy_tor_min_nom)/2; % [Mpa]
+tau_xy_tor_amp_nom =  (tau_xy_tor_max_nom - tau_xy_tor_min_nom)/2; % [Mpa]
+
+tau_xz_tor_max_nom = (T_max*R)/I_p; % [Mpa]
+tau_xz_tor_min_nom = (T_min*R)/I_p; % [Mpa]
+tau_xz_tor_mean_nom = (tau_xz_tor_max_nom + tau_xz_tor_min_nom)/2; % [Mpa]
+tau_xz_tor_amp_nom =  (tau_xz_tor_max_nom - tau_xz_tor_min_nom)/2; % [Mpa]
+
+
+%%%%% Material data %%%%% (Machine Design, Table A8 & A9 page 1039-1040)
 material_key = [1045, 4130, 4140, 4340];
 material_data = struct('S_y', num2cell([593, 655, 1462, 1365]),...
                        'S_ut', num2cell([779, 862, 1627, 1627]));
@@ -48,7 +114,8 @@ material_table = dictionary(material_key, material_data);
 S_y = material_table(material).S_y;
 S_ut = material_table(material).S_ut;
 
-%%% Neubler's Constant for Steels %%% (Machine Design, Table 6-6 page 382)
+
+%%%%% Neubler's Constant for Steels %%%%% (Machine Design, Table 6-6 page 382)
 S_ut_ksi_table = [50 55 60 70 80 90 100 110 120 130 140 160 180 200 220 240];% [ksi]
 a_sqrt_in_table = [0.130 0.118 0.108 0.093 0.080 0.070 0.062 0.055 0.049 0.044 0.039 0.031 0.024 0.018 0.013 0.009]; % [in^1/2]
 Neublers_table = dictionary(S_ut_ksi_table, a_sqrt_in_table);
@@ -63,7 +130,7 @@ a_sqrt_mm = a_sqrt_in * sqrt(25.4); % [mm^1/2] Usikker på om dette er rett. (Ma
 q = 1/(1 + (a_sqrt_mm/sqrt(r_fillet))); 
 
 
-%%% Stress concentration factors %%% (Maskinelementer, lecture 3 slide 12)
+%%%%% Stress concentration factors %%%%% (Maskinelementer, lecture 3 slide 12)
 % Geometrical (theoretical) stress concentration factors:
 % See appendix C for tables and values (side 1048-1049)
 D_d_bend_key = [6.00, 3.00, 2.00, 1.50, 1.20, 1.10, 1.07, 1.05, 1.03, 1.02, 1.01];
@@ -100,7 +167,40 @@ K_f_tor = 1 + q * (K_t_tor - 1);    % for shear stress
 K_f_axial = 1 + q * (K_t_axial - 1); %  for ??
 
 
-%%% Correction factors %%%
+%%%%% Mean & Amplitude stress with stress concentration (Ductile materials) %%%%% (Maskinelementer, lecture 3 slide 19 & 21)
+% Axial
+sigma_x_axial_mean = sigma_x_axial_mean_nom * K_f_axial; % [Mpa]
+sigma_x_axial_amp =  sigma_x_axial_amp_nom  * K_f_axial; % [Mpa]
+
+% Shear
+tau_xy_shear_mean = tau_xy_shear_mean_nom * K_f_tor; % [Mpa]
+tau_xy_shear_amp =  tau_xy_shear_amp_nom  * K_f_tor; % [Mpa]
+tau_xz_shear_mean = tau_xz_shear_mean_nom * K_f_tor; % [Mpa]
+tau_xz_shear_amp =  tau_xz_shear_amp_nom  * K_f_tor; % [Mpa]
+
+% Bending
+sigma_x_bend_mean = sigma_x_bend_mean_nom * K_f_bend; % [Mpa]
+sigma_x_bend_amp =  sigma_x_bend_amp_nom  * K_f_bend; % [Mpa]
+
+% Torsion
+tau_xy_tor_mean = tau_xy_tor_mean_nom * K_f_tor; % [Mpa]
+tau_xy_tor_amp =  tau_xy_tor_amp_nom  * K_f_tor; % [Mpa]
+tau_xz_tor_mean = tau_xz_tor_mean_nom * K_f_tor; % [Mpa]
+tau_xz_tor_amp =  tau_xz_tor_amp_nom  * K_f_tor; % [Mpa]
+
+% Resultant mean and amplitude (Maskinelementer, lecture 3 slide 23-24)
+simga_x_mean = sigma_x_axial_mean + sigma_x_bend_mean; % [Mpa]
+simga_x_amp =  sigma_x_axial_amp + sigma_x_bend_amp;   % [Mpa]
+
+tau_xy_mean = tau_xy_shear_mean + tau_xy_tor_mean; % [Mpa]
+tau_xy_amp =  tau_xy_shear_amp + tau_xy_tor_amp;   % [Mpa]
+tau_xz_mean = tau_xz_shear_mean + tau_xz_tor_mean; % [Mpa]
+tau_xz_amp =  tau_xz_shear_amp + tau_xz_tor_amp;   % [Mpa]
+
+% Von Mises for
+% sigma_von_mises = sqrt((sigma_x-sigma_y)^2 + (sigma_y-sigma_z)^2 + (sigma_z-sigma_x)^2 + 6*(tau_xy^2+tau_yz^2tau_zx^2)/2);
+
+%%%%% Correction factors %%%%%
 % Load factor % (Maskinelementer, lecture 3 slide 43 & Machine Design, page 366)
 C_load_table_key = ["Pure bending" "Pure axial" "Pure torsion" "Complex axial" "Complex non axial"];
 C_load_table_value = [1 0.75 1 0.75 1];
@@ -136,7 +236,7 @@ if operating_temperature <= 450
 elseif operating_temperature <= 550
     C_temp = 1-0.0058*(operating_temperature-450);
 else
-    fprintf("Error: Operating temperatore too high\n")
+    fprintf("Error: Operating temperature too high\n")
 end
 
 % Reliability factor (Maskinelementer, lecture 3 slide 48 & Machine Design, page 371)
@@ -215,8 +315,96 @@ S_e = C_load*C_size*C_surf*C_temp*C_reliab*S_e_prime; % (Maskinelementer, lectur
 d1 = ((16*n_f/pi)*(sqrt(4*(K_f_bend*M_amp)^2+3*(K_f_tor*T_amp)^2)/S_e)+(sqrt(4*(K_f_bend*M_mean)^2+3*(K_f_tor*T_mean)^2/S_ut)))^(1/3)
 
 
+%% Modified-Goodman Graph (Work in progress)
+% (Maskinelementer, lecture 4 slide 12-22)
+close all;
 
-%% WORK IN PROGRESS (in no particular order)
+% Define mean stress range
+sigma_mean_goodman_L = linspace(S_yc, 0, 100); % Left side (compressive)
+sigma_mean_goodman_R = linspace(0, S_ut, 100); % Right side (tensile)
+
+% Modified-Goodman equation
+sigma_amp_goodman_L = S_e * ones(size(sigma_mean_goodman_L));
+sigma_amp_goodman_R = S_e * (1 - sigma_mean_goodman_R / S_ut);
+
+% Static yeilding line (first cycle)
+S_y_goodman_L = S_y * (1 - sigma_mean_goodman_L / S_yc);
+S_y_goodman_R = S_y * (1 - sigma_mean_goodman_R / S_y);
+
+% Check for static failure
+n_y = S_y/simga_max;
+
+% Check for fatigue failure
+sigma_rev = sigma_amp_vm/(1-(sigma_mean_vm/S_ut));
+n_f = S_e/simga_rev;
+
+% Intersecting points for indexing
+[~, intersect_L] = min(abs(sigma_amp_goodman_L - S_y_goodman_L));
+[~, intersect_R] = min(abs(sigma_amp_goodman_R - S_y_goodman_R));
+
+figure; hold on;
+% Colour area between graphs and x-axis
+fill([sigma_mean_goodman_L, sigma_mean_goodman_R], [S_y_goodman_L(1:intersect_L-1), sigma_amp_goodman_L(intersect_L:end),...
+ sigma_amp_goodman_R(1:intersect_R-1), S_y_goodman_R(intersect_R:end)], [0.3010 0.7450 0.9330], 'FaceAlpha', 0.3, 'EdgeColor', 'none'); hold on;
+
+% Equations
+plot(sigma_mean_goodman_L, sigma_amp_goodman_L, 'Color', [0.5, 0.5, 0.5], 'LineWidth', 2); hold on
+plot(sigma_mean_goodman_R, sigma_amp_goodman_R, 'Color', [0.5, 0.5, 0.5], 'LineWidth', 2)
+plot(sigma_mean_goodman_L, S_y_goodman_L, 'Color', [0.6350 0.0780 0.1840], 'LineWidth', 2)
+plot(sigma_mean_goodman_R, S_y_goodman_R, 'Color', [0.6350 0.0780 0.1840], 'LineWidth', 2)
+
+% Points for strengths
+plot(0, S_e, 'ko', 'MarkerFaceColor', [0.5, 0.5, 0.5], 'MarkerSize', 6); % S_e point
+plot(S_ut, 0, 'ko', 'MarkerFaceColor', [0.5, 0.5, 0.5], 'MarkerSize', 6); % S_ut point
+plot(0, S_y, 'ko', 'MarkerFaceColor', [0.6350 0.0780 0.1840], 'MarkerSize', 6); % S_y point
+plot(S_y, 0, 'ko', 'MarkerFaceColor', [0.6350 0.0780 0.1840], 'MarkerSize', 6); % S_y point
+plot(S_yc, 0, 'ko', 'MarkerFaceColor', [0.6350 0.0780 0.1840], 'MarkerSize', 6); % S_yc point
+axis([S_yc-100 S_ut+100 0 S_y+100]);
+
+% Axis labels ! NEEDS ADJUSTMENT
+xticks([S_yc, S_y, S_ut]); % Set x-axis tick positions
+yticks([S_e, S_y]); % Set y-axis tick positions
+xticklabels({'S_{yc}', 'S_{y}', 'S_{ut}'}); % Custom x-axis labels
+yticklabels({'S_e', 'S_y'}); % Custom y-axis labels
+ax = gca;
+set(gca, 'FontSize', 12, 'FontWeight', 'bold');
+ax.YAxisLocation = 'origin'; % Move y-axis to x = 0
+
+xlabel('\sigma_m [MPa]', 'FontSize', 14, 'FontWeight', 'bold');
+ylabel('\sigma_a [MPa]', 'FontSize', 14, 'FontWeight', 'bold');
+
+
+%% Notes
+
+% sigma_x_nom = sigma_x_axial+sigma_x_bending;
+% 
+% sigma_y_axial_nom = abs(P)/A;
+% sigma_y_bend_nom = abs(M*R)/I;
+% sigma_y_nom = sigma_x_axial+sigma_x_bending;
+% 
+% sigma_z_axial_nom = abs(P)/A;
+% sigma_z_bend_nom = abs(M*R)/I;
+% sigma_z_nom = sigma_x_axial+sigma_x_bending;
+
+% Stresses with stress concentration factor
+% sigma_x_axial = sigma_x_axial_nom * K_f_axial;
+% sigma_x_bend = sigma_x_bend_nom * K_f_bend;
+% sigma_x = sigma_x_axial + sigma_x_bend;
+% 
+% sigma_y_axial = sigma_y_axial_nom * K_f_axial;
+% sigma_y_bend = sigma_y_bend_nom * K_f_bend;
+% sigma_y = sigma_y_axial + sigma_y_bend;
+% 
+% sigma_z_axial = sigma_z_axial_nom * K_f_axial;
+% sigma_z_bend = sigma_z_bend_nom * K_f_bend;
+% sigma_z = sigma_z_axial + sigma_z_bend;
+% 
+% tau_shear = tau_shear_nom * K_f_tor;
+% tau_tor = tau_tor_nom * K_f_tor;
+
+% Von Mises for state of stress (Maskinelementer, lecture 2 slide 32)
+% sigma_von_mises = sqrt((sigma_x-sigma_y)^2 + (sigma_y-sigma_z)^2 + (sigma_z-sigma_x)^2 + 6*(tau_xy^2+tau_yz^2tau_zx^2)/2);
+
 
 % (Maskinelementer, lecture 5 slide 3)
 % sigma_amp = K_f-bend*(32*M_amp)/(pi*d_shaft^3);
@@ -237,87 +425,7 @@ d1 = ((16*n_f/pi)*(sqrt(4*(K_f_bend*M_amp)^2+3*(K_f_tor*T_amp)^2)/S_e)+(sqrt(4*(
 % (Maskinelementer, lecture 5 slide 6)
 % sigma_rev = sigma_amp_prime/(1-(simga_mean_prime/S_ut)); % 
 % n_f = S_e / sigma_rev; %
-
-% (Maskinelementer, lecture 2 slide 46)
-% R = (d/2);
-% A = pi*R^2;
-% I = (pi/4)*R^4;
-% I_p = (pi/2)*R^4 
-
-% Nominal stress (no stress concentration)
-% sigma_x_axial_nom = abs(P)/A;
-% sigma_x_bend_nom = abs(M*R)/I;
-% sigma_x_nom = sigma_x_axial+sigma_x_bending;
-% 
-% sigma_y_axial_nom = abs(P)/A;
-% sigma_y_bend_nom = abs(M*R)/I;
-% sigma_y_nom = sigma_x_axial+sigma_x_bending;
-% 
-% sigma_z_axial_nom = abs(P)/A;
-% sigma_z_bend_nom = abs(M*R)/I;
-% sigma_z_nom = sigma_x_axial+sigma_x_bending;
-% 
-% tau_shear_nom = (4/3)*(V/A);
-% tau_tor_nom = (abs(T)*R)/I_p;
-
-% Stresses with stress concentration factor
-% sigma_x_axial = sigma_x_axial_nom * K_f_axial;
-% sigma_x_bend = sigma_x_bend_nom * K_f_bend;
-% sigma_x = sigma_x_axial + sigma_x_bend;
-% 
-% sigma_y_axial = sigma_y_axial_nom * K_f_axial;
-% sigma_y_bend = sigma_y_bend_nom * K_f_bend;
-% sigma_y = sigma_y_axial + sigma_y_bend;
-% 
-% sigma_z_axial = sigma_z_axial_nom * K_f_axial;
-% sigma_z_bend = sigma_z_bend_nom * K_f_bend;
-% sigma_z = sigma_z_axial + sigma_z_bend;
-% 
-% tau_shear = tau_shear_nom * K_f_tor;
-% tau_tor = tau_tor_nom * K_f_tor;
-
-
-% Von Mises for state of stress (Maskinelementer, lecture 2 slide 32)
-% sigma_von_mises = sqrt((sigma_x-sigma_y)^2 + (sigma_y-sigma_z)^2 + (sigma_z-sigma_x)^2 + 6*(tau_xy^2+tau_yz^2tau_zx^2)/2);
-
-
-
-%% Modified-Goodman Graph (Work in progress)
-% (Maskinelementer, lecture 4 slide 12-22)
-
-% Define mean stress range
-sigma_m = linspace(0, S_ut, 100);
-
-sigma_mean_goodman = S_ut * (1 - sigma_amp/S_e);
-
-% Static yeilding line (first cycle)
-S_y_goodman = sigma_mean + sigma_amp;
-S_yc_goodman = - (sigma_mean + sigma_amp);
-
-
-% Modified-Goodman equation: sigma_a vs. sigma_m
-sigma_a_goodman = S_e * (1 - sigma_m / S_ut);
-
-% Yield Line (infinite life boundary based on yielding)
-sigma_a_yield = S_y - sigma_m;
-
-% Plot the Modified-Goodman diagram
-figure;
-plot(sigma_m, sigma_a_goodman, 'r', 'LineWidth', 2); hold on;
-plot(sigma_m, sigma_a_yield, 'b', 'LineWidth', 2);
-
-% Highlight points
-plot(0, S_e, 'ro', 'MarkerFaceColor', 'r', 'MarkerSize', 8); % Se point
-plot(S_ut, 0, 'ro', 'MarkerFaceColor', 'r', 'MarkerSize', 8); % Sut point
-plot(S_y, 0, 'bo', 'MarkerFaceColor', 'b', 'MarkerSize', 8); % Sy point
-
-% Labels and formatting
-grid on;
-xlabel('\sigma_m [MPa]');
-ylabel('\sigma_a [MPa]');
-title('Modified-Goodman Graph');
-% legend('Modified Goodman Line', 'Yield Line', 'Location', 'Northeast');
-axis([0 S_ut 0 S_y]);
+%%
 
 
 
