@@ -21,10 +21,10 @@ surface_finish = "Machined"; % ("Ground" "Machined" "Hot-rolled" "As-forged") Fo
 reliability = 99; % [%] reliability factor (50 90 95 99 99.9 99.99 99.999 99.9999)
 operating_temperature = 70; % Celsius, defined by Kjell (only significant if > 450)
 
-S_yc = -800; % [Mpa] Complressive yeild strength ! PLACEHOLDER VALUE must be incorporated with material data table
+S_yc = -800; % [Mpa] Compressive yeild strength ! PLACEHOLDER VALUE must be incorporated with material data table
 
 % Calculated values
-R = (d/2); % [mm] Shaft radius
+R = (d_shaft/2); % [mm] Shaft radius
 A = pi*R^2; % [mm^2] Shaft area
 I = (pi/4)*R^4; % [mm^4] Moment of inertia
 I_p = (pi/2)*R^4; % [mm^4] Polar moment of inertia
@@ -66,9 +66,16 @@ M_z_min = -M_z; % [Nmm]
 M_y_max =  M_y; % [Nmm]
 M_y_min = -M_y; % [Nmm]
 
+M_max =  sqrt(M_z_max^2 + M_y_max^2); % [Nmm]
+M_min = -sqrt(M_z_min^2 + M_y_min^2); % [Nmm]
+M_mean = (M_max + M_min)/2; % [Nmm]
+M_amp =  (M_max - M_min)/2; % [Nmm]
+
 % Tourqe (constant)
 T_max = T; % [Nmm]
 T_min = T; % [Nmm]
+T_mean = (T_max + T_min)/2; % [Nmm]
+T_amp =  (T_max - T_min)/2; % [Nmm]
 
 %%%%% Mean & Amplitude nominal stress %%%%% (Maskinelementer, lecture 3 slide 15-18)
 % Axial
@@ -197,8 +204,10 @@ tau_xy_amp =  tau_xy_shear_amp + tau_xy_tor_amp;   % [Mpa]
 tau_xz_mean = tau_xz_shear_mean + tau_xz_tor_mean; % [Mpa]
 tau_xz_amp =  tau_xz_shear_amp + tau_xz_tor_amp;   % [Mpa]
 
-% Von Mises for
-% sigma_von_mises = sqrt((sigma_x-sigma_y)^2 + (sigma_y-sigma_z)^2 + (sigma_z-sigma_x)^2 + 6*(tau_xy^2+tau_yz^2tau_zx^2)/2);
+% Von Mises
+sigma_vm_mean = sqrt(sigma_x_mean^2 + 3*(tau_xy_mean^2+tau_xz_mean^2)); % [Mpa]
+sigma_vm_amp =  sqrt(sigma_x_amp^2 + 3*(tau_xy_mean^2+tau_xz_amp^2));   % [Mpa]
+sigma_vm_max = sigma_vm_mean + sigma_vm_amp; % [Mpa]
 
 %%%%% Correction factors %%%%%
 % Load factor % (Maskinelementer, lecture 3 slide 43 & Machine Design, page 366)
@@ -269,7 +278,6 @@ sigma_max = sigma_prime_mean + sigma_prime_amp;
 n_y = S_y / sigma_max
 
 %% First itteration
-
 % Estimating stress geometric concentration factors for preliminary stage (Maskinelementerlecture 5 slide 10)
 % Shoulder fillet sharp (r/d = 0.02, D/d = 1.5)
 % K_t_bend = 2.7;
@@ -284,17 +292,17 @@ K_t_bend = 1.9;
 % End-mill keyset (r/d = 0.02)
 % K_t_bend = 2.14;
 % K_t_tor = 3;
-% K_t_bend = -; 
+% K_t_axial = -; 
 
 % Sled runner keyset
 % K_t_bend = 1.7;
 % K_t_tor = -;
-% K_t_bend = -;
+% K_t_axial = -;
 
 % Retaining ring groove
 % K_t_bend = 5;
 % K_t_tor = 3;
-% K_t_bend = 5;
+% K_t_axial = 5;
 
 % Conservative estimate for preliminary stage (q is unknown)
 K_f_bend = K_t_bend;
@@ -313,66 +321,6 @@ S_e = C_load*C_size*C_surf*C_temp*C_reliab*S_e_prime; % (Maskinelementer, lectur
 
 % Shaft diameter
 d1 = ((16*n_f/pi)*(sqrt(4*(K_f_bend*M_amp)^2+3*(K_f_tor*T_amp)^2)/S_e)+(sqrt(4*(K_f_bend*M_mean)^2+3*(K_f_tor*T_mean)^2/S_ut)))^(1/3)
-
-
-%% Modified-Goodman Graph (Work in progress)
-% (Maskinelementer, lecture 4 slide 12-22)
-close all;
-
-% Define mean stress range
-sigma_mean_goodman_L = linspace(S_yc, 0, 100); % Left side (compressive)
-sigma_mean_goodman_R = linspace(0, S_ut, 100); % Right side (tensile)
-
-% Modified-Goodman equation
-sigma_amp_goodman_L = S_e * ones(size(sigma_mean_goodman_L));
-sigma_amp_goodman_R = S_e * (1 - sigma_mean_goodman_R / S_ut);
-
-% Static yeilding line (first cycle)
-S_y_goodman_L = S_y * (1 - sigma_mean_goodman_L / S_yc);
-S_y_goodman_R = S_y * (1 - sigma_mean_goodman_R / S_y);
-
-% Check for static failure
-n_y = S_y/simga_max;
-
-% Check for fatigue failure
-sigma_rev = sigma_amp_vm/(1-(sigma_mean_vm/S_ut));
-n_f = S_e/simga_rev;
-
-% Intersecting points for indexing
-[~, intersect_L] = min(abs(sigma_amp_goodman_L - S_y_goodman_L));
-[~, intersect_R] = min(abs(sigma_amp_goodman_R - S_y_goodman_R));
-
-figure; hold on;
-% Colour area between graphs and x-axis
-fill([sigma_mean_goodman_L, sigma_mean_goodman_R], [S_y_goodman_L(1:intersect_L-1), sigma_amp_goodman_L(intersect_L:end),...
- sigma_amp_goodman_R(1:intersect_R-1), S_y_goodman_R(intersect_R:end)], [0.3010 0.7450 0.9330], 'FaceAlpha', 0.3, 'EdgeColor', 'none'); hold on;
-
-% Equations
-plot(sigma_mean_goodman_L, sigma_amp_goodman_L, 'Color', [0.5, 0.5, 0.5], 'LineWidth', 2); hold on
-plot(sigma_mean_goodman_R, sigma_amp_goodman_R, 'Color', [0.5, 0.5, 0.5], 'LineWidth', 2)
-plot(sigma_mean_goodman_L, S_y_goodman_L, 'Color', [0.6350 0.0780 0.1840], 'LineWidth', 2)
-plot(sigma_mean_goodman_R, S_y_goodman_R, 'Color', [0.6350 0.0780 0.1840], 'LineWidth', 2)
-
-% Points for strengths
-plot(0, S_e, 'ko', 'MarkerFaceColor', [0.5, 0.5, 0.5], 'MarkerSize', 6); % S_e point
-plot(S_ut, 0, 'ko', 'MarkerFaceColor', [0.5, 0.5, 0.5], 'MarkerSize', 6); % S_ut point
-plot(0, S_y, 'ko', 'MarkerFaceColor', [0.6350 0.0780 0.1840], 'MarkerSize', 6); % S_y point
-plot(S_y, 0, 'ko', 'MarkerFaceColor', [0.6350 0.0780 0.1840], 'MarkerSize', 6); % S_y point
-plot(S_yc, 0, 'ko', 'MarkerFaceColor', [0.6350 0.0780 0.1840], 'MarkerSize', 6); % S_yc point
-axis([S_yc-100 S_ut+100 0 S_y+100]);
-
-% Axis labels ! NEEDS ADJUSTMENT
-xticks([S_yc, S_y, S_ut]); % Set x-axis tick positions
-yticks([S_e, S_y]); % Set y-axis tick positions
-xticklabels({'S_{yc}', 'S_{y}', 'S_{ut}'}); % Custom x-axis labels
-yticklabels({'S_e', 'S_y'}); % Custom y-axis labels
-ax = gca;
-set(gca, 'FontSize', 12, 'FontWeight', 'bold');
-ax.YAxisLocation = 'origin'; % Move y-axis to x = 0
-
-xlabel('\sigma_m [MPa]', 'FontSize', 14, 'FontWeight', 'bold');
-ylabel('\sigma_a [MPa]', 'FontSize', 14, 'FontWeight', 'bold');
-
 
 %% Notes
 
