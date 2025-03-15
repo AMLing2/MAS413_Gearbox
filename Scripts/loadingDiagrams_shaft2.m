@@ -20,19 +20,24 @@ alpha = 20; % [degrees] Helix Angle
 beta = 15;  % [degrees] Pressure Angle
 
 % Chosen Parameters
-L_EG3  = 0.05; % [m]
-L_G3G2 = 0.10; % [m]
-L_G2D = 0.15; % [m]
+L_12 = 5e-3; % [m]
+L_45 = 5e-3; % [m]
+L_78 = 5e-3; % [m]
+    % Bearing widths
+b_D = 30e-3; % [m] catalogue circa 16 - 47 [mm] <-- WIP
+b_E = b_D; % [m]
 % eta = 0.96; % [-] Stage efficiency "finely worked teeth & good lubrication"
 eta = 1.00; % [-] Ideal Stages
  
 % Import from Gear Sizing
-load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4')
+load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2')
     % Convert from Gear Sizing
-r_G1 = d_g1/2; % [m]
-r_G2 = d_g2/2; % [m]
-r_G3 = d_g3/2; % [m]
-r_G4 = d_g4/2; % [m]
+r_G1 = d_g1/2 * 1e-3; % [m]
+r_G2 = d_g2/2 * 1e-3; % [m]
+r_G3 = d_g3/2 * 1e-3; % [m]
+r_G4 = d_g4/2 * 1e-3; % [m]
+b_s1 = b_s1 * 1e-3; % [m]
+b_s2 = b_s2 * 1e-3; % [m]
 
 % Calculated Values
 omega_1 = n_1 * 2*pi / 60; % [rad/sec]
@@ -43,9 +48,12 @@ P_out = P_1*eta_tot; % [W]
 T_M   = P_1/omega_1; % [Nm]
 T_out = P_out/omega_out; %[Nm] 
     % Lengths
-L_G3D = L_G3G2 + L_G2D; % [m]
-L_EG2 = L_EG3 + L_G3G2; % [m]
-L_ED = L_EG2 + L_G2D; % [m]
+L_ED = b_E/2 + L_78 + b_s2 + L_45 + b_s1 + L_12 + b_D/2; % [m]
+L_EG3 = b_E/2 + L_78 + b_s2/2; % [m]
+L_EG2 = L_EG3 + b_s2/2 + L_45 + b_s1/2; % [m]
+L_G3G2 = L_EG2 - L_EG3; % [m]
+L_G3D = L_ED - L_EG3; % [m]
+L_G2D = L_ED - L_EG2; % [m]
     % Gear 2 forces
 F_t2 = T_M/r_G1; % [N]
 F_a2 = F_t2 * tand(beta); % [N]
@@ -221,11 +229,21 @@ xlim([0 L_ED])
 L = xy_x(M_max_idx);
 dashLineV(L, 3, 2, 2)
 
+%% Length sanity check
+lW = 3;
 
-function meters = mm_to_m(millimeters)
-    % mm_to_m converts millimeters to meters
-    % Input: millimeters - Value in millimeters
-    % Output: meters - Converted value in meters
-    
-    meters = millimeters / 1000;
-end
+figure(99)
+hold on
+plot( [0 L_ED],  [0  0], 'k', 'LineWidth', lW)
+plot( [0 L_EG2], [2  2], 'LineWidth', lW)
+plot( [0 L_EG3], [-1 -1], 'LineWidth', lW)
+plot( [L_EG3 (L_EG3 + L_G3G2)], [-1 -1], 'LineWidth', lW)
+plot( [L_EG2 (L_EG2 + L_G2D)], [-1 -1], 'LineWidth', lW)
+plot( [L_EG3 (L_EG3 + L_G3D)], [-2 -2], 'LineWidth', lW)
+xlabel('Length [m]')
+legend('$L_{ED}$', '$L_{EG2}$', '$L_{EG3}$', '$L_{G3G2}$', ...
+        '$L_{G2D}$', '$L_{G3D}$', ...
+        'Location','southoutside', 'interpreter', 'latex')
+xlim( [ (-L_ED*0.1), (L_ED + L_ED*0.1) ] )
+ylim( [-5 5] )
+title('One Directional Length', 'interpreter', 'latex')
