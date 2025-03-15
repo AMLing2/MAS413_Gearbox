@@ -20,17 +20,23 @@ alpha = 20; % [degrees] Helix Angle
 beta = 15;  % [degrees] Pressure Angle
 
 % Chosen Parameters
+L_12 = 5e-3; % [m]
+L_45 = 5e-3; % [m]
+L_78 = 5e-3; % [m]
 L_AB  = 0.05; % [m]
-L_BG1 = 0.10; % [m]
-L_G1C = 0.15; % [m]
+    % Bearing widths
+b_B = 30e-3; % [m] catalogue circa 16 - 47 [mm] <-- WIP
+b_C = b_B; % [m]
 
 % Import from Gear Sizing
-load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4')
+load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2')
     % Convert from Gear Sizing
-r_G1 = d_g1/2; % [m]
-r_G2 = d_g2/2; % [m]
-r_G3 = d_g3/2; % [m]
-r_G4 = d_g4/2; % [m]
+r_G1 = d_g1/2 * 1e-3; % [m]
+r_G2 = d_g2/2 * 1e-3; % [m]
+r_G3 = d_g3/2 * 1e-3; % [m]
+r_G4 = d_g4/2 * 1e-3; % [m]
+b_s1 = b_s1 * 1e-3; % [m]
+b_s2 = b_s2 * 1e-3; % [m]
 
 % Calculated values
 omega_1 = n_1 * 2*pi / 60; % [rad/sec]
@@ -40,11 +46,12 @@ F_t1 = T_M / r_G1; % [N]
 F_a1 = F_t1 * tand(beta); % [N]
 F_r1 = F_t1 * tand(alpha)/cosd(beta); % [N]
     % Lenghts
-L_BC = L_BG1 + L_G1C; % [m]
+L_BC  = b_B/2 + L_78 + b_s2 + L_45 + b_s1 + L_12; % [m]
+L_BG1 = b_B/2 + L_78 + b_s2 + L_45 + b_s1/2; % [m]
+L_G1C = L_BC - L_BG1; % [m]
 L_AG1 = L_AB + L_BG1; % [m]
 L_AC = L_AG1 + L_G1C; % [m]
-    
-% For Reaction forces @ bearings
+    % For Reaction forces @ bearings
 F_By = F_t1*L_G1C/L_BC; % [N]
 F_Bz = (F_r1*L_G1C - F_a1*r_G1)/L_BC; % [N]
 
@@ -208,3 +215,20 @@ xlim([0 L_AC])
 [M_max, M_max_idx] = max(M);
 L = xy_x(M_max_idx);
 dashLineV(L, 3, 2, 2)
+
+%% Lenght sanity check
+lW = 3;
+
+figure(99)
+hold on
+plot( [0 L_AC],  [0  0], 'k', 'LineWidth', lW)
+plot( [0 L_AG1], [1  1], 'LineWidth', lW)
+plot( [0 L_AB],  [-1 -1], 'LineWidth', lW)
+plot( [L_AB (L_AB + L_BG1)], [-1 -1], 'LineWidth', lW)
+plot( [L_AG1 (L_AG1 + L_G1C)], [-1 -1], 'LineWidth', lW)
+xlabel('Length [m]')
+legend('$L_{AC}$', '$L_{AG1}$', '$L_{AB}$', '$L_{BG1}$', '$L_{G1C}$', ...
+        'Location','southoutside', 'interpreter', 'latex')
+xlim( [ (-L_AC*0.1), (L_AC + L_AC*0.1) ] )
+ylim( [-5 5] )
+title('One Directional Length', 'interpreter', 'latex')
