@@ -39,9 +39,9 @@ r_G4 = mm_to_m(293.28); % [m]
 % Calculated Values
 eta = 0.96; % [-] Efficiency
 eta_tot = eta^2; % [-] Squared because there are two stages
-P_out = P_in*eta_tot; % [W]
-T_M   = P_in/omega_in; % [Nm]
-T_out = P_out/omega_out; %[Nm] 
+% P_out = P_in*eta_tot; % [W]
+T_M   = eta_tot*P_in/omega_in; % [Nm]
+% T_out = P_out/omega_out; %[Nm] 
     % Lengths
 L_G3D = L_G3G2 + L_G2D; % [m]
 L_EG2 = L_EG3 + L_G3G2; % [m]
@@ -51,7 +51,8 @@ F_t2 = T_M/r_G1; % [N]
 F_a2 = F_t2 * tand(beta); % [N]
 F_r2 = F_t2 * tand(alpha)/cosd(beta); % [N]
     % Gear 3 forces
-F_t3 = (T_out*i_tot) / r_G4; % [N]
+% F_t3 = (T_out) / r_G4; % [N]
+F_t3 = T_M*i_tot / r_G4; % [N]
 F_a3 = F_t3 * tand(beta); % [N]
 F_r3 = F_t3 * tand(alpha)/cosd(beta); % [N]
     % Reaction forces @ bearings
