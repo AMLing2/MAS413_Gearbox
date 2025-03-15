@@ -14,11 +14,10 @@ fSize = 16;
 
 % Given information
 n_1 = 1450; % [RPM]
-omega_1 = n_1 * 2*pi / 60; % [rad/sec]
 P_1 = 12.5e3; % [W]
 i_tot = 17.3;
 alpha = 20; % [degrees] Helix Angle
-beta = 15; % [degrees] Pressure Angle
+beta = 15;  % [degrees] Pressure Angle
 
 % Chosen Parameters
 L_AB  = 0.05; % [m]
@@ -27,24 +26,25 @@ L_G1C = 0.15; % [m]
 
 % Import from Gear Sizing
 load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4')
-
-% Convert from Gear Sizing
+    % Convert from Gear Sizing
 r_G1 = d_g1/2; % [m]
 r_G2 = d_g2/2; % [m]
 r_G3 = d_g3/2; % [m]
 r_G4 = d_g4/2; % [m]
 
 % Calculated values
-L_AG1 = L_AB + L_BG1; % [m]
-L_AC = L_AG1 + L_G1C; % [m]
+omega_1 = n_1 * 2*pi / 60; % [rad/sec]
 T_M = P_1 / omega_1; % [Nm]
+    % Gear Forces
 F_t1 = T_M / r_G1; % [N]
 F_a1 = F_t1 * tand(beta); % [N]
 F_r1 = F_t1 * tand(alpha)/cosd(beta); % [N]
+    % Lenghts
+L_BC = L_BG1 + L_G1C; % [m]
+L_AG1 = L_AB + L_BG1; % [m]
+L_AC = L_AG1 + L_G1C; % [m]
     
 % For Reaction forces @ bearings
-L_BC = L_BG1 + L_G1C; % [m]
-
 F_By = F_t1*L_G1C/L_BC; % [N]
 F_Bz = (F_r1*L_G1C - F_a1*r_G1)/L_BC; % [N]
 

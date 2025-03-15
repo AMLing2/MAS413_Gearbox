@@ -13,23 +13,9 @@ hPlot = 16;
 fSize = 16;
 
 % Given information
-i_tot = 17.3; % [-]
-i_1 = 1; % [-]
-i_2 = 2; % [-]
-
-n_in = 1450; % [RPM]
-omega_in = n_in * 2*pi / 60; % [rad/sec]
-n_out = (n_in/i_tot); % [RPM]
-omega_out = n_out * 2*pi / 60; % [rad/sec]
-
-eta = 0.96; % [-] Efficiency
-eta_tot = eta^2; % (Squared efficiency because there are two stages)
-
-P_in = 12.5e3; % [W]
-P_out = P_in*eta_tot; % [W]
-T_M = P_in/omega_in; % [Nm]
-T_out = P_out/omega_out; % [Nm] 
-
+n_1 = 1450; % [RPM]
+P_1 = 12.5e3; % [W]
+i_tot = 17.3;
 alpha = 20; % [degrees] Helix Angle
 beta = 15;  % [degrees] Pressure Angle
 
@@ -37,24 +23,36 @@ beta = 15;  % [degrees] Pressure Angle
 L_FG4  = 0.05; % [m]
 L_G4G = 0.10; % [m]
 L_GH = 0.15; % [m]
+% eta = 0.96; % [-] Stage efficiency "finely worked teeth & good lubrication"
+eta = 1.00; % [-] Ideal Stages
 
-% Calculated Elsewhere
-r_G4 = 0.25; % [m]
+% Import from Gear Sizing
+load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4')
+    % Convert from Gear Sizing
+r_G1 = d_g1/2; % [m]
+r_G2 = d_g2/2; % [m]
+r_G3 = d_g3/2; % [m]
+r_G4 = d_g4/2; % [m]
 
-% Calculated values
+% Calculated Values
+omega_1 = n_1 * 2*pi / 60; % [rad/sec]
+n_out = (n_1/i_tot); % [RPM]
+omega_out = n_out * 2*pi / 60; % [rad/sec]
+eta_tot = eta^2; % (Squared efficiency because there are two stages)
+P_out = P_1*eta_tot; % [W]
+T_M = P_1/omega_1; % [Nm]
+T_out = P_out/omega_out; % [Nm] 
+    % Lengths
 L_FG = L_FG4 + L_G4G; % [m]
 L_FH = L_FG + L_GH; % [m]
-
-% Gear 3 forces
+    % Gear 3 forces
 F_t4 = (T_out*i_tot) / r_G4; % [N]
 F_a4 = F_t4 * tand(beta); % [N]
 F_r4 = F_t4 * tand(alpha)/cosd(beta); % [N]
-
-% Reaction forces @ bearings
-F_Fz = (F_a4*r_G4 + F_r4*L_G4G) / L_FG;
+    % Reaction forces @ bearings
+F_Fz = (F_a4*r_G4 + F_r4*L_G4G) / L_FG; % [N]
 F_Fy = (F_t4*L_G4G) / L_FG; % [N]
 F_Fx = F_a4; % [N]
-    % F_r1*L_G1C/L_BC; % [N] <-- ? -TLS
 F_Gz = F_r4 - F_Fz; % [N]
 F_Gy = F_t4 - F_Fy; % [N]
 
