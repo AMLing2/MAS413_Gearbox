@@ -20,19 +20,25 @@ alpha = 20; % [degrees] Helix Angle
 beta = 15;  % [degrees] Pressure Angle
 
 % Chosen Parameters
-L_FG4  = 0.05; % [m]
-L_G4G = 0.10; % [m]
-L_GH = 0.15; % [m]
+L_12 = 5e-3; % [m]
+L_45 = 5e-3; % [m]
+L_78 = 5e-3; % [m]
+L_GH = 0.05; % [m]
+    % Bearing widths
+b_F = 30e-3; % [m] catalogue circa 16 - 47 [mm] <-- WIP
+b_G = b_F; % [m]
 % eta = 0.96; % [-] Stage efficiency "finely worked teeth & good lubrication"
 eta = 1.00; % [-] Ideal Stages
 
 % Import from Gear Sizing
-load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4')
+load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2')
     % Convert from Gear Sizing
-r_G1 = d_g1/2; % [m]
-r_G2 = d_g2/2; % [m]
-r_G3 = d_g3/2; % [m]
-r_G4 = d_g4/2; % [m]
+r_G1 = d_g1/2 * 1e-3; % [m]
+r_G2 = d_g2/2 * 1e-3; % [m]
+r_G3 = d_g3/2 * 1e-3; % [m]
+r_G4 = d_g4/2 * 1e-3; % [m]
+b_s1 = b_s1 * 1e-3; % [m]
+b_s2 = b_s2 * 1e-3; % [m]
 
 % Calculated Values
 omega_1 = n_1 * 2*pi / 60; % [rad/sec]
@@ -43,7 +49,9 @@ P_out = P_1*eta_tot; % [W]
 T_M = P_1/omega_1; % [Nm]
 T_out = P_out/omega_out; % [Nm] 
     % Lengths
-L_FG = L_FG4 + L_G4G; % [m]
+L_FG = b_F/2 + L_78 + b_s2 + L_45 + b_s1 + L_12 + b_G/2; % [m]
+L_FG4 = b_F/2 + L_78 + b_s2/2; % [m]
+L_G4G = L_FG - L_FG4; % [m]
 L_FH = L_FG + L_GH; % [m]
     % Gear 3 forces
 F_t4 = (T_out*i_tot) / r_G4; % [N]
@@ -216,3 +224,20 @@ xlim([0 L_FH])
 [M_max, M_max_idx] = max(M);
 L = xy_x(M_max_idx);
 dashLineV(L, 3, 2, 2)
+
+%% Length sanity check
+lW = 3;
+
+figure(99)
+hold on
+plot( [0 L_FH],  [0  0], 'k', 'LineWidth', lW)
+plot( [0 L_FG], [1  1], 'LineWidth', lW)
+plot( [0 L_FG4], [-1 -1], 'LineWidth', lW)
+plot( [L_FG4 (L_FG4 + L_G4G)], [-1 -1], 'LineWidth', lW)
+plot( [L_FG (L_FG + L_GH)], [-1 -1], 'LineWidth', lW)
+xlabel('Length [m]')
+legend('$L_{FH}$', '$L_{FG}$', '$L_{FG4}$', '$L_{G4G}$', '$L_{GH}$', ...
+        'Location','southoutside', 'interpreter', 'latex')
+xlim( [ (-L_FH*0.1), (L_FH + L_FH*0.1) ] )
+ylim( [-5 5] )
+title('One Directional Length', 'interpreter', 'latex')
