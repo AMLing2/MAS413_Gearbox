@@ -168,6 +168,7 @@ xz_V = [xz_V, zeros(size(x))]; % [N]
 xz_M = [xz_M, zeros(size(x))]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * T_M]; % [Nm]
 
+
 % L_AB < x < L_AG1
 x = linspace(L_AB, L_AG1, resolution);
 xz_x = [xz_x, x];
@@ -176,6 +177,7 @@ xz_V = [xz_V, ones(size(x)) * (-F_Bz)]; % [N]
 xz_M = [xz_M, ( - F_Bz*(x - L_AB) )]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * T_M]; % [Nm]
 
+
 % L_AG1 < x < L_AC
 x = linspace(L_AG1, L_AC, resolution);
 xz_x = [xz_x, x];
@@ -183,6 +185,7 @@ xz_P = [xz_P, ones(size(x)) * (-F_a1)]; % [N]
 xz_V = [xz_V, ones(size(x)) * (F_r1 - F_Bz)]; % [N]
 xz_M = [xz_M, ( F_r1*(x - L_AG1) - F_Bz*(x - L_AB) - F_a1*(r_G1) )]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * (T_M - F_t1*r_G1)]; % [Nm]
+
 
 subplot(2,2,1)
 plotLD(xz_x,xz_P,colFill)
@@ -232,3 +235,40 @@ legend('$L_{AC}$', '$L_{AG1}$', '$L_{AB}$', '$L_{BG1}$', '$L_{G1C}$', ...
 xlim( [ (-L_AC*0.1), (L_AC + L_AC*0.1) ] )
 ylim( [-5 5] )
 title('One Directional Length', 'interpreter', 'latex')
+
+%% Shaft deflection calculations
+
+I_shaft =[];
+
+%Diameters of shaft
+d_c =1;
+d_12 =1;
+d_S1 =1;
+
+%Lengths of shaft
+b_G1 = 1;
+
+%Calculate I for the different intervals
+
+% 0 < x < L_AB
+x = linspace(0, L_AB, resolution); 
+I_shaft = [I_shaft, ones(size(x))]; % Moment of area
+% L_AB < x < L_AG1
+x = linspace(L_AB, L_AG1, resolution);
+I_shaft = [I_shaft, ones(size(x))]; % Moment of area
+% L_AG1 < x < L_AC
+x = linspace(L_AG1, L_AC, resolution);
+I_shaft = [I_shaft, ones(size(x))];
+
+
+
+function [Iy, Iz, Ix] = secondMomentAreaCyl(D)
+    % bruk: [Iy, Iz, Ix] = secondMomentAreaCyl(D)
+    % D - diameter til sylinderen
+    % Iy, Iz - Arealmoment om y- og z-aksene
+    % Ix - Arealmoment om x-aksen (langs sylinderens lengde)
+    R=D/2;
+    Iy = (pi / 4) * R^4;  % Om y-aksen
+    Iz = Iy;              % Om z-aksen 
+    Ix = (pi / 2) * R^4;  % Om x-aksen 
+end
