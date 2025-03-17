@@ -94,7 +94,7 @@ sigma_b_lim = sigma_b_lim_mat(material) / V_b;
 % Z_v is calculated in the module_calc function
 sigma_o_lim = (sigma_o_lim_mat(material) / V_o) * K_L;
 
-%% Bending stress sigma_b from lectures
+%%% Bending stress sigma_b from lectures
 
 A = 5; % [m/s] operating factor, tab 2 pg 6 lec 4
 K_a = 1.25; % external dynamic factor, electric motor with light shock, tab 1 pg 5 lec 4
@@ -109,14 +109,28 @@ gamma_4 = (2.30 + 2.24) / 2; % teeth form factor, 71 teeth, tab 3 pg 7 lec 4
 
 % calculating normal modules for each gear
 increment = 0.01;
-m_n_1 = module_calc(increment, sigma_b_lim, sigma_o_lim, z_1, n_1, T_1, A, ...
-        K_a, lambda, gamma_1, F_w, F_c, "pinion", i_s1);
-m_n_2 = module_calc(increment, sigma_b_lim, sigma_o_lim, z_2, n_2, T_2, A, ...
-        K_a, lambda, gamma_2, F_w, F_c, m_n_1 * z_1, i_s1);
-m_n_3 = module_calc(increment, sigma_b_lim, sigma_o_lim, z_3, n_3, T_3, A, ...
-        K_a, lambda, gamma_3, F_w, F_c, "pinion", i_s2);
-m_n_4 = module_calc(increment, sigma_b_lim, sigma_o_lim, z_4, n_4, T_4, A, ...
-        K_a, lambda, gamma_4, F_w, F_c, m_n_3 * z_3, i_s2);
+% T_1 = T_1*1e-3;
+% T_2 = T_2*1e-3;
+% T_3 = T_3*1e-3;
+% T_4 = T_4*1e-3;
+
+d1 = "pinion";
+[m_n_1, sigma_b_1, sigma_o_1] = module_calc(increment, sigma_b_lim, sigma_o_lim, z_1, n_1, T_1, A, ...
+        K_a, lambda, gamma_1, F_w, F_c, d1, i_s1, z_1);
+d2 = m_n_1 * z_1;
+[m_n_2, sigma_b_2, sigma_o_2] = module_calc(increment, sigma_b_lim, sigma_o_lim, z_2, n_2, T_2, A, ...
+        K_a, lambda, gamma_2, F_w, F_c, d2, i_s1, z_1);
+d3 = d1;
+[m_n_3, sigma_b_3, sigma_o_3] = module_calc(increment, sigma_b_lim, sigma_o_lim, z_3, n_3, T_3, A, ...
+        K_a, lambda, gamma_3, F_w, F_c, d3, i_s2, z_3);
+d4 = m_n_3 * z_3;
+[m_n_4, sigma_b_4, sigma_o_4] = module_calc(increment, sigma_b_lim, sigma_o_lim, z_4, n_4, T_4, A, ...
+        K_a, lambda, gamma_4, F_w, F_c, d4, i_s2, z_3);
+format long
+modules = table(m_n_1, m_n_2, m_n_3, m_n_4)
+sigmaB = table(sigma_b_1, sigma_b_2, sigma_b_3, sigma_b_4)
+sigmaO = table(sigma_o_1, sigma_o_2, sigma_o_3, sigma_o_4)
+format short
 
 % converting to transverse (helical) module
 mt_1 = m_n_1 / cosd(beta);
