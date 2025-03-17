@@ -238,15 +238,18 @@ title('One Directional Length', 'interpreter', 'latex')
 
 %% Shaft deflection calculations
 
+%E-modul
+E =210; %Emodul - Change 
+
 I_shaft =[];
 
 %Diameters of shaft
-d_c =1;
-d_12 =1;
-d_S1 =1;
+d_c  =1; %[mm]
+d_12 =1; %[mm]
+d_S1 =1; %[mm]
 
 %Lengths of shaft
-b_G1 = 1;
+b_G1 = 1; %[mm]
 
 %Calculate I for the different intervals
 
