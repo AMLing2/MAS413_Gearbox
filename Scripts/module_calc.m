@@ -15,16 +15,16 @@
 % i : gear ratio for step
 % Z_v : speed factor
 
-function [m_n,sigma_b,sigma_o] = module_calc(step, sigma_b_lim, sigma_o_lim, z, n, T, A, ...
-        K_a, lambda, gamma, F_w, F_c, d_1, i)
-    [m_n_b, sigma_b] = sigma_b_calc(step, sigma_b_lim, z, n, T, A, K_a, lambda, gamma);
-    [m_n_o, sigma_o] = sigma_o_calc(step, sigma_o_lim, z, n, T, A, K_a, lambda, F_w, F_c, d_1, i);
+function [m_n,sigma_b,sigma_o] = module_calc(increment, sigma_b_lim, ...
+            sigma_o_lim, z, n, T, A, K_a, lambda, gamma, F_w, F_c, d_1, i)
+    [m_n_b, sigma_b] = sigma_b_calc(increment, sigma_b_lim, z, n, T, A, K_a, lambda, gamma);
+    [m_n_o, sigma_o] = sigma_o_calc(increment, sigma_o_lim, z, n, T, A, K_a, lambda, F_w, F_c, d_1, i);
 
-    m_n = max([m_n_b,m_n_o]);
+    m_n = max(m_n_b, m_n_o);
 end
 
-function [m_n,sigma_b] = sigma_b_calc(step, sigma_b_lim, z, n, T, A, K_a, lambda, gamma)
-    m_n = step; %start with step to prevent div by 0
+function [m_n,sigma_b] = sigma_b_calc(increment, sigma_b_lim, z, n, T, A, K_a, lambda, gamma)
+    m_n = increment; %start with step to prevent div by 0
     new_sigma_b = inf;
     while new_sigma_b > sigma_b_lim
         r = (m_n * z) / 2; % [mm] pitch circle radius
@@ -33,13 +33,13 @@ function [m_n,sigma_b] = sigma_b_calc(step, sigma_b_lim, z, n, T, A, K_a, lambda
         F_th = T/r; % theoretical tangential force component [N]
         new_sigma_b = (F_th * K_a * K_V * gamma) / (m_n^2 * lambda);
     
-        m_n = m_n + step;
+        m_n = m_n + increment;
     end
     sigma_b = new_sigma_b;
 end
 
-function [m_n,sigma_o] = sigma_o_calc(step, sigma_o_lim, z, n, T, A, K_a, lambda, F_w, F_c, d_1, i)
-    m_n = step; %start with step to prevent div by 0
+function [m_n,sigma_o] = sigma_o_calc(increment, sigma_o_lim, z, n, T, A, K_a, lambda, F_w, F_c, d_1, i)
+    m_n = increment; %start with step to prevent div by 0
     new_sigma_o = inf;
     d_1_new = d_1;
     Z_v_speed = [0.25,1,2,3,4,5,6,7,8,9,10,12]; % pg 10 lec 4 tab 4
@@ -63,7 +63,7 @@ function [m_n,sigma_o] = sigma_o_calc(step, sigma_o_lim, z, n, T, A, K_a, lambda
                                      (m_n * lambda * d_1_new * i ));
 
         Z_v = Z_v_dic(closest(Z_v_speed,V_t)); % from previous step
-        m_n = m_n + step;
+        m_n = m_n + increment;
     end
     sigma_o = new_sigma_o;
 end

@@ -1,6 +1,6 @@
 % Gear Ratio for 2 Stage Gearbox
 
-% output format: [z_1,z_2,z_3,z_4,i_tot]
+% zSmallest & zClosest are lists with format: [z_1,z_2,z_3,z_4,i_tot]
 function [z_smallest,z_closest] = grat2stage(i_s1_min,i_s1_max,inc,z_1,i_tot)
     % i_s1_min : minimum first stage gear ratio from Bild 15-38 lec 2 slide 12
     % i_s1_max : maximum first stage gear ratio from Bild 15-38 lec 2 slide 12
@@ -15,7 +15,7 @@ function [z_smallest,z_closest] = grat2stage(i_s1_min,i_s1_max,inc,z_1,i_tot)
   % tol = 0.001; % only used for printing
   for i_s1 = i_s1_min : inc : i_s1_max
     z_2 = round(i_s1 * z_1);
-    while gcd(z_2,z_1) > 1 % -1 to z2 until its relative prime (-1 gave closer final results)
+    while gcd(z_2,z_1) > 1 % -1 to z2 until its relatively prime (-1 gave closer final results)
       z_2 = z_2 - 1;
     end
     i_s2 = i_tot / (z_2/z_1);

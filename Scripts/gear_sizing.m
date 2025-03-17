@@ -9,23 +9,28 @@ clc;close all;clear;
 % stages must obey tables 12-4 12-5 pg 737, add check z2,z4 < 1309 ?
 % increase lambda to 14?
 
-%%% Chosen parameters
+%%% Chosen Parameters %%%
 material = "Fe 590";
 lambda = 12; % width factor, processed:  8-12, pg 17 lec 1
+%%% Chosen Parameters %%%
 
-%from requirements:
-beta = 15;   % [deg] helix angle, psi
-alpha = 20;  % [deg] pressure angle, theta
-P1 = 12.5e3; % [W] input power
+% Given Parameters:
+n_1 = 1450; % [RPM]
+P_1 = 12.5e3; % [W] input power
 i_tot_og = 17.3;
-V_b = 1.7; % bending safety factor, lec 4 pg 8
-V_o = 1.25; % contact safety factor, lec 4 pg 10
+alpha = 20;  % [deg] pressure angle, phi/theta
+beta = 15;   % [deg] helix angle, psi
 
 % Contact Ratio Minimum Requirement
 mp_min = 1.4; % machine design pg 738 - Contact Ratio
 mF_min = 1.15; % machine design pg 796 - Transverse Contact Ratio
 
-% Min & max from Rollof: Figure 15-38 KGR Lecture 2
+% Constant Factors from Tables
+V_b = 1.7;  % bending safety factor, KGR lec 4 pg 8
+V_o = 1.25; % contact safety factor, KGR lec 4 pg 10
+K_L = 1.0;  % lubrication factor, KGR lec 4 pg 10
+
+% Min & max from Rollof: Figure 15-38 KGR Lecture 2 Slide 12
 i1_min = 4.5;
 i1_max = 5;
 delta = 1e-3; % Iteration resolution
@@ -46,14 +51,19 @@ if ( abs(i_tot - i_tot_og)/i_tot_og ) > 0.01
     error("i_tot is greater than 1% of requirement")
 end
 
-% speed of gears [rpm]
-n_1 = 1450; % input
+% Gear Speed [RPM]
 n_2 = n_1 / i_s1;
 n_3 = n_2;
 n_4 = n_3/ i_s2;
 
+% Gear Velocity [rad/sec]
+omega_1 = n_1 * (2*pi) / 60;
+% omega_2 = n_2 * (2*pi) / 60;
+% omega_3 = n_3 * (2*pi) / 60;
+% omega_4 = n_4 * (2*pi) / 60;
+
 % Torques in each gear [Nmm]
-T_1 = 82.32152229 * 1e3; % [Nm] -> [Nmm]
+T_1 = P_1/omega_1 * 1e3; % [Nmm]
 T_2 = T_1 * i_s1;
 T_3 = T_2;
 T_4 = T_3 * i_s2;
@@ -70,23 +80,22 @@ T_4 = T_3 * i_s2;
 % 16 MnCr 5: https://matweb.com/search/DataSheet.aspx?MatGUID=2ab813ffa05d40329dffe0ee7f58b5de
 % 15 CrNi 6: https://matweb.com/search/DataSheet.aspx?MatGUID=9ab3bf332758468ab36010790bd94349 ?
 
-% Material limits, table 5 forelesning 4, pg 11
+% Material limits, KGR lec 4 pg 11 - table 5
 sigma_b_lim_mat_list = [160,210,220,250,300,310,410,410]; % [MPa]
 sigma_o_lim_mat_list = [430,520,540,610,715,760,1600,1900]; % [MPa]
-E_mat_list = [200 200 210 210 205 205 200 210]; %GPa
+E_mat_list = [200 200 210 210 205 205 200 210]; % [GPa]
 mat_names = ["Fe 430", "Fe 590", "C 45 N", "C 60 N",...
     "34 Cr 4 V", "42 CrMo 4 V", "16 MnCr 5", "15 CrNi 6"];
-sigma_b_lim_mat = dictionary(mat_names,sigma_b_lim_mat_list);
-sigma_o_lim_mat = dictionary(mat_names,sigma_o_lim_mat_list);
-E_mat_dic = dictionary(mat_names,E_mat_list);
-
-K_L = 1.0; % lubrication factor pg 10 lec 4
+sigma_b_lim_mat = dictionary(mat_names, sigma_b_lim_mat_list);
+sigma_o_lim_mat = dictionary(mat_names, sigma_o_lim_mat_list);
+E_mat_dic = dictionary(mat_names, E_mat_list);
 
 sigma_b_lim = sigma_b_lim_mat(material) / V_b;
 % Z_v is calculated in the module_calc function
 sigma_o_lim = (sigma_o_lim_mat(material) / V_o) * K_L;
 
 %% Bending stress sigma_b from lectures
+
 A = 5; % [m/s] operating factor, tab 2 pg 6 lec 4
 K_a = 1.25; % external dynamic factor, electric motor with light shock, tab 1 pg 5 lec 4
 F_w = sqrt(0.35 * (E_mat_dic(material)*1e3)); % [sqrt(N/mm^2)] material factor, lec 4 pg 9
@@ -99,13 +108,14 @@ gamma_3 = 2.9; % teeth form factor, 18 teeth, tab 3 pg 7 lec 4
 gamma_4 = (2.30 + 2.24) / 2; % teeth form factor, 71 teeth, tab 3 pg 7 lec 4
 
 % calculating normal modules for each gear
-m_n_1 = module_calc(0.01, sigma_b_lim, sigma_o_lim, z_1, n_1, T_1, A, ...
+increment = 0.01;
+m_n_1 = module_calc(increment, sigma_b_lim, sigma_o_lim, z_1, n_1, T_1, A, ...
         K_a, lambda, gamma_1, F_w, F_c, "pinion", i_s1);
-m_n_2 = module_calc(0.01, sigma_b_lim, sigma_o_lim, z_2, n_2, T_2, A, ...
+m_n_2 = module_calc(increment, sigma_b_lim, sigma_o_lim, z_2, n_2, T_2, A, ...
         K_a, lambda, gamma_2, F_w, F_c, m_n_1 * z_1, i_s1);
-m_n_3 = module_calc(0.01, sigma_b_lim, sigma_o_lim, z_3, n_3, T_3, A, ...
+m_n_3 = module_calc(increment, sigma_b_lim, sigma_o_lim, z_3, n_3, T_3, A, ...
         K_a, lambda, gamma_3, F_w, F_c, "pinion", i_s2);
-m_n_4 = module_calc(0.01, sigma_b_lim, sigma_o_lim, z_4, n_4, T_4, A, ...
+m_n_4 = module_calc(increment, sigma_b_lim, sigma_o_lim, z_4, n_4, T_4, A, ...
         K_a, lambda, gamma_4, F_w, F_c, m_n_3 * z_3, i_s2);
 
 % converting to transverse (helical) module
@@ -117,7 +127,6 @@ mt_s1 = max([mt_1,mt_2]) % 3.1180 w/ 15 CrNi 6
 mt_s2 = max([mt_3,mt_4]) % 4.5334 w/ 15 CrNi 6
 
 %%%%%%%% sizing calcs for helical gears
-
 
 % pitch circle diameters [mm]
 d_g1 = mt_s1 * z_1;
@@ -141,34 +150,34 @@ dt_g2 = d_g2 + 2 * ht_2;
 dt_g3 = d_g3 + 2 * ht_3;
 dt_g4 = d_g4 + 2 * ht_4;
 
-% dedendum circle [mm]
-df_g1 = d_g1 - 2 * hf_1;
-df_g2 = d_g2 - 2 * hf_2;
-df_g3 = d_g3 - 2 * hf_3;
-df_g4 = d_g4 - 2 * hf_4;
+% % dedendum circle [mm]
+% df_g1 = d_g1 - 2 * hf_1;
+% df_g2 = d_g2 - 2 * hf_2;
+% df_g3 = d_g3 - 2 * hf_3;
+% df_g4 = d_g4 - 2 * hf_4;
 
-%gearbox total length of gears
-l_tot = (dt_g1 + d_g2/2 + d_g3/2 + dt_g4)/1e3; % [m]
+% % gearbox total length of gears
+% l_tot = (dt_g1 + d_g2/2 + d_g3/2 + dt_g4)/1e3; % [m]
 
-% pitch [mm]
-p_s1 = pi*mt_s1;
-p_s2 = pi*mt_s2;
+% % pitch [mm]
+% p_s1 = pi*mt_s1;
+% p_s2 = pi*mt_s2;
 
-% tooth thickness [mm]
-sn_s1 = p_s1/2 - 0.05 * mt_s1;
-sn_s2 = p_s2/2 - 0.05 * mt_s2;
+% % tooth thickness [mm]
+% sn_s1 = p_s1/2 - 0.05 * mt_s1;
+% sn_s2 = p_s2/2 - 0.05 * mt_s2;
 
-% hatch width [mm]
-en_s1 = p_s1/2 + 0.05 * mt_s1;
-en_s2 = p_s2/2 + 0.05 * mt_s2;
-
-% axial pitch [mm] 
-px_s1 = p_s1 / sind(beta);
-px_s2 = p_s2 / sind(beta);
-
-% diameteral pitch [mm]
-dp_s1 = pi/p_s1;
-dp_s2 = pi/p_s2;
+% % hatch width [mm]
+% en_s1 = p_s1/2 + 0.05 * mt_s1;
+% en_s2 = p_s2/2 + 0.05 * mt_s2;
+% 
+% % axial pitch [mm] 
+% px_s1 = p_s1 / sind(beta);
+% px_s2 = p_s2 / sind(beta);
+% 
+% % diameteral pitch [mm]
+% dp_s1 = pi/p_s1;
+% dp_s2 = pi/p_s2;
 
 % width of helical gears [mm]
 b_s1 = mt_s1 * lambda;
@@ -225,14 +234,14 @@ alpha_wt = acosd( (d_b1 + d_b2) / (2*a_x) );
 epsilon_a = ( sqrt( (d_a1/2)^2 - (d_b1/2)^2 ) + ...
               sqrt( (d_a2/2)^2 - (d_b2/2)^2 ) - ...
               a_x * sind(alpha_wt) ) / ...
-            pi*m_t*cosd(alpha_t);
+            ( pi*m_t*cosd(alpha_t) );
 %%% contact ratio - alternate from Lecture 3 page 12 %%%
 contactRatioStep1 = table(CR_s1, epsilon_a)
 
 %%% axial contact ratio %%%
 m_f_s1 = (b_s1 * tand(beta)) / (pi * mt_s1); % eq 13.5 machine design pg 796
 m_f_s2 = (b_s2 * tand(beta)) / (pi * mt_s2);
-if or((m_f_s1 < 1),(m_f_s2 < 1))
+if or( (m_f_s1 < 1), (m_f_s2 < 1) )
     error("Axial contact ratio is under 1")
 elseif or((m_f_s1 < mF_min),(m_f_s2 < mF_min))
     warning("Axial contact ratio is low")
