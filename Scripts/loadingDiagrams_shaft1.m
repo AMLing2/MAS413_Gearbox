@@ -239,39 +239,41 @@ title('One Directional Length', 'interpreter', 'latex')
 %% Shaft deflection calculations
 
 %E-modul
-E =210; %Emodul - Change 
+E =210; %E-modul            Change 
 
 I_shaft =[];
+M2_shaft = [];
 
 %Diameters of shaft
-d_c  =1; %[mm]
-d_12 =1; %[mm]
-d_S1 =1; %[mm]
+d_c  =1; %[mm]              Change 
+d_12 =1; %[mm]              Change 
+d_S1 =1; %[mm]              Change 
 
 %Lengths of shaft
-b_G1 = 1; %[mm]
+b_G1 = 1; %[mm]             Change 
 
 %Calculate I for the different intervals
 
-% 0 < x < L_AB
-x = linspace(0, L_AB, resolution); 
-I_shaft = [I_shaft, ones(size(x))]; % Moment of area
-% L_AB < x < L_AG1
-x = linspace(L_AB, L_AG1, resolution);
-I_shaft = [I_shaft, ones(size(x))]; % Moment of area
+% 0 < x < L_AG1
+x = linspace(0, L_AG1, 200); 
+I_shaft = [I_shaft, secondMomentAreaCyl(d_S1) ]; % Moment of area
+
+
+x = linspace(L_AG1, ), 100);
+I_shaft = [I_shaft, secondMomentAreaCyl(d_S1)]; % Moment of area
+
+
+
 % L_AG1 < x < L_AC
-x = linspace(L_AG1, L_AC, resolution);
-I_shaft = [I_shaft, ones(size(x))];
+x = linspace(L_AG1+(b_G1/2), L_AC, resolution);
+I_shaft = [I_shaft, secondMomentAreaCyl()]; %Moment of area
 
 
 
-function [Iy, Iz, Ix] = secondMomentAreaCyl(D)
+function [Ix] = secondMomentAreaCyl(D)
     % bruk: [Iy, Iz, Ix] = secondMomentAreaCyl(D)
     % D - diameter til sylinderen
     % Iy, Iz - Arealmoment om y- og z-aksene
     % Ix - Arealmoment om x-aksen (langs sylinderens lengde)
-    R=D/2;
-    Iy = (pi / 4) * R^4;  % Om y-aksen
-    Iz = Iy;              % Om z-aksen 
-    Ix = (pi / 2) * R^4;  % Om x-aksen 
+    Ix = (pi*D^4 / 64);  % Om x-aksen 
 end
