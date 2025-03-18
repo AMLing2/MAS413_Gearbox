@@ -2,13 +2,15 @@ close all; clear; clc;
 
 % TO DO:
 % - Create function for diameter equation with option for 1st itteration
+%   - Completed a simplified version, good enough?
 % - Lecture 2 slide 6-8, how to implement?
 
 % Input parameters
-n_f = 2; % Safety factor
+first_itteration = "n"; % ("y" / "n") First itteration for diameter equation (limited geomertry data)
+n_f = 3; % Safety factor
 material = 1045; % (1045 4130 4140 4340)    ! PLACEHOLDER
-d_shaft = 10; % [mm] Shaft diameter        ! PLACEHLDER VALUE
-r_fillet = 1; % [mm] Fillet radius          ! PLACEHLDER VALUE
+d_shaft = 15; % [mm] Shaft diameter        ! PLACEHLDER VALUE
+r_fillet = 0.5; % [mm] Fillet radius          ! PLACEHLDER VALUE
 D_d = 1.2; %                                ! PLACEHLDER VALUE
 load_type = "Complex axial";  % ("Pure bending" "Pure axial" "Pure torsion" "Complex axial" "Complex non axial");
 surface_finish = "Machined"; % ("Ground" "Machined" "Hot-rolled" "As-forged") For other types, see Machine Design page 368, Figure 6-26
@@ -257,121 +259,61 @@ else
     S_e_prime = 700;
 end
 
+
+%%%%% Diameter equation %%%%%
+if first_itteration == "y"
+    
+    % Estimating stress geometric concentration factors for preliminary stage (Maskinelementerlecture 5 slide 10)
+    % Shoulder fillet sharp (r/d = 0.02, D/d = 1.5)
+    % K_t_bend = 2.7;
+    % K_t_tor = 2.2;
+    % K_t_axial = 3.0;
+    
+    % Shoulder fillet well-rounded (r/d = 0.1, D/d = 1.5)
+    K_t_bend = 1.7;
+    K_t_tor = 1.5;
+    K_t_bend = 1.9;
+    
+    % End-mill keyset (r/d = 0.02)
+    % K_t_bend = 2.14;
+    % K_t_tor = 3;
+    % K_t_axial = -; 
+    
+    % Sled runner keyset
+    % K_t_bend = 1.7;
+    % K_t_tor = -;
+    % K_t_axial = -;
+    
+    % Retaining ring groove
+    % K_t_bend = 5;
+    % K_t_tor = 3;
+    % K_t_axial = 5;
+    
+    % Conservative estimate for preliminary stage (q is unknown)
+    K_f_bend = K_t_bend;
+    K_f_tor = K_t_tor;
+    K_f_axial = K_t_bend;
+    
+    % Correction factors for preliminary stage % (Maskinelementer, lecture 5 slide 12)
+    C_load = 1; % Bending
+    C_size = 1;
+end
+
 % Endurance limit
 S_e = C_load*C_size*C_surf*C_temp*C_reliab*S_e_prime; % (Maskinelementer, lecture 4 slide 5)
 
-
-% Diameter eq......
-d = ((16*n_f/pi)*(sqrt(4*(K_f_bend*M_amp)^2+3*(K_f_tor*T_amp)^2)/S_e)+(sqrt(4*(K_f_bend*M_mean)^2+3*(K_f_tor*T_mean)^2/S_ut)))^(1/3)
+d_eq = ((16*n_f/pi)*(sqrt(4*(K_f_bend*M_amp)^2+3*(K_f_tor*T_amp)^2)/S_e)+(sqrt(4*(K_f_bend*M_mean)^2+3*(K_f_tor*T_mean)^2/S_ut)))^(1/3);
+fprintf('d_eq = %.2f,  Recomended shaft diameter\n', d_eq)
 
 % Quick check: failure againt yels at the first cycle (Maskinelementer, lecture 5 slide 7) 
-sigma_prime_amp = sqrt(((32*K_f_bend*M_amp)/(pi*d_shaft^3)) + 3*((16*K_f_tor*T_amp)/(pi*d_shaft^3)));
-sigma_prime_mean = sqrt(((32*K_f_bend*M_mean)/(pi*d_shaft^3)) + 3*((16*K_f_tor*T_mean)/(pi*d_shaft^3))); 
-sigma_max = sigma_prime_mean + sigma_prime_amp;
-n_y = S_y / sigma_max
-
-%% First itteration
-% Estimating stress geometric concentration factors for preliminary stage (Maskinelementerlecture 5 slide 10)
-% Shoulder fillet sharp (r/d = 0.02, D/d = 1.5)
-% K_t_bend = 2.7;
-% K_t_tor = 2.2;
-% K_t_axial = 3.0;
-
-% Shoulder fillet well-rounded (r/d = 0.1, D/d = 1.5)
-K_t_bend = 1.7;
-K_t_tor = 1.5;
-K_t_bend = 1.9;
-
-% End-mill keyset (r/d = 0.02)
-% K_t_bend = 2.14;
-% K_t_tor = 3;
-% K_t_axial = -; 
-
-% Sled runner keyset
-% K_t_bend = 1.7;
-% K_t_tor = -;
-% K_t_axial = -;
-
-% Retaining ring groove
-% K_t_bend = 5;
-% K_t_tor = 3;
-% K_t_axial = 5;
-
-% Conservative estimate for preliminary stage (q is unknown)
-K_f_bend = K_t_bend;
-K_f_tor = K_t_tor;
-K_f_axial = K_t_bend;
-
-% Correction factors for preliminary stage % (Maskinelementer, lecture 5 slide 12)
-C_load = 1; % Bending
-C_size = 1;
-% C_surf = C_surf;
-% C_temp = C_temp; 
-% C_reliab = C_reliab;
-
-% Endurance limit
-S_e = C_load*C_size*C_surf*C_temp*C_reliab*S_e_prime; % (Maskinelementer, lecture 4 slide 5)
-
-% Shaft diameter
-d1 = ((16*n_f/pi)*(sqrt(4*(K_f_bend*M_amp)^2+3*(K_f_tor*T_amp)^2)/S_e)+(sqrt(4*(K_f_bend*M_mean)^2+3*(K_f_tor*T_mean)^2/S_ut)))^(1/3)
+% sigma_prime_amp = sqrt(((32*K_f_bend*M_amp)/(pi*d_shaft^3)) + 3*((16*K_f_tor*T_amp)/(pi*d_shaft^3)));
+% sigma_prime_mean = sqrt(((32*K_f_bend*M_mean)/(pi*d_shaft^3)) + 3*((16*K_f_tor*T_mean)/(pi*d_shaft^3))); 
+% sigma_max = sigma_prime_mean + sigma_prime_amp;
+% n_y = S_y / sigma_max
 
 
 %%%%% Modified Goodman Diagram %%%%%
 modifiedGoodman(S_y, S_yc, S_ut, S_e, sigma_vm_mean, sigma_vm_amp);
-
-%% Notes
-
-% sigma_x_nom = sigma_x_axial+sigma_x_bending;
-% 
-% sigma_y_axial_nom = abs(P)/A;
-% sigma_y_bend_nom = abs(M*R)/I;
-% sigma_y_nom = sigma_x_axial+sigma_x_bending;
-% 
-% sigma_z_axial_nom = abs(P)/A;
-% sigma_z_bend_nom = abs(M*R)/I;
-% sigma_z_nom = sigma_x_axial+sigma_x_bending;
-
-% Stresses with stress concentration factor
-% sigma_x_axial = sigma_x_axial_nom * K_f_axial;
-% sigma_x_bend = sigma_x_bend_nom * K_f_bend;
-% sigma_x = sigma_x_axial + sigma_x_bend;
-% 
-% sigma_y_axial = sigma_y_axial_nom * K_f_axial;
-% sigma_y_bend = sigma_y_bend_nom * K_f_bend;
-% sigma_y = sigma_y_axial + sigma_y_bend;
-% 
-% sigma_z_axial = sigma_z_axial_nom * K_f_axial;
-% sigma_z_bend = sigma_z_bend_nom * K_f_bend;
-% sigma_z = sigma_z_axial + sigma_z_bend;
-% 
-% tau_shear = tau_shear_nom * K_f_tor;
-% tau_tor = tau_tor_nom * K_f_tor;
-
-% Von Mises for state of stress (Maskinelementer, lecture 2 slide 32)
-% sigma_von_mises = sqrt((sigma_x-sigma_y)^2 + (sigma_y-sigma_z)^2 + (sigma_z-sigma_x)^2 + 6*(tau_xy^2+tau_yz^2tau_zx^2)/2);
-
-
-% (Maskinelementer, lecture 5 slide 3)
-% sigma_amp = K_f-bend*(32*M_amp)/(pi*d_shaft^3);
-% sigma_mean = K_f-bend*(32*M_mean)/(pi*d_shaft^3);
-
-% tau_amp = K_f-tor*(16*T_amp)/(pi*d_shaft^3);
-% tau_mean = K_f-tor*(16*T_mean)/(pi*d_shaft^3);
-
-% sigma_max = ?
-% sigma_min = ?
-% sigma_mean = (sigma_max + sigma_min)/2; % Mean (midrange) stess
-% if sigma_mean ~= 0
-%     fprintf("sigma_mean = ", sigma_mean, " Non nully reversed loading!")
-% end
-% sigma_amp = (sigma_max - sigma_min)/2; % Alternating stress amplitude
-
-
-% (Maskinelementer, lecture 5 slide 6)
-% sigma_rev = sigma_amp_prime/(1-(simga_mean_prime/S_ut)); % 
-% n_f = S_e / sigma_rev; %
-%%
-
 
 
 % Function to find the closest value rounded down in the list (Most conservative approach)
