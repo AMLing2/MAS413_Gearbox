@@ -17,14 +17,15 @@ mat_names = ["Fe 430", "Fe 590", "C 45 N", "C 60 N",...
 
 % alibaba pricing:
 % Fe 430: https://www.alibaba.com/product-detail/S355JR-ASTM-1045-1055-Cold-Drawn_1601262208795.html?spm=a2700.galleryofferlist.p_offer.d_title.5c4b13a0X6sAvT&s=p
-
 % 16 MnCr 5: https://www.alibaba.com/product-detail/15-Crmn-Smnc420-18-X-16_1601026887161.html?spm=a2700.galleryofferlist.normal_offer.d_title.43d313a0pLzJnI
-price_per_kg = [1.5 1.5 1.8 1.8 4 3.5 4.5 5]; % [dollar/kg] very rough estimates from chatGPT
+
+price_per_kg = [1.5 1.5 1.8 1.8 4 3.5 4.5 5]; % [dollar/kg] very rough estimates from chatGPT, based on rounded up round bar
 density = [7.85 7.85 7.80 7.80 7.85 7.85 7.85 7.80]*1e3; % [g/cc] -> [kg/m^3]
 prices_m3 = (price_per_kg) .* density;
 material_sum_list = [8.5329e+04 5.5350e+04 5.3616e+04 4.2779e+04 2.9276e+04 2.5489e+04 5.1830e+03 4.8950e+03]*1e-6; % [cm^3] -> [m^3]
 price_list = material_sum_list .*  prices_m3;
+weight = material_sum_list .* density;
 
 % Create the table
-material_table = table(mat_names', price_list', 'VariableNames', {'MaterialName', 'Price'});
+material_table = table(mat_names', price_list', weight', 'VariableNames', {'MaterialName', 'Price ($)', 'weight (kg)'});
 disp(material_table);
