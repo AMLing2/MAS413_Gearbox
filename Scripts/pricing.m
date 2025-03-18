@@ -27,5 +27,5 @@ price_list = material_sum_list .*  prices_m3;
 weight = material_sum_list .* density;
 
 % Create the table
-material_table = table(mat_names', price_list', weight', 'VariableNames', {'MaterialName', 'Price ($)', 'weight (kg)'});
+material_table = table(mat_names', price_list', weight', 'VariableNames', {'Material Name', 'Price estimate ($)', 'weight (kg)'});
 disp(material_table);
