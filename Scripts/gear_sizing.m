@@ -9,9 +9,21 @@ clc;close all;clear;
 % stages must obey tables 12-4 12-5 pg 737, add check z2,z4 < 1309 ?
 % increase lambda to 14?
 
+% module of elasticity and material standards (no price):
+% https://www.michael-smith-engineers.co.uk/mse/uploads/resources/useful-info/General-Info/MATERIAL-GRADE-COMPARISON-TABLE-for-Web.pdf
+% material (diameter) (grade) (related link)
+% Fe 430: (726mm) (S275) https://matweb.com/search/DataSheet.aspx?MatGUID=c2ba59bb365942a7b6da46f1cee370b8  
+% Fe 590: (629mm) (S355) https://matweb.com/search/DataSheet.aspx?MatGUID=1dc0414bd1ea4061a5dc09382c455e2a
+% C 45 N: (622mm) (AISI/ASTM 1045) https://matweb.com/search/DataSheet.aspx?MatGUID=2ca9b42e83894e8a8a61385fd7da63ae
+% C 60 N: (579mm) (SAE/ASTM 1060) https://matweb.com/search/DataSheet.aspx?MatGUID=0a471605c1324daa910855e54a21fab3
+% 34 Cr 4 V: (510mm) (AISI 5132/ 1.7033) https://matweb.com/search/DataSheet.aspx?MatGUID=4877d405464f448a96786c8cbd00d3b5
+% 42 CrMo 4 V: (487mm) (ASTM A322) https://matweb.com/search/DataSheet.aspx?MatGUID=38108bfd64c44b4c9c6a02af78d5b6c6
+% 16 MnCr 5: (285mm) (AISI 5115 / 1.7131) https://matweb.com/search/DataSheet.aspx?MatGUID=2ab813ffa05d40329dffe0ee7f58b5de
+% 15 CrNi 6: (277mm) https://matweb.com/search/DataSheet.aspx?MatGUID=9ab3bf332758468ab36010790bd94349 ?
+
 %%% Chosen Parameters %%%
-material = "Fe 590";
-lambda = 12; % width factor, processed:  8-12, pg 17 lec 1
+material = "16 MnCr 5";
+lambda = 14; % width factor, processed:  8-16, pg 17 lec 1, 14 to increase axial contact ratio to 1.15
 %%% Chosen Parameters %%%
 
 % Given Parameters:
@@ -69,16 +81,6 @@ T_3 = T_2;
 T_4 = T_3 * i_s2;
 
 %%%% add helical module calcs
-
-% module of elasticity and material standards (no price):
-% Fe 430: https://matweb.com/search/DataSheet.aspx?MatGUID=c2ba59bb365942a7b6da46f1cee370b8
-% Fe 590: https://matweb.com/search/DataSheet.aspx?MatGUID=1dc0414bd1ea4061a5dc09382c455e2a
-% C 45 N: https://matweb.com/search/DataSheet.aspx?MatGUID=2ca9b42e83894e8a8a61385fd7da63ae
-% C 60 N: https://matweb.com/search/DataSheet.aspx?MatGUID=0a471605c1324daa910855e54a21fab3
-% 34 Cr 4 V: https://matweb.com/search/DataSheet.aspx?MatGUID=4877d405464f448a96786c8cbd00d3b5
-% 42 CrMo 4 V: https://matweb.com/search/DataSheet.aspx?MatGUID=38108bfd64c44b4c9c6a02af78d5b6c6
-% 16 MnCr 5: https://matweb.com/search/DataSheet.aspx?MatGUID=2ab813ffa05d40329dffe0ee7f58b5de
-% 15 CrNi 6: https://matweb.com/search/DataSheet.aspx?MatGUID=9ab3bf332758468ab36010790bd94349 ?
 
 % Material limits, KGR lec 4 pg 11 - table 5
 sigma_b_lim_mat_list = [160,210,220,250,300,310,410,410]; % [MPa]

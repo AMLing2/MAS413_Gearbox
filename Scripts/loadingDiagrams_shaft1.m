@@ -15,7 +15,7 @@ fSize = 16;
 % Given information
 n_1 = 1450; % [RPM]
 P_1 = 12.5e3; % [W]
-i_tot = 17.3;
+i_tot_og = 17.3;
 alpha = 20; % [degrees] Helix Angle
 beta = 15;  % [degrees] Pressure Angle
 
@@ -29,7 +29,7 @@ b_B = 30e-3; % [m] catalogue circa 16 - 47 [mm] <-- WIP
 b_C = b_B; % [m]
 
 % Import from Gear Sizing
-load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2')
+load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2', 'i_tot')
     % Convert from Gear Sizing
 r_G1 = d_g1/2 * 1e-3; % [m]
 r_G2 = d_g2/2 * 1e-3; % [m]
@@ -239,39 +239,41 @@ title('One Directional Length', 'interpreter', 'latex')
 %% Shaft deflection calculations
 
 %E-modul
-E =210; %Emodul - Change 
+E =210; %E-modul            Change 
 
 I_shaft =[];
+M2_shaft = [];
 
 %Diameters of shaft
-d_c  =1; %[mm]
-d_12 =1; %[mm]
-d_S1 =1; %[mm]
+d_c  =1; %[mm]              Change 
+d_12 =1; %[mm]              Change 
+d_S1 =1; %[mm]              Change 
 
 %Lengths of shaft
-b_G1 = 1; %[mm]
+b_G1 = 1; %[mm]             Change 
 
+
+res = 300;
 %Calculate I for the different intervals
 
-% 0 < x < L_AB
-x = linspace(0, L_AB, resolution); 
-I_shaft = [I_shaft, ones(size(x))]; % Moment of area
-% L_AB < x < L_AG1
-x = linspace(L_AB, L_AG1, resolution);
-I_shaft = [I_shaft, ones(size(x))]; % Moment of area
-% L_AG1 < x < L_AC
-x = linspace(L_AG1, L_AC, resolution);
-I_shaft = [I_shaft, ones(size(x))];
+% for i<=res
+% 
+%     if x< L_AG1+(b_g1/2)
+%         d=d_S1
+% 
+% 
+%     elseif x<
+% 
+%     else
+% 
+% 
+% end
 
 
-
-function [Iy, Iz, Ix] = secondMomentAreaCyl(D)
+function [Ix] = secondMomentAreaCyl(D)
     % bruk: [Iy, Iz, Ix] = secondMomentAreaCyl(D)
     % D - diameter til sylinderen
     % Iy, Iz - Arealmoment om y- og z-aksene
     % Ix - Arealmoment om x-aksen (langs sylinderens lengde)
-    R=D/2;
-    Iy = (pi / 4) * R^4;  % Om y-aksen
-    Iz = Iy;              % Om z-aksen 
-    Ix = (pi / 2) * R^4;  % Om x-aksen 
+    Ix = (pi*D^4 / 64);  % Om x-aksen 
 end

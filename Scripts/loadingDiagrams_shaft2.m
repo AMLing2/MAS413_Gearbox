@@ -15,7 +15,7 @@ fSize = 16;
 % Given information
 n_1 = 1450; % [RPM]
 P_1 = 12.5e3; % [W]
-i_tot = 17.3;
+i_tot_og = 17.3;
 alpha = 20; % [degrees] Helix Angle
 beta = 15;  % [degrees] Pressure Angle
 
@@ -30,7 +30,7 @@ b_E = b_D; % [m]
 eta = 1.00; % [-] Ideal Stages
  
 % Import from Gear Sizing
-load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2')
+load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2', 'i_tot')
     % Convert from Gear Sizing
 r_G1 = d_g1/2 * 1e-3; % [m]
 r_G2 = d_g2/2 * 1e-3; % [m]

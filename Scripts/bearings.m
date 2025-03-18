@@ -126,7 +126,7 @@ function [bearing_index,lifetime] = tapered_bearing_sizing(d_min,F_r,F_a,cycles,
     for i = 1:length(d_list)
         if d_list(i) > d_min
             L_P = ( K_R*(C_dyn_list(i)/P)^(10/3) ) * 1e6; % eq 11.20b pg 701 machine design
-            if (L_P > cycles) && (P < C_st_list(i))
+            if (L_P > cycles) && (P < C_st_list(i)) % is (P < C_st_list(i)) valid?
                 bearing_index = i;
                 lifetime = L_P;
                 break
