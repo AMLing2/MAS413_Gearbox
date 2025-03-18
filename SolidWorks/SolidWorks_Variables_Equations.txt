@@ -1,0 +1,64 @@
+﻿"alpha" = 20 'Helix angle, psi [deg]
+"beta" = 15 'Pressure angle, theta [deg]
+
+"z_1" = 18 'Number of teeth, pinion 1
+"z_2" = 79 'Number of teeth, gear 2
+"z_3" = 18 'Number of teeth, pinion 3
+"z_4" = 71 'Number of teeth, gear 4
+
+"c_dist_1" = 0.05 'Center distance stage 1 [m]
+"c_dist_2" = 0.15 'Center distance stage 2 [m]
+
+"m_s1" = 2 * "c_dist_1" / ("z_1" + "z_2") * 1000 'Module stage 1 [mm]
+"m_s2" = 2 * "c_dist_2" / ("z_3" + "z_4") * 1000 'Module stage 2 [mm]
+
+"d_g1" = "m_s1" * "z_1" 'Pitch circle 1 [mm]
+"d_g2" = "m_s1" * "z_2" 'Pitch circle 2 [mm]
+"d_g3" = "m_s2" * "z_3" 'Pitch circle 3 [mm]
+"d_g4" = "m_s2" * "z_4" 'Pitch circle 4 [mm]
+
+"ht_1" = "m_s1" 'Top height 1 [mm]
+"ht_2" = "m_s1" 'Top height 2 [mm]
+"ht_3" = "m_s2" 'Top height 3 [mm]
+"ht_4" = "m_s2" 'Top height 4 [mm]
+
+"hf_1" = 1.25 * "m_s1" 'Bottom height 1 [mm]
+"hf_2" = 1.25 * "m_s1" 'Bottom height 2 [mm]
+"hf_3" = 1.25 * "m_s2" 'Bottom height 3 [mm]
+"hf_4" = 1.25 * "m_s2" 'Bottom height 4 [mm]
+
+"dt_g1" = "d_g1" + 2 * "ht_1" 'Addendum 1 [mm]
+"dt_g2" = "d_g2" + 2 * "ht_2" 'Addendum 2 [mm]
+"dt_g3" = "d_g3" + 2 * "ht_3" 'Addendum 3 [mm]
+"dt_g4" = "d_g4" + 2 * "ht_4" 'Addendum 4 [mm]
+
+"df_g1" = "d_g1" - 2 * "hf_1" 'Dedendum 1 [mm]
+"df_g2" = "d_g2" - 2 * "hf_2" 'Dedendum 2 [mm]
+"df_g3" = "d_g3" - 2 * "hf_3" 'Dedendum 3 [mm]
+"df_g4" = "d_g4" - 2 * "hf_4" 'Dedendum 4 [mm]
+
+"p_s1" = pi * "m_s1" 'Pitch 1 [mm]
+"p_s2" = pi * "m_s2" 'Pitch 2 [mm]
+
+"sn_s1" = "p_s1" / 2 - 0.05 * "m_s1" 'Tooth thickness 1 [mm]
+"sn_s2" = "p_s2" / 2 - 0.05 * "m_s2" 'Tooth thickness 2 [mm]
+
+"en_s1" = "p_s1" / 2 + 0.05 * "m_s1" 'Hatch width 1 [mm]
+"en_s2" = "p_s2" / 2 + 0.05 * "m_s2" 'Hatch width 2 [mm]
+
+"mt_s1" = "m_s1" / cos("beta") 'Helical module 1
+"mt_s2" = "m_s2" / cos("beta") 'Helical module 2
+
+"lambda" = 10 'Width factor, 8-12
+"b_s1" = "mt_s1" * "lambda" 'Helical gear width 1
+"b_s2" = "mt_s2" * "lambda" 'Helical gear width 2
+
+"pt_s1" = "p_s1" / cos("beta") 'Transverse pitch 1 [mm]
+"pt_s2" = "p_s2" / cos("beta") 'Transverse pitch 2 [mm]
+
+"px_s1" = "p_s1" / sin("beta") 'Axial pitch 1 [mm]
+"px_s2" = "p_s2" / sin("beta") 'Axial pitch 2 [mm]
+
+"dp_s1" = pi / "pt_s1" 'Diametral pitch 1 [mm]
+"dp_s2" = pi / "pt_s2" 'Diametral pitch 2 [mm]
+

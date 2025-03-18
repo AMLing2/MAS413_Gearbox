@@ -2,3 +2,7 @@
 *.asv
 *.DS_Store
 *.mat
+
+# Ignore the content of SolidoWorks folders
+SolidWorks/Gears/
+SolidWorks/Shafts/
