@@ -252,22 +252,22 @@ d_S1 =1; %[mm]              Change
 %Lengths of shaft
 b_G1 = 1; %[mm]             Change 
 
+
+res = 300;
 %Calculate I for the different intervals
 
-% 0 < x < L_AG1
-x = linspace(0, L_AG1, 200); 
-I_shaft = [I_shaft, secondMomentAreaCyl(d_S1) ]; % Moment of area
+for i<=res
+
+    if x< L_AG1+(b_g1/2)
+        d=d_S1
+        
+
+    elseif x<
+
+    else
 
 
-x = linspace(L_AG1, ), 100);
-I_shaft = [I_shaft, secondMomentAreaCyl(d_S1)]; % Moment of area
-
-
-
-% L_AG1 < x < L_AC
-x = linspace(L_AG1+(b_G1/2), L_AC, resolution);
-I_shaft = [I_shaft, secondMomentAreaCyl()]; %Moment of area
-
+end
 
 
 function [Ix] = secondMomentAreaCyl(D)
