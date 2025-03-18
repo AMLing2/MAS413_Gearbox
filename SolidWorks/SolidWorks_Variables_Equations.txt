@@ -59,6 +59,41 @@
 "px_s1" = "p_s1" / sin("beta") 'Axial pitch 1 [mm]
 "px_s2" = "p_s2" / sin("beta") 'Axial pitch 2 [mm]
 
-"dp_s1" = pi / "pt_s1" 'Diametral pitch 1 [mm]
-"dp_s2" = pi / "pt_s2" 'Diametral pitch 2 [mm]
+"dp_s1"= pi / "pt_s1" 'Diametral pitch 1 [mm]
+"dp_s2"= pi / "pt_s2" 'Diametral pitch 2 [mm]
 
+"d_S1"= 5 'Diameter shaft 1 (Inner diameter bearing B) [mm]
+"d_C"= 5 'Inner diameter bearing C [mm]
+"d_12"= 10 'Larger diameter shaft 1 [mm]
+
+"d_S2_1"= 10 'Diameter shaft 2 part 1 [mm]
+"d_S2_2"= 10 'Diameter shaft 2 part 2 [mm]
+"d_D"= 5 'Inner diameter bearing D [mm]
+"d_E"= 5 'Inner diameter bearing E [mm]
+"d_45"= 15 'Larger diameter shaft 2 [mm]
+
+"d_S3"= 10 'Diameter shaft 3 (Inner diameter bearing G) [mm]
+"d_F"= 10 'Inner diameter bearing F [mm]
+"d_78"= 15 'Larger diameter shaft 3 [mm]
+
+"b_G1"= "b_s1" 'Gear 1 width [mm]
+"b_G2"= "b_s1" 'Gear 2 width [mm]
+"b_G3"= "b_s2" 'Gear 3 width [mm]
+"b_G4"= "b_s2" 'Gear 4 width [mm]
+
+"b_B"= 30 'Bearing B width [mm]
+"b_C"= "b_B" 'Bearing C width [mm]
+"b_D"= 40 'Bearing D width [mm]
+"b_E"= "b_D" 'Bearing E width [mm]
+"b_F"= 50 'Bearing F width [mm]
+"b_G"= "b_F" 'Bearing G width [mm]
+
+"L_12"= 5 '[mm]
+"L_45"= 5 '[mm]
+"L_78"= 5 '[mm]
+"L_AB"= 50 '[mm]
+"L_GH"= 50 '[mm]
+
+"r_S1" = 0.1 '[mm]
+"r_S2" = 0.1 '[mm]
+"r_S3" = 0.1 '[mm] 
