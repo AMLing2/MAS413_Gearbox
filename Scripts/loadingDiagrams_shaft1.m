@@ -311,9 +311,18 @@ omega_corrected = omega - K_3;
 checkEmpiricalRequirement = maxDeflection / L_AC;
 
 if checkEmpiricalRequirement >= 1/3000
-    disp("Not good")
+    disp("Deflection not good")
 else
-    disp("Good")
+    disp("Deflection Good")
+end
+
+[maxOmega, indexOmega] = max(omega_corrected);
+checkOmegaRequirement = tan(maxOmega) ;
+
+if checkOmegaRequirement < 0.001
+    disp("Omega Good")
+else
+    disp("Omega Not Good")
 end
 
 
@@ -326,5 +335,15 @@ plot(x_values, deflection_corrected, 'r', 'DisplayName', 'Corrected');
 xlabel('Length [m]');
 ylabel('Deflection [m]');
 title('Deflection of shaft 1');
+legend show;
+grid on;
+
+figure;
+hold on;
+plot(x_values, omega, 'b', 'DisplayName', 'No correction');
+plot(x_values, omega_corrected, 'r', 'DisplayName', 'Corrected');
+xlabel('Length [m]');
+ylabel('Omega [m]');
+title('Omega of shaft 1');
 legend show;
 grid on;
