@@ -241,3 +241,122 @@ legend('$L_{FH}$', '$L_{FG}$', '$L_{FG4}$', '$L_{G4G}$', '$L_{GH}$', ...
 xlim( [ (-L_FH*0.1), (L_FH + L_FH*0.1) ] )
 ylim( [-5 5] )
 title('One Directional Length', 'interpreter', 'latex')
+
+%% Shaft Deflection
+close all;
+
+% Visuals
+lwDeflection = 2;
+sizeDeflectionText = 16;
+ok = 10;
+
+res = 300;
+
+% Initialization
+theta = zeros(1, res);
+delta = zeros(1, res);
+I_shaft = zeros(1, res);
+
+E = 210e9; % E-modulus [Pa]
+
+% Diameters of shaft
+d_F   = 0.010; % [m]
+d_78  = 0.015; % [m]
+d_S32 = 0.013; % [m]
+d_S31 = 0.011; % [m]
+
+% Calculate I for the different intervals
+x_values = linspace(0, L_FH, res);
+
+for i = 1:res
+    x = x_values(i);
+
+    if     x < ( (b_F/2) )
+        d = d_F;
+    elseif x < ( (b_F/2) + L_78 )
+        d = d_78;
+    elseif x < ( (b_F/2) + L_78 + b_s2 + L_45 + b_s1 + L_12)
+        d = d_S32;
+    else
+        d = d_S31;
+    end
+
+    I_shaft(i) = (pi * d^4) / 64;
+end
+
+EI = I_shaft * E;
+
+
+% Numerical Integration
+for i = 2:res
+    dx = x_values(i) - x_values(i-1);
+
+    % Integrate to find rotation (omega)
+    theta(i) = theta(i-1) + (M(i) / EI(i)) * dx;
+
+    % Integrate to find deflection
+    delta(i) = delta(i-1) + theta(i) * dx;
+end
+
+% Apply boundary conditions (deflection at bearings is zero), deflection is 0 at L_AB and L_AC
+index_L_FG = find(x_values >= L_FG, 1, 'first');
+
+% Correction Factor K_4: no deflection @ first bearing
+K_4 = 0;
+
+% Correction Factor K_3: non deflection @ second bearing
+K_3 = delta(index_L_FG) / L_FG;
+
+% Correct the Deflection and Beam Slope
+delta_corrected = delta - K_3 * (x_values) - K_4;
+theta_corrected = theta - K_3;
+
+maxDeflection = max( abs(delta_corrected) );
+checkEmpiricalRequirement = maxDeflection / L_FH;
+
+if checkEmpiricalRequirement <= 1/3000
+    disp("Deflection Good")
+else
+    disp("Deflection not good")
+end
+
+maxTheta = max(theta_corrected);
+checkThetaRequirement = tan(maxTheta) ;
+
+if checkThetaRequirement < 0.001
+    disp("Theta Good")
+else
+    disp("Theta Not Good")
+end
+
+% Plot the results
+figure;
+hold on;
+delta1 = plot(x_values, delta, '--r', 'LineWidth', lwDeflection);
+delta2 = plot(x_values, delta_corrected, 'r', 'LineWidth', lwDeflection);
+plot(0, 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
+plot(x_values(index_L_FG), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
+xlabel('Length [m]')
+ylabel('Deflection [m]')
+title('\textbf{Deflection $\delta$ of shaft 3}', 'interpreter', ...
+        'latex', 'FontSize', sizeDeflectionText)
+legend([delta1, delta2], 'No Correction', 'Corrected', ...
+            'location', 'northwest')
+grid on;
+
+% Convert to degrees
+theta = theta * 180/pi; % [degrees]
+theta_corrected = theta_corrected * 180/pi; % [degrees]
+
+figure;
+hold on;
+plot(x_values, theta, '--k', 'DisplayName', 'No correction', ...
+    'LineWidth', lwDeflection)
+plot(x_values, theta_corrected, 'k', 'DisplayName', 'Corrected', ...
+    'LineWidth', lwDeflection)
+xlabel('Length [m]')
+ylabel('Angle [degrees]')
+title('\textbf{Beam Slope $\theta$ of shaft 3}', 'interpreter', ...
+        'latex', 'FontSize', sizeDeflectionText)
+legend('location', 'northwest')
+grid on;
