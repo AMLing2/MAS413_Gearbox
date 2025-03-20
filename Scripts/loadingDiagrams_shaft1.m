@@ -29,13 +29,12 @@ b_B = 30e-3; % [m] catalogue circa 16 - 47 [mm] <-- WIP
 b_C = b_B; % [m]
 
 % Import from Gear Sizing
-<<<<<<< Updated upstream
+
 load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2', 'i_tot')
     % Convert from Gear Sizing
-=======
 load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2')
 % Convert from Gear Sizing
->>>>>>> Stashed changes
+
 r_G1 = d_g1/2 * 1e-3; % [m]
 r_G2 = d_g2/2 * 1e-3; % [m]
 r_G3 = d_g3/2 * 1e-3; % [m]
@@ -247,20 +246,6 @@ title('One Directional Length', 'interpreter', 'latex')
 %% Shaft deflection calculations
 res = 300;
 
-<<<<<<< Updated upstream
-% for i<=res
-% 
-%     if x< L_AG1+(b_g1/2)
-%         d=d_S1
-% 
-% 
-%     elseif x<
-% 
-%     else
-% 
-% 
-% end
-=======
 %Initialize arrays:
 I_shaft = [];
 omega = zeros(1, res);
@@ -298,7 +283,6 @@ for i = 1:res
 
     I_shaft(i) = (pi * d^4) / 64;
 end
->>>>>>> Stashed changes
 
 EI = I_shaft * E;
 
