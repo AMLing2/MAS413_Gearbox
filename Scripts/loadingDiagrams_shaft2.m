@@ -247,3 +247,85 @@ legend('$L_{ED}$', '$L_{EG2}$', '$L_{EG3}$', '$L_{G3G2}$', ...
 xlim( [ (-L_ED*0.1), (L_ED + L_ED*0.1) ] )
 ylim( [-5 5] )
 title('One Directional Length', 'interpreter', 'latex')
+
+
+%% Shaft deflection calculations
+res = 300;
+
+%Initialize arrays:
+I_shaft = [];
+omega = zeros(1, res);
+omega_corrected = [];
+deflection = zeros(1, res);
+deflection_corrected = [];
+
+E = 210e9; % E-modulus [Pa]
+
+% Diameters of shaft
+d_D = 0.01; % [m]
+d_E = 0.015; % [m]
+d_S21 = 0.02; % [m]
+d_S22 = 0.02; %[m]
+d_45 = 0.02; %[m]
+
+% Lengths of gears
+b_G2 = 0.005; % [m]
+b_G3 = 0.005; % [m]
+
+%%%%%%%%%%%%%%%%%%%%%%%% Stopped here with updates for shaft 2, carry on
+%%%%%%%%%%%%%%%%%%%%%%%% my wayward son 
+% Calculate I for the different intervals
+x_values = linspace(0, L_AC, res);
+
+for i = 1:res
+    x = x_values(i);
+
+    if x < (L_AG1 + (b_G1 / 2))
+        d = d_S1;
+    elseif x < (L_AG1 + (b_G1 / 2) + L_12)
+        d = d_12;
+    else
+        d = d_c;
+    end
+
+    I_shaft(i) = (pi * d^4) / 64;
+end
+
+EI = I_shaft * E;
+
+
+% Integration between L_AB and L_AC
+for i = 2:res
+    dx = x_values(i) - x_values(i-1);
+
+    % Integrate to find rotation (omega)
+    omega(i) = omega(i-1) + (M(i) / EI(i)) * dx;
+
+    % Integrate to find deflection
+    deflection(i) = deflection(i-1) + omega(i) * dx;
+end
+
+% Apply boundary conditions (deflection at bearings is zero), deflection is 0 at L_AB and L_AC
+
+index_L_AB = find(x_values >= L_AB, 1, 'first');
+index_L_AC = res;
+
+% Calculate the correction factor K_3
+K_3 = deflection(index_L_AC) / L_BC;
+
+% Correct the deflection and rotation
+deflection_corrected = deflection - K_3 * (x_values - x_values(index_L_AB));
+omega_corrected = omega - K_3;
+
+
+% Plot the results
+close all;
+figure;
+hold on;
+plot(x_values, deflection, 'b', 'DisplayName', 'No correction');
+plot(x_values, deflection_corrected, 'r', 'DisplayName', 'Corrected');
+xlabel('Length [m]');
+ylabel('Deflection [m]');
+title('Deflection of shaft 1');
+legend show;
+grid on;

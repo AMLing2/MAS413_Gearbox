@@ -249,13 +249,10 @@ res = 300;
 %Initialize arrays:
 I_shaft = [];
 omega = zeros(1, res);
+omega_corrected = [];
 deflection = zeros(1, res);
 deflection_corrected = [];
-omega_corrected = [];
 
-
-omega = zeros(1, res);
-deflection = zeros(1, res);
 
 E = 210e9; % E-modulus [Pa]
 
@@ -264,7 +261,7 @@ d_c = 0.01; % [m]
 d_12 = 0.015; % [m]
 d_S1 = 0.02; % [m]
 
-% Lengths of shaft
+% Lengths of gear
 b_G1 = 0.005; % [m]
 
 % Calculate I for the different intervals
@@ -298,11 +295,10 @@ for i = 2:res
     deflection(i) = deflection(i-1) + omega(i) * dx;
 end
 
-% Apply boundary conditions (deflection at bearings is zero)
-% Deflection is 0 at L_AB and L_AC
+% Apply boundary conditions (deflection at bearings is zero), deflection is 0 at L_AB and L_AC
 
 index_L_AB = find(x_values >= L_AB, 1, 'first');
-index_L_AC = res; % Point C is at the end of the shaft
+index_L_AC = res;
 
 % Calculate the correction factor K_3
 K_3 = deflection(index_L_AC) / L_BC;
