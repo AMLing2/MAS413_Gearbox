@@ -24,13 +24,18 @@ L_12 = 5e-3; % [m]
 L_45 = 5e-3; % [m]
 L_78 = 5e-3; % [m]
 L_AB  = 0.05; % [m]
-    % Bearing widths
+% Bearing widths
 b_B = 30e-3; % [m] catalogue circa 16 - 47 [mm] <-- WIP
 b_C = b_B; % [m]
 
 % Import from Gear Sizing
+<<<<<<< Updated upstream
 load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2', 'i_tot')
     % Convert from Gear Sizing
+=======
+load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2')
+% Convert from Gear Sizing
+>>>>>>> Stashed changes
 r_G1 = d_g1/2 * 1e-3; % [m]
 r_G2 = d_g2/2 * 1e-3; % [m]
 r_G3 = d_g3/2 * 1e-3; % [m]
@@ -41,17 +46,17 @@ b_s2 = b_s2 * 1e-3; % [m]
 % Calculated values
 omega_1 = n_1 * 2*pi / 60; % [rad/sec]
 T_M = P_1 / omega_1; % [Nm]
-    % Gear Forces
+% Gear Forces
 F_t1 = T_M / r_G1; % [N]
 F_a1 = F_t1 * tand(beta); % [N]
 F_r1 = F_t1 * tand(alpha)/cosd(beta); % [N]
-    % Lenghts
+% Lenghts
 L_BC  = b_B/2 + L_78 + b_s2 + L_45 + b_s1 + L_12; % [m]
 L_BG1 = b_B/2 + L_78 + b_s2 + L_45 + b_s1/2; % [m]
 L_G1C = L_BC - L_BG1; % [m]
 L_AG1 = L_AB + L_BG1; % [m]
 L_AC = L_AG1 + L_G1C; % [m]
-    % For Reaction forces @ bearings
+% For Reaction forces @ bearings
 F_By = F_t1*L_G1C/L_BC; % [N]
 F_Bz = (F_r1*L_G1C - F_a1*r_G1)/L_BC; % [N]
 
@@ -231,31 +236,18 @@ plot( [L_AB (L_AB + L_BG1)], [-1 -1], 'LineWidth', lW)
 plot( [L_AG1 (L_AG1 + L_G1C)], [-1 -1], 'LineWidth', lW)
 xlabel('Length [m]')
 legend('$L_{AC}$', '$L_{AG1}$', '$L_{AB}$', '$L_{BG1}$', '$L_{G1C}$', ...
-        'Location','southoutside', 'interpreter', 'latex')
+    'Location','southoutside', 'interpreter', 'latex')
 xlim( [ (-L_AC*0.1), (L_AC + L_AC*0.1) ] )
 ylim( [-5 5] )
 title('One Directional Length', 'interpreter', 'latex')
 
+
+
+
 %% Shaft deflection calculations
-
-%E-modul
-E =210; %E-modul            Change 
-
-I_shaft =[];
-M2_shaft = [];
-
-%Diameters of shaft
-d_c  =1; %[mm]              Change 
-d_12 =1; %[mm]              Change 
-d_S1 =1; %[mm]              Change 
-
-%Lengths of shaft
-b_G1 = 1; %[mm]             Change 
-
-
 res = 300;
-%Calculate I for the different intervals
 
+<<<<<<< Updated upstream
 % for i<=res
 % 
 %     if x< L_AG1+(b_g1/2)
@@ -268,12 +260,81 @@ res = 300;
 % 
 % 
 % end
+=======
+%Initialize arrays:
+I_shaft = [];
+omega = zeros(1, res);
+deflection = zeros(1, res);
+deflection_corrected = [];
+omega_corrected = [];
 
 
-function [Ix] = secondMomentAreaCyl(D)
-    % bruk: [Iy, Iz, Ix] = secondMomentAreaCyl(D)
-    % D - diameter til sylinderen
-    % Iy, Iz - Arealmoment om y- og z-aksene
-    % Ix - Arealmoment om x-aksen (langs sylinderens lengde)
-    Ix = (pi*D^4 / 64);  % Om x-aksen 
+omega = zeros(1, res);
+deflection = zeros(1, res);
+
+E = 210e9; % E-modulus [Pa]
+
+% Diameters of shaft
+d_c = 0.01; % [m]
+d_12 = 0.015; % [m]
+d_S1 = 0.02; % [m]
+
+% Lengths of shaft
+b_G1 = 0.005; % [m]
+
+% Calculate I for the different intervals
+x_values = linspace(0, L_AC, res);
+
+for i = 1:res
+    x = x_values(i);
+
+    if x < (L_AG1 + (b_G1 / 2))
+        d = d_S1;
+    elseif x < (L_AG1 + (b_G1 / 2) + L_12)
+        d = d_12;
+    else
+        d = d_c;
+    end
+
+    I_shaft(i) = (pi * d^4) / 64;
 end
+>>>>>>> Stashed changes
+
+EI = I_shaft * E;
+
+
+% Integration between L_AB and L_AC
+for i = 2:res
+    dx = x_values(i) - x_values(i-1);
+
+    % Integrate to find rotation (omega)
+    omega(i) = omega(i-1) + (M(i) / EI(i)) * dx;
+
+    % Integrate to find deflection
+    deflection(i) = deflection(i-1) + omega(i) * dx;
+end
+
+% Apply boundary conditions (deflection at bearings is zero)
+% Deflection is 0 at L_AB and L_AC
+
+index_L_AB = find(x_values >= L_AB, 1, 'first');
+index_L_AC = res; % Point C is at the end of the shaft
+
+% Calculate the correction factor K_3
+K_3 = deflection(index_L_AC) / L_BC;
+
+% Correct the deflection and rotation
+deflection_corrected = deflection - K_3 * (x_values - x_values(index_L_AB));
+omega_corrected = omega - K_3;
+
+
+% Plot the results
+figure;
+hold on;
+plot(x_values, deflection, 'b', 'DisplayName', 'No correction');
+plot(x_values, deflection_corrected, 'r', 'DisplayName', 'Corrected');
+xlabel('Length [m]');
+ylabel('Deflection [m]');
+title('Deflection of shaft 1');
+legend show;
+grid on;
