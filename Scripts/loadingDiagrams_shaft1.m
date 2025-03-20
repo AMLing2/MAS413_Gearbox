@@ -312,7 +312,7 @@ theta_corrected = theta - K_3;
 maxDeflection = max( abs(delta_corrected) );
 checkEmpiricalRequirement = maxDeflection / L_AC;
 
-if checkEmpiricalRequirement >= 1/3000
+if checkEmpiricalRequirement <= 1/3000
     disp("Deflection Good")
 else
     disp("Deflection not good")
