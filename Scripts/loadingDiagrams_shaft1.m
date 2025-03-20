@@ -307,13 +307,14 @@ K_3 = deflection(index_L_AC) / L_BC;
 deflection_corrected = deflection - K_3 * (x_values - x_values(index_L_AB));
 omega_corrected = omega - K_3;
 
+
 [maxDeflection, indexDeflection] = min(deflection_corrected);
-checkEmpiricalRequirement = maxDeflection / L_AC;
+checkEmpiricalRequirement = abs(maxDeflection) / L_AC;
 
 if checkEmpiricalRequirement >= 1/3000
-    disp("Deflection not good")
-else
     disp("Deflection Good")
+else
+    disp("Deflection not good")
 end
 
 [maxOmega, indexOmega] = max(omega_corrected);
