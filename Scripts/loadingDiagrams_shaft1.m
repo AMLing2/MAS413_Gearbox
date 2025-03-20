@@ -260,9 +260,10 @@ I_shaft = zeros(1, res);
 E = 210e9; % E-modulus [Pa]
 
 % Diameters of shaft
-d_c = 0.01; % [m]
-d_12 = 0.015; % [m]
-d_S1 = 0.02; % [m]
+d_c   = 0.010; % [m]
+d_12  = 0.015; % [m]
+d_S11 = 0.011; % [m]
+d_S12 = 0.013; % [m]
 
 % Calculate I for the different intervals
 x_values = linspace(0, L_AC, res);
@@ -270,9 +271,11 @@ x_values = linspace(0, L_AC, res);
 for i = 1:res
     x = x_values(i);
 
-    if x < (L_AG1 + (b_s1 / 2))
-        d = d_S1;
-    elseif x < (L_AG1 + (b_s1 / 2) + L_12)
+    if     x < (L_AB + (b_B/2) )
+        d = d_S11;
+    elseif x < ( L_AG1 + (b_s1/2) )
+        d = d_S12;
+    elseif x < ( L_AG1 + (b_s1/2) + L_12 )
         d = d_12;
     else
         d = d_c;
