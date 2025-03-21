@@ -223,11 +223,17 @@ dt_g4 = d_g4 + 2 * ht_4;
 b_s1 = mt_s1 * lambda;
 b_s2 = mt_s2 * lambda;
 
-% rough sum of material volume for gears [cm^3]
-material_sum = (pi * b_s1 * (((d_g1/2)^2)+(d_g2/2)^2) + ...
-               pi * b_s2 * (((d_g3/2)^2)+(d_g4/2)^2)) * 1e-3
-material_price = 4.3175e3; % [dollar/m^3]
-rough_mat_price = material_sum*1e-6 * material_price
+% rough sum of material volume for gears [mm^3] -> [m^3]
+volume_g1 = pi * b_s1 * (d_g1/2)^2 * 1e-9;
+volume_g2 = pi * b_s1 * (d_g2/2)^2 * 1e-9;
+volume_g3 = pi * b_s2 * (d_g3/2)^2 * 1e-9;
+volume_g4 = pi * b_s2 * (d_g4/2)^2 * 1e-9;
+material_sum = volume_g1 + volume_g2 + volume_g3 + volume_g4;
+density = 7.85*1e3; % [kg/m^3]
+mass_g1 = volume_g1 * density;
+mass_g2 = volume_g2 * density;
+mass_g3 = volume_g3 * density;
+mass_g4 = volume_g4 * density;
 
 % fillet radius
 pd_in_s1 = 25.4/mt_s1; % [1/in] machine design eq 12.4d pg735
@@ -289,8 +295,8 @@ end
 %%% axial contact ratio %%%
 
 % Display results
-T = table([d_g1; d_g2; d_g3; d_g4], [b_s1; b_s1; b_s2; b_s2], ...
-    'VariableNames', {'Diameter', 'Width'}, ...
+T = table([d_g1; d_g2; d_g3; d_g4], [b_s1; b_s1; b_s2; b_s2], [mass_g1; mass_g2; mass_g3; mass_g4], ...
+    'VariableNames', {'Diameter [mm]', 'Width [mm]', 'Mass [kg]'}, ...
     'RowNames', {'gear 1', 'gear 2', 'gear 3', 'gear 4'});
 
 disp(T)
