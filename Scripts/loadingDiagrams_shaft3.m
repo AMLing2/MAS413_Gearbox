@@ -260,10 +260,10 @@ I_shaft = zeros(1, res);
 E = 210e9; % E-modulus [Pa]
 
 % Diameters of shaft
-d_F   = 0.010; % [m]
-d_78  = 0.015; % [m]
-d_S32 = 0.013; % [m]
-d_S31 = 0.011; % [m]
+d_F   = 0.020; % [m]
+d_78  = 0.030; % [m]
+d_S32 = 0.027; % [m]
+d_S31 = 0.025; % [m]
 
 % Calculate I for the different intervals
 x_values = linspace(0, L_FH, res);
