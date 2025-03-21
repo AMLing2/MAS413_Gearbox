@@ -229,6 +229,8 @@ xlim([0 L_ED])
 L = xy_x(M_max_idx);
 dashLineV(L, 3, 2, 2)
 
+save("loadingDiagram_shaft2.mat")
+
 %% Length sanity check
 lW = 3;
 

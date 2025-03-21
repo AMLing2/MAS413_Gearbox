@@ -6,22 +6,9 @@ clc;close all;clear;
 lifetime = 10; % [years]
 work_cycle = 10; % [hours/day]
 
-% teeth #
-z_1 = 18;
-z_2 = 79;
-z_3 = 18;
-z_4 = 71;
-
-% gear ratios of stages
-i_s1 = z_2/z_1;
-i_s2 = z_4/z_3;
-i_tot = i_s1 * i_s2;
-
-% speed of gears [rpm]
-n_1 = 1450; % input
-n_2 = n_1 / i_s1;
-n_3 = n_2;
-n_4 = n_3/ i_s2;
+% Import from Gear Sizing
+load('gear_sizes.mat', 'z_1','z_2','z_3','z_4','i_tot','i_s1','i_s2', ...
+    'n_1','n_2','n_3','n_4')
 
 % number of cycles through lifetime:
 cycles_lifetime_sh1 = lifetime * 365.25 * work_cycle*60 * n_1

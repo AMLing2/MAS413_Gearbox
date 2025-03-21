@@ -222,6 +222,8 @@ xlim([0 L_AC])
 L = xy_x(M_max_idx);
 dashLineV(L, 3, 2, 2)
 
+save("loadingDiagram_shaft1.mat")
+
 %% Length sanity check
 lW = 3;
 
@@ -238,8 +240,6 @@ legend('$L_{AC}$', '$L_{AG1}$', '$L_{AB}$', '$L_{BG1}$', '$L_{G1C}$', ...
 xlim( [ (-L_AC*0.1), (L_AC + L_AC*0.1) ] )
 ylim( [-5 5] )
 title('One Directional Length', 'interpreter', 'latex')
-
-
 
 
 %% Shaft Deflection
