@@ -225,6 +225,13 @@ xlim([0 L_FH])
 L = xy_x(M_max_idx);
 dashLineV(L, 3, 2, 2)
 
+% Export data w/o figures (https://stackoverflow.com/questions/
+                            % 45560181/avoid-saving-of-graphics-in-matlab)
+varData = whos;
+saveIndex = cellfun(@isempty, regexp({varData.class}, 'matlab.(graphics|ui)'));
+saveVars = {varData(saveIndex).name};
+save("loadingDiagram_shaft3.mat", saveVars{:})
+
 %% Length sanity check
 lW = 3;
 
