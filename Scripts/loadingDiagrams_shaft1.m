@@ -365,3 +365,6 @@ grid on;
 g=9.81;
 
 n_c = (30/pi) * sqrt(g/maxDeflection)
+
+Upper_limit = n_c *1.25
+Lower_limit =n_c*0.8
