@@ -269,23 +269,29 @@ d_S22 = 0.02; %[m]
 d_45 = 0.02; %[m]
 
 % Lengths of gears
-b_G2 = 0.005; % [m]
-b_G3 = 0.005; % [m]
+b_s1 = 0.005; % [m]
+b_s2 = 0.005; % [m]
 
-%%%%%%%%%%%%%%%%%%%%%%%% Stopped here with updates for shaft 2, carry on
-%%%%%%%%%%%%%%%%%%%%%%%% my wayward son 
+%Lengths of bearings
+L_BE = 0.005 %[m]
+L_BD = 0.005
+
 % Calculate I for the different intervals
-x_values = linspace(0, L_AC, res);
+x_values = linspace(0, L_ED, res);
 
 for i = 1:res
     x = x_values(i);
 
-    if x < (L_AG1 + (b_G1 / 2))
-        d = d_S1;
-    elseif x < (L_AG1 + (b_G1 / 2) + L_12)
-        d = d_12;
+    if x < (L_BE)
+        d = d_E;
+    elseif x < (L_BE + L_EG3 - L_BE/2 + (b_s2 / 2))
+        d = d_S22;
+    elseif x<(L_BE + L_EG3 - L_BE/2 + (b_s2 / 2) + L_45)
+        d= d_45;
+    elseif x < (L_BE + L_EG3 - L_BE/2 + (b_s2 / 2) + L_45 + b_s1 + L_G2D-(b_s1/2) - L_BD/2 )
+        d=d_S21;
     else
-        d = d_c;
+        d = d_D;
     end
 
     I_shaft(i) = (pi * d^4) / 64;
@@ -307,14 +313,15 @@ end
 
 % Apply boundary conditions (deflection at bearings is zero), deflection is 0 at L_AB and L_AC
 
-index_L_AB = find(x_values >= L_AB, 1, 'first');
-index_L_AC = res;
+%index_L_E = find(x_values >= L_ED, 1, 'first');
+index_L_E = 1;
+index_L_ED = res;
 
 % Calculate the correction factor K_3
-K_3 = deflection(index_L_AC) / L_BC;
+K_3 = deflection(index_L_ED) / L_ED;
 
 % Correct the deflection and rotation
-deflection_corrected = deflection - K_3 * (x_values - x_values(index_L_AB));
+deflection_corrected = deflection - K_3 * (x_values - x_values(index_L_E));
 omega_corrected = omega - K_3;
 
 
