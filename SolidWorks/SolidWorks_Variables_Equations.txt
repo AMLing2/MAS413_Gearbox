@@ -6,8 +6,8 @@
 "z_3" = 18 'Number of teeth, pinion 3
 "z_4" = 71 'Number of teeth, gear 4
 
-"c_dist_1" = 0.05 'Center distance stage 1 [m]
-"c_dist_2" = 0.15 'Center distance stage 2 [m]
+"c_dist_1" = 0.129 'Center distance stage 1 [m]
+"c_dist_2" = 0.178 'Center distance stage 2 [m]
 
 "m_s1" = 2 * "c_dist_1" / ("z_1" + "z_2") * 1000 'Module stage 1 [mm]
 "m_s2" = 2 * "c_dist_2" / ("z_3" + "z_4") * 1000 'Module stage 2 [mm]

@@ -1,49 +1,63 @@
 close all; clear; clc;
 
 % TO DO:
-% - Create function for diameter equation with option for 1st itteration
-%   - Completed a simplified version, good enough?
-% - Lecture 2 slide 6-8, how to implement?
+% - Complete check if stress due to shear can be necglected !!!
 
-% Input parameters
-first_itteration = "n"; % ("y" / "n") First itteration for diameter equation (limited geomertry data)
-n_f = 3; % Safety factor
-material = 1045; % (1045 4130 4140 4340)    ! PLACEHOLDER
-d_shaft = 15; % [mm] Shaft diameter        ! PLACEHLDER VALUE
-r_fillet = 0.5; % [mm] Fillet radius          ! PLACEHLDER VALUE
-D_d = 1.2; %                                ! PLACEHLDER VALUE
+% Conversion factors
+MPa_to_ksi = 0.1450377377; % Mpa to ksi conversion factor
+
+% Common input parameters (for all shafts)
+n_f = 2; % Safety factor
+material = 1045; % (1045 4130 4140 4340)
 load_type = "Complex axial";  % ("Pure bending" "Pure axial" "Pure torsion" "Complex axial" "Complex non axial");
 surface_finish = "Machined"; % ("Ground" "Machined" "Hot-rolled" "As-forged") For other types, see Machine Design page 368, Figure 6-26
-reliability = 99; % [%] reliability factor (50 90 95 99 99.9 99.99 99.999 99.9999)
+reliability = 95; % [%] reliability factor (50 90 95 99 99.9 99.99 99.999 99.9999)
 operating_temperature = 70; % Celsius, defined by Kjell (only significant if > 450)
 
-S_yc = -800; % [Mpa] Compressive yeild strength ! PLACEHOLDER VALUE must be incorporated with material data table
+
+%%%%% Shaft 1 %%%%%  From loadingDiagrams_shaft1.m
+% Input parameters
+r_S1 = 2; % [mm]
+D_d_1 = 1.2; % !! ASK ABOUT THIS !!
+
+% Cross sections,  cs_ = [diameter (mm), P_x (N), M_z (Nmm), M_y (Nmm), T (Nmm)]
+cs_A =  [24 0 0 0 83*1e3];
+cs_B =  [29 0 0 0 cs_A(4)];
+cs_G1 = [35 -921 -2780 1226 64*1e3 -28*1e3 cs_A(5)];
+cs_C =  [24 cs_G1(2) 0 0 0];
+
+%%%%% Shaft 2 %%%%%  From loadingDiagrams_shaft2.m
+% Input parameters
+r_S2 = 2; % [mm]
+D_d_2 = 1.2; % !! ASK ABOUT THIS !!
+
+% Cross sections,  cs_ = [diameter (mm), P_x (N), M_z (Nmm), M_y (Nmm), T (Nmm)]
+cs_D =  [1757 0 0 0];
+cs_G2 = [cs_D(1) 0 0 cs_A(4)];
+cs_G3 = [-921 64*1e3 -28*1e3 cs_A(4)];
+cs_E =  [cs_G1(1) 0 0 0];
+
+%%%%%%%%%%%%%%%% Select corss section to evaluate %%%%%%%%%%%%%%%%
+first_itteration = "n"; % ("y" / "n") First itteration for diameter equation (limited geomertry data)
+cs = cs_G1;
+r_fillet = r_S1;
+D_d = D_d_1;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
 % Calculated values
+d_shaft = cs(1); % [mm] Shaft diameter
 R = (d_shaft/2); % [mm] Shaft radius
 A = pi*R^2; % [mm^2] Shaft area
 I = (pi/4)*R^4; % [mm^4] Moment of inertia
 I_p = (pi/2)*R^4; % [mm^4] Polar moment of inertia
 
-% Conversion factors
-Mpa_to_ksi = 0.1450377377; % Mpa to ksi conversion factor
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% From loadingDiagrams_shaft1.m  ! MUST BE UPDATED 
-% Axial
-P_x = -1; % [N]
-
-% Shear
-V_xy = 2; % [N]
-V_xz = 90; % [N]
-
-% Bending
-M_z = 1*1e3; % [Nmm]
-M_y = 13*1e3; % [Nmm]
-
-% Tourqe
-T = 83; % [Nmm]
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Forces
+P_x = cs(2); % [N] % Axial
+V_xy = cs(3); % [N] % Shear
+V_xz = cs(4); % [N] % Shear
+M_z = cs(5); % [Nmm] % Bending
+M_y = cs(6); % [Nmm] % Bending
+T = cs(7); % [Nmm] % Tourqe
 
 % Axial (constant)
 P_x_max = P_x; % [N]
@@ -72,23 +86,24 @@ T_min = T; % [Nmm]
 T_mean = (T_max + T_min)/2; % [Nmm]
 T_amp =  (T_max - T_min)/2; % [Nmm]
 
+
 %%%%% Mean & Amplitude nominal stress %%%%% (Maskinelementer, lecture 3 slide 15-18)
 % Axial
-sigma_x_axial_max_nom = P_x_max/A; % [Mpa]
-sigma_x_axial_min_nom = P_x_min/A; % [Mpa]
+sigma_x_axial_max_nom = abs(P_x_max)/A; % [Mpa]
+sigma_x_axial_min_nom = abs(P_x_max)/A; % [Mpa]
 sigma_x_axial_mean_nom = (sigma_x_axial_max_nom + sigma_x_axial_min_nom)/2; % [Mpa]
 sigma_x_axial_amp_nom =  (sigma_x_axial_max_nom - sigma_x_axial_min_nom)/2; % [Mpa]
 
 % Shear
-tau_xy_shear_max_nom = (4/3)*(V_xy_max/A); % [Mpa]
-tau_xy_shear_min_nom = (4/3)*(V_xy_min/A); % [Mpa]
-tau_xy_shear_mean_nom = (tau_xy_shear_max_nom + tau_xy_shear_min_nom)/2; % [Mpa]
-tau_xy_shear_amp_nom =  (tau_xy_shear_max_nom - tau_xy_shear_min_nom)/2; % [Mpa]
+tau_xy_shear_max_nom = (4/3)*(abs(V_xy_max)/A); % [Mpa]
+% tau_xy_shear_min_nom = (4/3)*(V_xy_min/A); % [Mpa]
+% tau_xy_shear_mean_nom = (tau_xy_shear_max_nom + tau_xy_shear_min_nom)/2; % [Mpa]
+% tau_xy_shear_amp_nom =  (tau_xy_shear_max_nom - tau_xy_shear_min_nom)/2; % [Mpa]
 
-tau_xz_shear_max_nom = (4/3)*(V_xz_max/A); % [Mpa]
-tau_xz_shear_min_nom = (4/3)*(V_xz_min/A); % [Mpa]
-tau_xz_shear_mean_nom = (tau_xz_shear_max_nom + tau_xz_shear_min_nom)/2; % [Mpa]
-tau_xz_shear_amp_nom =  (tau_xz_shear_max_nom - tau_xz_shear_min_nom)/2; % [Mpa]
+tau_xz_shear_max_nom = (4/3)*(abs(V_xz_max)/A); % [Mpa]
+% tau_xz_shear_min_nom = (4/3)*(V_xz_min/A); % [Mpa]
+% tau_xz_shear_mean_nom = (tau_xz_shear_max_nom + tau_xz_shear_min_nom)/2; % [Mpa]
+% tau_xz_shear_amp_nom =  (tau_xz_shear_max_nom - tau_xz_shear_min_nom)/2; % [Mpa]
 
 % Bending
 sigma_x_bend_max_nom = (M_max*R)/I; % [Mpa]
@@ -115,6 +130,7 @@ material_data = struct('S_y', num2cell([593, 655, 1462, 1365]),...
 material_table = dictionary(material_key, material_data);
 S_y = material_table(material).S_y;
 S_ut = material_table(material).S_ut;
+S_yc = -S_y; % [Mpa] Compressive yeild strength ! PLACEHOLDER VALUE must be incorporated with material data table
 
 
 %%%%% Neubler's Constant for Steels %%%%% (Machine Design, Table 6-6 page 382)
@@ -122,7 +138,7 @@ S_ut_ksi_table = [50 55 60 70 80 90 100 110 120 130 140 160 180 200 220 240];% [
 a_sqrt_in_table = [0.130 0.118 0.108 0.093 0.080 0.070 0.062 0.055 0.049 0.044 0.039 0.031 0.024 0.018 0.013 0.009]; % [in^1/2]
 Neublers_table = dictionary(S_ut_ksi_table, a_sqrt_in_table);
 
-S_ut_ksi_temp = S_ut * Mpa_to_ksi; % [ksi] converts S_ut from Mpa to ksi
+S_ut_ksi_temp = S_ut * MPa_to_ksi; % [ksi] converts S_ut from Mpa to ksi
 S_ut_ksi = find_closest_value(S_ut_ksi_temp, S_ut_ksi_table);
 
 a_sqrt_in = Neublers_table(S_ut_ksi); % [in^1/2]
@@ -166,7 +182,7 @@ K_t_axial = A_axial*(r_fillet/d_shaft)^b_axial;
 % Fatigue (dynamic) stress concentration foactors:
 K_f_bend = 1 + q * (K_t_bend - 1);    % for normal stress, Appendix C
 K_f_tor = 1 + q * (K_t_tor - 1);    % for shear stress
-K_f_axial = 1 + q * (K_t_axial - 1); %  for ??
+K_f_axial = 1 + q * (K_t_axial - 1); %  for axial sress
 
 
 %%%%% Mean & Amplitude stress with stress concentration (Ductile materials) %%%%% (Maskinelementer, lecture 3 slide 19 & 21)
@@ -175,16 +191,19 @@ sigma_x_axial_mean = sigma_x_axial_mean_nom * K_f_axial; % [Mpa]
 sigma_x_axial_amp =  sigma_x_axial_amp_nom  * K_f_axial; % [Mpa]
 
 % Shear
-tau_xy_shear_mean = tau_xy_shear_mean_nom * K_f_tor; % [Mpa]
-tau_xy_shear_amp =  tau_xy_shear_amp_nom  * K_f_tor; % [Mpa]
-tau_xz_shear_mean = tau_xz_shear_mean_nom * K_f_tor; % [Mpa]
-tau_xz_shear_amp =  tau_xz_shear_amp_nom  * K_f_tor; % [Mpa]
+% tau_xy_shear_max = tau_xy_shear_max_nom * K_f_tor; % [Mpa] Only xy !!
+% tau_xy_shear_mean = tau_xy_shear_mean_nom * K_f_tor; % [Mpa]
+% tau_xy_shear_amp =  tau_xy_shear_amp_nom  * K_f_tor; % [Mpa]
+% tau_xz_shear_mean = tau_xz_shear_mean_nom * K_f_tor; % [Mpa]
+% tau_xz_shear_amp =  tau_xz_shear_amp_nom  * K_f_tor; % [Mpa]
 
 % Bending
+% sigma_x_bend = sigma_x_bend_max_nom * K_f_bend; % [Mpa]
 sigma_x_bend_mean = sigma_x_bend_mean_nom * K_f_bend; % [Mpa]
 sigma_x_bend_amp =  sigma_x_bend_amp_nom  * K_f_bend; % [Mpa]
 
 % Torsion
+% tau_xy_tor_max = tau_xy_tor_max_nom * K_f_tor; % [Mpa]
 tau_xy_tor_mean = tau_xy_tor_mean_nom * K_f_tor; % [Mpa]
 tau_xy_tor_amp =  tau_xy_tor_amp_nom  * K_f_tor; % [Mpa]
 tau_xz_tor_mean = tau_xz_tor_mean_nom * K_f_tor; % [Mpa]
@@ -194,15 +213,23 @@ tau_xz_tor_amp =  tau_xz_tor_amp_nom  * K_f_tor; % [Mpa]
 sigma_x_mean = sigma_x_axial_mean + sigma_x_bend_mean; % [Mpa]
 sigma_x_amp =  sigma_x_axial_amp + sigma_x_bend_amp;   % [Mpa]
 
-tau_xy_mean = tau_xy_shear_mean + tau_xy_tor_mean; % [Mpa]
-tau_xy_amp =  tau_xy_shear_amp + tau_xy_tor_amp;   % [Mpa]
-tau_xz_mean = tau_xz_shear_mean + tau_xz_tor_mean; % [Mpa]
-tau_xz_amp =  tau_xz_shear_amp + tau_xz_tor_amp;   % [Mpa]
+% Shear neglected
+tau_xy_mean = tau_xy_tor_mean; % [Mpa]
+tau_xy_amp =  tau_xy_tor_amp;   % [Mpa]
+tau_xz_mean = tau_xz_tor_mean; % [Mpa]
+tau_xz_amp =  tau_xz_tor_amp;   % [Mpa]
+
+% Included shear (done incorrectly)
+% tau_xy_mean = tau_xy_shear_mean + tau_xy_tor_mean; % [Mpa]
+% tau_xy_amp =  tau_xy_shear_amp + tau_xy_tor_amp;   % [Mpa]
+% tau_xz_mean = tau_xz_shear_mean + tau_xz_tor_mean; % [Mpa]
+% tau_xz_amp =  tau_xz_shear_amp + tau_xz_tor_amp;   % [Mpa]
 
 % Von Mises
 sigma_vm_mean = sqrt(sigma_x_mean^2 + 3*(tau_xy_mean^2+tau_xz_mean^2)); % [Mpa]
 sigma_vm_amp =  sqrt(sigma_x_amp^2 + 3*(tau_xy_mean^2+tau_xz_amp^2));   % [Mpa]
-sigma_vm_max = sigma_vm_mean + sigma_vm_amp; % [Mpa]
+sigma_vm_max = sigma_vm_mean + sigma_vm_amp % [Mpa]
+
 
 %%%%% Correction factors %%%%%
 % Load factor % (Maskinelementer, lecture 3 slide 43 & Machine Design, page 366)
@@ -265,14 +292,14 @@ if first_itteration == "y"
     
     % Estimating stress geometric concentration factors for preliminary stage (Maskinelementerlecture 5 slide 10)
     % Shoulder fillet sharp (r/d = 0.02, D/d = 1.5)
-    % K_t_bend = 2.7;
-    % K_t_tor = 2.2;
-    % K_t_axial = 3.0;
+    K_t_bend = 2.7;
+    K_t_tor = 2.2;
+    K_t_axial = 3.0;
     
     % Shoulder fillet well-rounded (r/d = 0.1, D/d = 1.5)
-    K_t_bend = 1.7;
-    K_t_tor = 1.5;
-    K_t_bend = 1.9;
+    % K_t_bend = 1.7;
+    % K_t_tor = 1.5;
+    % K_t_bend = 1.9;
     
     % End-mill keyset (r/d = 0.02)
     % K_t_bend = 2.14;
@@ -292,7 +319,7 @@ if first_itteration == "y"
     % Conservative estimate for preliminary stage (q is unknown)
     K_f_bend = K_t_bend;
     K_f_tor = K_t_tor;
-    K_f_axial = K_t_bend;
+    K_f_axial = K_t_bend; % ??
     
     % Correction factors for preliminary stage % (Maskinelementer, lecture 5 slide 12)
     C_load = 1; % Bending
@@ -302,14 +329,36 @@ end
 % Endurance limit
 S_e = C_load*C_size*C_surf*C_temp*C_reliab*S_e_prime; % (Maskinelementer, lecture 4 slide 5)
 
-d_eq = ((16*n_f/pi)*(sqrt(4*(K_f_bend*M_amp)^2+3*(K_f_tor*T_amp)^2)/S_e)+(sqrt(4*(K_f_bend*M_mean)^2+3*(K_f_tor*T_mean)^2/S_ut)))^(1/3);
-fprintf('d_eq = %.2f,  Recomended shaft diameter\n', d_eq)
+d_eq = ((16*n_f)/pi)*((sqrt(4*(K_f_bend*M_amp)^2+3*(K_f_tor*T_amp)^2)/S_e)+(sqrt(4*(K_f_bend*M_mean)^2+3*(K_f_tor*T_mean)^2)/S_ut))^(1/3);
+fprintf('d_eq = %.2f [mm],  Recomended shaft diameter\n', d_eq)
 
 % Quick check: failure againt yels at the first cycle (Maskinelementer, lecture 5 slide 7) 
 % sigma_prime_amp = sqrt(((32*K_f_bend*M_amp)/(pi*d_shaft^3)) + 3*((16*K_f_tor*T_amp)/(pi*d_shaft^3)));
 % sigma_prime_mean = sqrt(((32*K_f_bend*M_mean)/(pi*d_shaft^3)) + 3*((16*K_f_tor*T_mean)/(pi*d_shaft^3))); 
 % sigma_max = sigma_prime_mean + sigma_prime_amp;
 % n_y = S_y / sigma_max
+
+
+%%%%% Check if shear can be neglected %%%%% INCOMPLETE
+fprintf('sigma_bend = %.2f [MPa]\n', sigma_x_bend_max_nom + sigma_x_axial_max_nom)
+fprintf('tau_tor = %.2f [MPa]\n', tau_xy_tor_max_nom)
+fprintf('tau_shear = %.2f [MPa]\n', tau_xy_shear_max_nom + tau_xz_shear_max_nom)
+shear_bending = (tau_xy_shear_max_nom + tau_xz_shear_max_nom)/(sigma_x_bend_max_nom + sigma_x_axial_max_nom);
+shear_tor = (tau_xy_shear_max_nom + tau_xz_shear_max_nom)/tau_xy_tor_max_nom;
+
+fprintf('tau_shear / sigma_bending = %.2f --> ', shear_bending)
+if shear_bending <= 0.1
+    fprintf('shear force can be neglected\n')
+else
+    fprintf('shear force can NOT be neglected\n')
+end
+
+fprintf('tau_shear / tau_tor = %.2f --> ', shear_tor)
+if shear_tor <= 0.1
+    fprintf('shear force can be neglected\n')
+else
+    fprintf('shear force can NOT be neglected\n')
+end
 
 
 %%%%% Modified Goodman Diagram %%%%%
