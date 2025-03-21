@@ -360,3 +360,8 @@ title('\textbf{Beam Slope $\theta$ of shaft 1}', 'interpreter', ...
         'latex', 'FontSize', sizeDeflectionText)
 legend('location', 'northwest')
 grid on;
+
+%% Critical speed calculations
+g=9.81;
+
+n_c = (30/pi) * sqrt(g/maxDeflection)
