@@ -24,6 +24,7 @@ L_12 = 5e-3; % [m]
 L_45 = 5e-3; % [m]
 L_78 = 5e-3; % [m]
 L_AB  = 0.05; % [m]
+
 % Bearing widths
 b_B = 30e-3; % [m] catalogue circa 16 - 47 [mm] <-- WIP
 b_C = b_B; % [m]
@@ -242,8 +243,6 @@ title('One Directional Length', 'interpreter', 'latex')
 
 
 %% Shaft Deflection
-close all;
-
 % Visuals
 lwDeflection = 2;
 sizeDeflectionText = 16;
