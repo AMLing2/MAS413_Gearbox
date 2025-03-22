@@ -367,15 +367,12 @@ legend('location', 'northwest')
 grid on;
 
 %% Critical speed calculations
-
-close all;
-
 %Constants and mass initialisation
 g=9.81;
 delta_g = zeros(1, res);
 
 %masses of the gears
-m_G1 = 1; %[kg]
+m_G1 = 0.52675; %[kg]
 
 EI_48 = 48 * I_shaft * E;
 
@@ -396,13 +393,10 @@ for i = 2:res
 
 end
 
-figure
-plot(x_values, delta_g)
-
 max_delta_g = max(abs(delta_g));
 
-omega_c = sqrt(g * (   ( (m_G1*max_delta_g) / (m_G1*max_delta_g^2))   )) %Machine design equation 10.25c
-n_c = (60/(2*pi))* omega_c %[rpm]
+omega_c = sqrt(g * (   ( (m_G1*max_delta_g) / (m_G1*max_delta_g^2))   )); %Machine design equation 10.25c
+n_c = (60/(2*pi))* omega_c; %[rpm]
 
 n_shaft1 = 1450;
 
