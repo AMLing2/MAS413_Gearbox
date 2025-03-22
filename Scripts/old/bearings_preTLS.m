@@ -1,36 +1,51 @@
-clc; close all; clear;
+clc;close all;clear;
+
+%TODO:
+% find actual datasheet
 
 lifetime = 10; % [years]
-daysPerYear = 365.25; % [days/year]
 work_cycle = 10; % [hours/day]
-minPerHour = 60; % [min/hour]
-ly = lifetime * daysPerYear * work_cycle * minPerHour; % [min]
 
-% Import from Gear Sizing
-load('gear_sizes.mat', 'z_1','z_2','z_3','z_4','i_tot','i_s1','i_s2', ...
-    'n_1','n_2','n_3','n_4')
+% teeth #
+z_1 = 18;
+z_2 = 79;
+z_3 = 18;
+z_4 = 71;
 
-% Import from Loading Diagrams
-load('loadingDiagram_shaft1.mat', 'xz_P', 'xy_V', 'xz_V')
-shaft1_Fa = xz_P;
-shaft1_Fr = sqrt(xy_V^2 + xz_V^2);
-load('loadingDiagram_shaft2.mat', 'xz_P', 'xy_V', 'xz_V')
-shaft2_Fa = xz_P;
-shaft2_Fr = sqrt(xy_V^2 + xz_V^2);
-load('loadingDiagram_shaft3.mat', 'xz_P', 'xy_V', 'xz_V')
-shaft3_Fa = xz_P;
-shaft3_Fr = sqrt(xy_V^2 + xz_V^2);
+% gear ratios of stages
+i_s1 = z_2/z_1;
+i_s2 = z_4/z_3;
+i_tot = i_s1 * i_s2;
 
-% Import from Shaft Design
-load('shaftDesign.mat', 'd_S11', 'd_C')
+% speed of gears [rpm]
+n_1 = 1450; % input
+n_2 = n_1 / i_s1;
+n_3 = n_2;
+n_4 = n_3/ i_s2;
 
 % number of cycles through lifetime:
-cycles_lifetime_sh1 = ly * n_1
-cycles_lifetime_sh2 = ly * n_2
-cycles_lifetime_sh3 = ly * n_4
+cycles_lifetime_sh1 = lifetime * 365.25 * work_cycle*60 * n_1
+cycles_lifetime_sh2 = lifetime * 365.25 * work_cycle*60 * n_2
+cycles_lifetime_sh3 = lifetime * 365.25 * work_cycle*60 * n_4
 
-% Reliability factor, weibull distribution - tab 11-5 pg 701 machine design
-K_R = 0.62; % R% = 95
+% Loads from loadingDiagrams_shaftx.m scripts:
+% - radial [N]:
+F_r_sh1 = 20; % sqrt(F_Cy^2 + F_Cz^2)
+F_r_sh2 = 20; % max(sqrt(F_Ey^2 + F_Ez^2), sqrt(F_Dy^2 + F_Dz^2))
+F_r_sh3 = 20; % sqrt(F_Fy^2 + F_Fz^2)
+% - axial  [N]:
+F_a_sh1 = 5; % F_Cx
+F_a_sh2 = 5; % F_Ex
+F_a_sh3 = 5; % F_Fx , check if negative
+
+% minimum shaft diameters from shaftDesign.m [mm]
+d_min_sh1 = 0;
+d_min_sh1_m = 0; % motor / input side of shaft 1
+d_min_sh2 = 0;
+d_min_sh3 = 0;
+d_min_sh3_p = 0; % output side of shaft 3
+
+K_R = 0.62; % Reliability factor for weibull distribution 95% R%, tab 11-5 pg 701 machine design
 
 % rough calculation of angle since not specified in datasheets
 op = (200-150)/4; 
@@ -44,8 +59,8 @@ taper_ang = taper_ang_list(ang_index);
 
 d_list = 50:10:150; % [mm]
 bearing_name = ["32912" "32914" "32916" "32918" "32920" "32922" "32924" "32928" "32930"];
-c_dyn_list = [49.5 76.8 80.6 105 136 143 185 222 228 305] * 1e3; % [N]
-c_st_list = [82.3 123 136 178 231 253 326 428 545] * 1e3; % [N]
+c_dyn_list = [49.5 76.8 80.6 105 136 143 185 222 228 305] * 1e3;% [kN] -> [N]
+c_st_list = [82.3 123 136 178 231 253 326 428 545] * 1e3; % [kN] -> [N]
 
 [b_index_1,n1] = tapered_bearing_sizing(d_min_sh1 ,F_r_sh1,F_a_sh1,cycles_lifetime_sh1, ...
     taper_ang, K_R, d_list, c_dyn_list, c_st_list)
@@ -54,7 +69,7 @@ c_st_list = [82.3 123 136 178 231 253 326 428 545] * 1e3; % [N]
 [b_index_3,n3] = tapered_bearing_sizing(d_min_sh3 ,F_r_sh1,F_a_sh3,cycles_lifetime_sh3, ...
     taper_ang, K_R, d_list, c_dyn_list, c_st_list);
 
-% Deep Groove Ball Bearing Selection
+%% deep groove ball bearing selection
 % need to update c_dyn_list and c_st_list with vales from:
 % https://www.skf.com/group/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings#cid-493604
 d_list_ball = 50:5:150; % [mm]
@@ -63,14 +78,14 @@ d_list_ball = 50:5:150; % [mm]
 [b_index_p,n_bp] = ball_bearing_sizing(d_min_sh3_p ,F_r_sh3,0,cycles_lifetime_sh3, ...
     K_R, d_list_ball, c_dyn_list, c_st_list); 
 
-
-%% Tapered Roller Bearing Selection
 function [bearing_index,lifetime] = tapered_bearing_sizing(d_min,F_r,F_a,cycles,taper_ang,K_R,d_list,C_dyn_list,C_st_list)
-    % Single Row Tapered Roller Bearing
+% single row tapered roller bearing
+
 % d_min: minimum rod diameter [mm] % add max diameter?
 % F_r: Force in the radial direction [N]
 % F_a: Force in the axial direction [N]
 % cycles: minimum lifetime cycles
+% taper_ang: taper angle of bearing, must be 20, 25, 30, 35, or 40 [deg]
 % K_R: Reliability factor for weibull distribution, tab 11-5 pg 7-1 machine design
 % d_list: list of bearing inner diameter [mm]
 % C_dyn_list: list of bearing dynamic load rating [N]
@@ -123,10 +138,9 @@ function [bearing_index,lifetime] = tapered_bearing_sizing(d_min,F_r,F_a,cycles,
     end
 end
 
-
-%% Ball Bearing Selection
 function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R,d_list,C_dyn_list,C_st_list)
-    % Single Row Deep Groove (Conrad) Ball Bearing
+% single row deep groove/conrad ball bearing
+
 % d_min: minimum rod diameter [mm] % add max diameter?
 % F_r: Force in the radial direction [N]
 % F_a: Force in the axial direction [N]
@@ -172,11 +186,7 @@ function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R
     end
 end
 
-%{
- Find corresponding index:
-    https://www.mathworks.com/matlabcentral/answers/
-    152301-find-closest-value-in-array#answer_1559017
-%}
+%from https://www.mathworks.com/matlabcentral/answers/152301-find-closest-value-in-array#answer_1559017
 function [cl,closestIndex] = closest(arr,val) 
     [~,closestIndex] = min(arr-val.', [], ComparisonMethod = "abs");
     cl = arr(closestIndex);
