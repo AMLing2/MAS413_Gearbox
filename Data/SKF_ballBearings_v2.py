@@ -35,6 +35,7 @@ for i, table in enumerate(tables):
 
         else: # extra data table
             num_padded_rows = newtab_principle_df[n].shape[0] - table.df.shape[0]
+            print(num_padded_rows)
             padded_df = pd.DataFrame(
                 [[''] * len(table.df.columns)] * num_padded_rows,  # Fill with empty strings for each column
                 columns=table.df.columns  # Ensure columns match the original DataFrame
@@ -43,17 +44,18 @@ for i, table in enumerate(tables):
             if n == 0:
                 newtab_extra_df.append(padded_table)
             else: # remove header
-                newtab_extra_df.append(padded_table.iloc[header_length:])
+                newtab_extra_df.append(padded_table.iloc[1:])
+            print(padded_table)
             n += 1
 
 # Combine all tables into one DataFrame
 principle_combined = pd.concat([df for df in newtab_principle_df])
-print(principle_combined.to_string())
 extra_combined = pd.concat([df for df  in newtab_extra_df])
-print(extra_combined.to_string())
 # fix indexes after concating
 principle_combined.reset_index(drop=True, inplace=True)
 extra_combined.reset_index(drop=True, inplace=True)
+#print(principle_combined.to_string())
+#print(extra_combined.to_string())
 # combine to a single table:
 combinedDataframe = pd.concat([principle_combined,extra_combined], axis=1, ignore_index=False)
     
