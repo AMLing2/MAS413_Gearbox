@@ -16,13 +16,15 @@
 % d_c : changed diameter of inner radius of hub [mm]
 % h : hub inner hole diameter tolerence
 % s : shaft diameter tolerence
-% heat_temp : temperature needed for the fit [deg C]
+% heat_temp_hub : hub temperature needed for the fit [deg C]
+% temp_shaft : shaft temperature needed (room temp if standard) [deg C]
 % sigma_t_s = tangenial stress in shaft [Mpa]
 % sigma_t_o = radial stress in shaft [Mpa]
 % sigma_r_s = tangenial stress in hub / gear [Mpa]
 % sigma_r_o = radial stress in hub / gear [Mpa]
+% min_r_o = Minimum hub outer diamter [mm]
 
-function [p,T_max,d_c,h,s,heat_temp,sigma_t_s,sigma_t_o,sigma_r_s,sigma_r_o] ...
+function [p,T_max,d_c,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_o,sigma_r_s,sigma_r_o] ...
     = pressFitsShaft(d_h_o,d_s,l,mu ,E_o,E_i,V_o,V_i)
 
     r_i = 0; % [mm] solid shaft, no hollow inner diameter
@@ -40,19 +42,24 @@ function [p,T_max,d_c,h,s,heat_temp,sigma_t_s,sigma_t_o,sigma_r_s,sigma_r_o] ...
     delta_r = i_7/2; % is dividing by 2 correct here?
     % resize:
     d_c = (r - delta_r)*2; % [mm] diameter of gear / hub inner hole
-    if (d_c > d_h_o)
-        warning("Shaft larger than gear")
-    end
     h = C_h * d_c^(1/3); % hub inner hole diameter tolerence 
     s = C_s * d_s^(1/3); % shaft diameter tolerence 
 
     % temperature calculations: pg 577 university physics book
     temp_room = 22; % room temperature [deg C]
+    temp_shaft = temp_room;
     L_0 = 2*pi*(d_c/2); % initial length (radius of outer - radius of inner) [mm]
     fit_tol = s+h; % extra radius for easier fit [mm]
     L_heated = 2*pi*((d_s + fit_tol)/2); % finishing length for fit [mm]
-    alpha = 1.2e-5; % Coefficient of liear expansion [1/deg C], tab 17.1 pg 578
-    heat_temp = ((L_heated - L_0) / (alpha * L_0)) + temp_room; % [deg C] eq 17.6 pg 576
+    alpha = 1.2e-5; % Coefficient of linear expansion [1/deg C], tab 17.1 pg 578
+    heat_temp_hub = ((L_heated - L_0) / (alpha * L_0)) + temp_room; % [deg C] eq 17.6 pg 576
+
+    max_heating = 120; % [deg C] bad for bearings to be above 125 deg C
+    if heat_temp_hub > max_heating
+        %warning("Shaft d = %dmm has to be cooled for interference fit",d_s)
+        temp_shaft = temp_room - (heat_temp_hub - max_heating); % cool down shaft instead
+        heat_temp_hub = max_heating;
+    end
 
     % stress calculations
     sigma = 2 * delta_r;
@@ -67,6 +74,17 @@ function [p,T_max,d_c,h,s,heat_temp,sigma_t_s,sigma_t_o,sigma_r_s,sigma_r_o] ...
 
     sigma_r_s = -p;
     sigma_r_o = -p;
+    if (d_c > d_h_o)
+        warning("Shaft larger than gear")
+        sigma_t_s = inf; % probably removing
+        sigma_t_o = inf;
+        sigma_r_s = inf;
+        sigma_r_o = inf;
+    end
+
+    % n_f = 1.5; % saftey factor for minimum hub size calc;
+    % sigma_y = 417; % [Mpa]
+    % min_r_o =  r*((E_o*n_f*r - E_i*n_f*r + 500*E_i*E_o*sigma*sigma_y + E_i*V_o*n_f*r - E_o*V_i*n_f*r)/(E_i*n_f*r + E_o*n_f*r - 500*E_i*E_o*sigma*sigma_y + E_i*V_o*n_f*r - E_o*V_i*n_f*r))^(1/2);
 
     % stress concentrations: Figure 10-20 pg 622, no equation for it
     % l_d = l/d_s;
