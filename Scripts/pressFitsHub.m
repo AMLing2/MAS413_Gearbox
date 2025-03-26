@@ -18,13 +18,14 @@
 % d_c : changed radius of outer shaft radius [mm]
 % h : gear hole diameter tolerence
 % s : shaft diameter tolerence
-% heat_temp : temperature of hub / bearing needed for the fit [deg C]
+% heat_temp_hub : temperature of hub / bearing needed for the fit [deg C]
+% temp_shaft : temperature of shaft needed for the fit [deg C]
 % sigma_t_s = tangenial stress in shaft [Mpa]
 % sigma_t_o = radial stress in shaft [Mpa]
 % sigma_r_s = tangenial stress in hub / bearing [Mpa]
 % sigma_r_o = radial stress in hub / bearing [Mpa]
 
-function [p,T_max,d_c,h,s,heat_temp,sigma_t_s,sigma_t_o,sigma_r_s,sigma_r_o] ...
+function [p,T_max,d_c,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_o,sigma_r_s,sigma_r_o] ...
     = pressFitsHub(d_h_o,d_s,l,mu ,E_o,E_i,V_o,V_i,d_h_i)
 
     r_s_i = 0; % [mm] solid shaft, no hollow inner diameter
@@ -38,22 +39,27 @@ function [p,T_max,d_c,h,s,heat_temp,sigma_t_s,sigma_t_o,sigma_r_s,sigma_r_o] ...
     i_7 = C_i_7 * d_h_i; % [mm] average interference h7
     i_8 = C_i_8 * d_h_i; % [mm] average interference h8
     
-    delta_r = i_8/2; % is dividing by 2 correct here?
+    delta_r = i_7/2; % is dividing by 2 correct here?
     r = (d_h_i/2) + delta_r; % [mm] new radius of shaft
     d_c = r*2; % [mm] changed radius of shaft
-    if (d_s > d_c)
-        warning("New shaft diameter is less than original")
-    end
     h = C_h * d_h_i^(1/3); % gear hole diameter tolerence 
     s = C_s * d_c^(1/3); % shaft diameter tolerence 
 
     % temperature calculations: pg 577 university physics book
     temp_room = 22; % room temperature [deg C]
+    temp_shaft = temp_room;
     L_0 = 2*pi*(d_h_i/2); % initial circumference [mm]
     fit_tol = s+h; % extra radius for easier fit [mm]
     L_heated = 2*pi*((d_c + fit_tol)/2); % finishing length for fit [mm]
     alpha = 1.2e-5; % Coefficient of liear expansion [1/deg C], tab 17.1 pg 578
-    heat_temp = ((L_heated - L_0) / (alpha * L_0)) + temp_room; % [deg C] eq 17.6 pg 576
+    heat_temp_hub = ((L_heated - L_0) / (alpha * L_0)) + temp_room; % [deg C] eq 17.6 pg 576
+
+    max_heating = 100 + temp_room; % bad for bearings to be above 125 deg C
+    if heat_temp_hub > max_heating
+        %warning("bearing d = %dmm has to be cooled for interference fit",d_s)
+        temp_shaft = temp_room - (heat_temp_hub - max_heating); % cool down shaft instead
+        heat_temp_hub = max_heating;
+    end
 
     % stress calculations
     sigma = 2 * delta_r;
@@ -68,6 +74,14 @@ function [p,T_max,d_c,h,s,heat_temp,sigma_t_s,sigma_t_o,sigma_r_s,sigma_r_o] ...
 
     sigma_r_s = -p;
     sigma_r_o = -p;
+
+     if (d_s > d_c)
+        warning("New shaft diameter is less than original")
+        sigma_t_s = inf; % probably removing
+        sigma_t_o = inf;
+        sigma_r_s = inf;
+        sigma_r_o = inf;
+    end
 
     % stress concentrations: Figure 10-20 pg 622, no equation for it
     % l_d = l/d_s;
