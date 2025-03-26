@@ -44,17 +44,17 @@ b_s2 = b_s2 * 1e-3; % [m]
 omega_1 = n_1 * 2*pi / 60; % [rad/sec]
 n_out = (n_1/i_tot); % [RPM]
 omega_out = n_out * 2*pi / 60; % [rad/sec]
-eta_tot = eta^2; % (Squared efficiency because there are two stages)
+eta_tot = eta^2; % [-] Squared because there are two stages
 P_out = P_1*eta_tot; % [W]
-T_M = P_1/omega_1; % [Nm]
-T_out = P_out/omega_out; % [Nm] 
+T_M   = P_1/omega_1; % [Nm]
+T_out = P_out/omega_out; %[Nm] 
     % Lengths
 L_FG = b_F/2 + L_78 + b_s2 + L_45 + b_s1 + L_12 + b_G/2; % [m]
 L_FG4 = b_F/2 + L_78 + b_s2/2; % [m]
 L_G4G = L_FG - L_FG4; % [m]
 L_FH = L_FG + L_GH; % [m]
-    % Gear 3 forces
-F_t4 = (T_out*i_tot) / r_G4; % [N]
+    % Gear 4 forces
+F_t4 = T_out / r_G4; % [N]
 F_a4 = F_t4 * tand(beta); % [N]
 F_r4 = F_t4 * tand(alpha)/cosd(beta); % [N]
     % Reaction forces @ bearings
@@ -250,7 +250,7 @@ ylim( [-5 5] )
 title('One Directional Length', 'interpreter', 'latex')
 
 %% Shaft Deflection
-%close all;
+% close all;
 
 % Visuals
 lwDeflection = 2;
