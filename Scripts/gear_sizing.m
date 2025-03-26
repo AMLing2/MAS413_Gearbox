@@ -138,10 +138,10 @@ increment = 0.01; % for module iteration
 % [m_n_4, sigma_b_4, sigma_o_4] = module_calc(increment, sigma_b_lim, sigma_o_lim, z_4, n_4, T_4, A, ...
 %         K_a, lambda, gamma_4, F_w, F_c, d4, i_s2, z_3);
 
-d1 = m_n_1*z_1;
-d2 = m_n_1*z_2;
-d3 = m_n_3*z_3;
-d4 = m_n_3*z_4;
+% d1 = m_n_1*z_1;
+% d2 = m_n_1*z_2;
+% d3 = m_n_3*z_3;
+% d4 = m_n_3*z_4;
 m_n_2 = m_n_1;
 m_n_4 = m_n_3;
 
@@ -214,11 +214,12 @@ if true%exist("shaftDesign.mat","file")
         load("shaftDesign.mat")
     end
     d_shaft_g1 = 30; % [mm] % replace with loaded variable
-    d_shaft_g2 = 20;
-    d_shaft_g3 = 20;
-    d_shaft_g4 = 100;
+    d_shaft_g2 = 50;
+    d_shaft_g3 = 50;
+    d_shaft_g4 = 60;
 
-    mu = 0.74; % static dry, mild steel on mild steel, tab 7-1 pg 464 machine design
+    mu = 0.175; % pg 621 machine design, between 0.15 and 0.2 for shrink fit hubs
+    %mu = 0.74; % for static dry, mild steel on mild steel, tab 7-1 pg 464 machine design
     E_mat = E_mat_dic(material); % [GPa]
     V_mat = 0.29; % where does this come from?...
     % calculate press fits of each gear
@@ -227,15 +228,15 @@ if true%exist("shaftDesign.mat","file")
         [p_g1,T_max_g1,d_i_g1,h_tol_g1,s_tol_g1,heat_temp_hub_g1,cool_temp_shaft_g1 ...
             ,sigma_t_s_g1,sigma_t_o_g1,sigma_r_s_g1,sigma_r_o_g1] = ... % stresses
             pressFitsShaft(df_g1,d_shaft_g1,b_s1,mu,E_mat*1e-3,E_mat*1e-3,V_mat,V_mat);
-        % sigma_t_o_g1
-        % sigma_r_o_g1
+        sigma_t_o_g1
+        sigma_r_o_g1
         
         % g2
         [p_g2,T_max_g2,d_i_g2,h_tol_g2,s_tol_g2,heat_temp_hub_g2,cool_temp_shaft_g2 ...
             ,sigma_t_s_g2,sigma_t_o_g2,sigma_r_s_g2,sigma_r_o_g2] = ... % stresses
             pressFitsShaft(df_g2,d_shaft_g2,b_s1,mu,E_mat*1e-3,E_mat*1e-3,V_mat,V_mat);
-        % sigma_t_o_g2
-        % sigma_r_o_g2
+        sigma_t_o_g2
+        sigma_r_o_g2
     
         % check if stresses are not too large for each gear:
         if (abs(sigma_t_s_g1) > (Sy_mat / n_f) &&  abs(sigma_r_o_g1) > (Sy_mat / n_f)) || ...
@@ -279,7 +280,6 @@ else
     fits_unchecked = false; % dont loop
 end
 end
-
 modules = table(mt_s1, mt_s2)
 
 % % gearbox total length of gears
