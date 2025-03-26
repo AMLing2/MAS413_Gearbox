@@ -48,12 +48,14 @@ T_M = P_1 / omega_1; % [Nm]
 F_t1 = T_M / r_G1; % [N]
 F_a1 = F_t1 * tand(beta); % [N]
 F_r1 = F_t1 * tand(alpha)/cosd(beta); % [N]
-% Lenghts
+% Lengths
 L_BC  = b_B/2 + L_78 + b_s2 + L_45 + b_s1 + L_12; % [m]
 L_BG1 = b_B/2 + L_78 + b_s2 + L_45 + b_s1/2; % [m]
 L_G1C = L_BC - L_BG1; % [m]
 L_AG1 = L_AB + L_BG1; % [m]
 L_AC = L_AG1 + L_G1C; % [m]
+L_A1 = L_AG1 + b_s1/2; % [m]
+L_A2 = L_A1 + L_12; % [m]
 % For Reaction forces @ bearings
 F_By = F_t1*L_G1C/L_BC; % [N]
 F_Bz = (F_r1*L_G1C - F_a1*r_G1)/L_BC; % [N]
@@ -221,6 +223,37 @@ xlim([0 L_AC])
 [M_max, M_max_idx] = max(M);
 L = xy_x(M_max_idx);
 dashLineV(L, 3, 2, 2)
+
+
+%% Export
+
+% Cross Section A
+[~, cs_A_idx] = closest(xy_x, 0);
+cs_A_P = xy_P(cs_A_idx);
+cs_A_T = xy_T(cs_A_idx);
+cs_A_M = M(cs_A_idx);
+cs_A = [cs_A_P cs_A_T cs_A_M];
+
+% Cross Section B
+[~, cs_B_idx] = closest(xy_x, L_AB);
+cs_B_P = xy_P(cs_B_idx);
+cs_B_T = xy_T(cs_B_idx);
+cs_B_M = M(cs_B_idx);
+cs_B = [cs_B_P cs_B_T cs_B_M];
+
+% Cross Section 1
+[~, cs_1_idx] = closest(xy_x, L_A1);
+cs_1_P = xy_P(cs_1_idx);
+cs_1_T = xy_T(cs_1_idx);
+cs_1_M = M(cs_1_idx);
+cs_1 = [cs_1_P cs_1_T cs_1_M];
+
+% Cross Section 2
+[~, cs_2_idx] = closest(xy_x, L_A2);
+cs_2_P = xy_P(cs_2_idx);
+cs_2_T = xy_T(cs_2_idx);
+cs_2_M = M(cs_2_idx);
+cs_2 = [cs_2_P cs_2_T cs_2_M];
 
 % Export data w/o figures (https://stackoverflow.com/questions/
                             % 45560181/avoid-saving-of-graphics-in-matlab)

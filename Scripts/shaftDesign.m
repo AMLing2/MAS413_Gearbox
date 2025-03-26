@@ -4,7 +4,6 @@ close all; clear; clc;
 % TO DO:
 % - Complete check if stress due to shear can be neglected
 
-
 % Common input parameters (for all shafts)
 n_f = 2; % Safety factor
 material = 1045; % (1045 4130 4140 4340)
@@ -13,11 +12,13 @@ surface_finish = "Machined"; % ("Ground" "Machined" "Hot-rolled" "As-forged") Fo
 reliability = 95; % [%] reliability factor (50 90 95 99 99.9 99.99 99.999 99.9999)
 operating_temperature = 70; % [celsius] defined by Kjell (only significant if > 450)
 
-
 %%%%% Shaft 1 %%%%%  From loadingDiagrams_shaft1.m
 % Input parameters
 r_S1 = 2; % [mm]
 D_d_1 = 1.2; % [-] ASK ABOUT THIS - RKH
+
+% Import from Gear Sizing
+load('loadingDiagram_shaft1.mat', 'cs_A', 'cs_B', 'cs_1', 'cs_2')
 
 % Cross sections,  cs_ = [diameter (mm), P_x (N), M_z (Nmm), M_y (Nmm), T (Nmm)]
 cs_A =  [24 r_S1 D_d_1 0 0 0 83*1e3];
@@ -49,7 +50,7 @@ cs_H =  [20 r_S3 D_d_3 0 0 0 cs_G4(5)];
 
 
 %%%%%%%%%%%%%%%% Select cross section to evaluate %%%%%%%%%%%%%%%%
-first_itteration = "n"; % ("y" / "n") First iteration for diameter equation (limited geometry data)
+first_iteration = "n"; % ("y" / "n") First iteration for diameter equation (limited geometry data)
 cs = cs_G1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
