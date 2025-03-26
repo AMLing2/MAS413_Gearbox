@@ -250,7 +250,7 @@ ylim( [-5 5] )
 title('One Directional Length', 'interpreter', 'latex')
 
 %% Shaft Deflection
-close all;
+%close all;
 
 % Visuals
 lwDeflection = 2;
