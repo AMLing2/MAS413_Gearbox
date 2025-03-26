@@ -367,9 +367,42 @@ legend('location', 'northwest')
 grid on;
 
 %% Critical speed calculations
+%Constants and mass initialisation
 g=9.81;
+delta_g = zeros(1, res);
 
-n_c = (30/pi) * sqrt(g/maxDeflection)
+%masses of the gears
+m_G1 = 0.52675; %[kg]
 
-Upper_limit = n_c *1.25
-Lower_limit =n_c*0.8
+EI_48 = 48 * I_shaft * E;
+
+
+index_L_AG1 = find(x_values >= L_AG1, 1, 'first');
+tol = 1e-6;
+
+for i = 2:res
+    x = x_values(i);
+    
+    if abs(x - x_values(index_L_AG1)) < tol
+        W = m_G1 * g; % Få m fra Adrian
+    else
+        W = 0;
+    end
+
+    delta_g(i) = W*x^3 / EI_48(i);
+
+end
+
+max_delta_g = max(abs(delta_g));
+
+omega_c = sqrt(g * (   ( (m_G1*max_delta_g) / (m_G1*max_delta_g^2))   )); %Machine design equation 10.25c
+n_c = (60/(2*pi))* omega_c; %[rpm]
+
+n_shaft1 = 1450;
+
+% Test if n_shaft1 is outside [0.8*n_c, 1.25*n_c]
+if (n_shaft1 < 0.8 * n_c) || (n_shaft1 > 1.25 * n_c)
+    disp("Lateral vibration good");
+else
+    disp("Lateral vibration not good");
+end

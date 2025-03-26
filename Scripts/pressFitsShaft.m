@@ -22,7 +22,7 @@
 % sigma_r_s = tangenial stress in hub / gear [Mpa]
 % sigma_r_o = radial stress in hub / gear [Mpa]
 
-function [p,T_max,d_c,h,s,sigma_t_s,heat_temp,sigma_t_o,sigma_r_s,sigma_r_o] ...
+function [p,T_max,d_c,h,s,heat_temp,sigma_t_s,sigma_t_o,sigma_r_s,sigma_r_o] ...
     = pressFitsShaft(d_h_o,d_s,l,mu ,E_o,E_i,V_o,V_i)
 
     r_i = 0; % [mm] solid shaft, no hollow inner diameter
@@ -37,7 +37,7 @@ function [p,T_max,d_c,h,s,sigma_t_s,heat_temp,sigma_t_o,sigma_r_s,sigma_r_o] ...
     i_7 = C_i_7 * d_s; % [mm] average interference h7
     i_8 = C_i_8 * d_s; % [mm] average interference h8
     
-    delta_r = i_8/2; % is dividing by 2 correct here?
+    delta_r = i_7/2; % is dividing by 2 correct here?
     % resize:
     d_c = (r - delta_r)*2; % [mm] diameter of gear / hub inner hole
     if (d_c > d_h_o)

@@ -5,7 +5,7 @@
 % d_h_o : outer diameter of hub / gear [mm]
 % d_s : outer diameter of hub [mm]
 % l : length of hub/gear engagement [mm]
-% mu : coefficient of friction
+% mu : coefficient of friction, static
 % E_o : Young's modulus of gear / hub material [GPa]
 % E_i : Young's modulus of shaft material [GPa]
 % V_o : poisson's ratio of gear / hub material
@@ -24,7 +24,7 @@
 % sigma_r_s = tangenial stress in hub / bearing [Mpa]
 % sigma_r_o = radial stress in hub / bearing [Mpa]
 
-function [p,T_max,d_c,h,s,sigma_t_s,heat_temp,sigma_t_o,sigma_r_s,sigma_r_o] ...
+function [p,T_max,d_c,h,s,heat_temp,sigma_t_s,sigma_t_o,sigma_r_s,sigma_r_o] ...
     = pressFitsHub(d_h_o,d_s,l,mu ,E_o,E_i,V_o,V_i,d_h_i)
 
     r_s_i = 0; % [mm] solid shaft, no hollow inner diameter
