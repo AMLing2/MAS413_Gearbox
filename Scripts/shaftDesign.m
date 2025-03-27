@@ -1,62 +1,121 @@
-close all; clear; clc;
+close all; clc;
 
 
 % TO DO:
-% - Complete check if stress due to shear can be neglected
+% - Complete check if stress due to shear can be necglected
+% - Interpolation for D/d other than 1.2
+
 
 % Common input parameters (for all shafts)
 n_f = 2; % Safety factor
-material = 4140; % (1045 4130 4140 4340)
-load_type = "Complex axial";  % ("Pure bending" "Pure axial" "Pure torsion" "Complex axial" "Complex non axial");
-surface_finish = "Machined"; % ("Ground" "Machined" "Hot-rolled" "As-forged") For other types, see Machine Design page 368, Figure 6-26
+material = 355; % (355, 4140)
+load_type = "Complex axial"; % ("Pure bending" "Pure axial" "Pure torsion" "Complex axial" "Complex non axial");
+surface_finish = "Machined"; % ("Ground" "Machined" "Hot-rolled" "As-forged") Other types: Machine Design pg 368, fig 6-26
 reliability = 95; % [%] reliability factor (50 90 95 99 99.9 99.99 99.999 99.9999)
-operating_temperature = 70; % Celsius, defined by Kjell (only significant if > 450)
+operating_temperature = 70; % [celsius] defined by Kjell (only significant if > 450)
 
-% Cross sections,  cs_ = [diameter (mm), fillet radius (mm), D_d, P_x (N), M_z (Nmm), M_y (Nmm), T (Nmm)]
+% Cross sections lists
+% cs_ = [diameter (mm), notch fillet radius (mm), D_d, P_x (N), M_z(Nmm), M_y (Nmm), T (Nmm),...
+%        1|0 (1 for keyseat 0 for shoulder-fillet), K_t_keyseat]
+
 
 %%%%% Shaft 1 %%%%%  From loadingDiagrams_shaft1.m
 % Input parameters
-r_S1 = 2; % [mm]
+d_B  = 30;        % [mm] 
+d_S1 = d_B;       % [mm]
+d_12 = d_S1 + 10; % [mm]
+d_C  = d_B;       % [mm]
+
+r_keyseat1 = 0.25; % [mm]
+K_t_keyseat1 = 3.75; % Keyseat stress concentration factor % Machine Design fig 10-16 pg 615
+r_fillet1 = 2; % [mm]
 D_d_1 = 1.2; % [-] ASK ABOUT THIS - RKH
 
 % Import from Gear Sizing
-load('loadingDiagram_shaft1.mat', 'cs_A', 'cs_B', 'cs_1', 'cs_2')
+load('loadingDiagram_shaft1.mat', 'cs_A', 'cs_0', 'cs_1', 'cs_2')
 
-cs_A =  [30 0.25 D_d_1 0 0 0 83*1e3];
-cs_B =  [29 r_S1 D_d_1 0 0 0 cs_A(7)];
-cs_G1 = [35 r_S1 D_d_1 -922 66*1e3 -29*1e3 cs_A(7)];
-cs_C =  [24 r_S1 D_d_1 cs_G1(2) 0 0 0];
+cs_A = [cs_A d_B r_keyseat1 D_d_1 1 K_t_keyseat1];
+cs_0 = [cs_0 d_B r_fillet1 D_d_1 0 0];
+cs_1 = [cs_1 d_S1 r_fillet1 D_d_1 0 0];
+cs_2 = [cs_2 d_C r_fillet1 D_d_1 0 0];
 
 %%%%% Shaft 2 %%%%%  From loadingDiagrams_shaft2.m
 % Input parameters
-r_S2 = 2; % [mm]
+d_E    = 30; % [mm] 
+d_S2_2 = 30; % [mm]
+d_45   = 30; % [mm]
+d_S2_1 = 30; % [mm]
+d_D    = 30; % [mm]
+
+r_fillet2 = 2; % [mm]
 D_d_2 = 1.2; % !! ASK ABOUT THIS !!
 
-cs_E =  [20 r_S2 D_d_2 1757 0 0 0];
-cs_G3 = [20 r_S2 D_d_2 cs_E(4) -375*1e3 -128*1e3 362];
-cs_G2 = [20 r_S2 D_d_2 -922 -232*1e3 29*1e3 cs_G3(7)];
-cs_D =  [20 r_S2 D_d_2 0 0 0];
+% cs_6 = [cs_6 d_E r_fillet2 D_d_2 0 0];
+% cs_5 = [cs_5 d_S2_2 r_fillet2 D_d_2 0 0];
+% cs_4 = [cs_4 d_S2_1 r_fillet2 D_d_2 0 0];
+% cs_3 = [cs_3 d_D r_fillet2 D_d_2 0 0];
 
 %%%%% Shaft 3 %%%%%  From loadingDiagrams_shaft3.m
 % Input parameters
-r_S3 = 2; % [mm]
+d_F  = 30; % [mm] 
+d_78 = 30; % [mm]
+d_S3 = 30; % [mm]
+d_G  = 30; % [mm]
+
+r_keyseat3 = 0.25; % [mm]
+K_t_keyseat3 = 3.75; % Keyseat stress concentration factor % Machine Design fig 10-16 pg 615
+r_fillet3 = 2; % [mm]
 D_d_3 = 1.2; % !! ASK ABOUT THIS !!
 
-cs_F =  [20 r_S3 D_d_3 -46359 0 0 0];
-cs_G4 = [20 r_S3 D_d_3 cs_F(4) 5325*1e3 4169*1e3 24672];
-cs_G =  [20 r_S3 D_d_3 0 0 0 cs_G4(7)];
-cs_H =  [20 0.4 D_d_3 0 0 0 cs_G4(7)];
+% cs_7 = [cs_7 d_F r_fillet3 D_d_3 0 0];
+% cs_8 = [cs_8 d_78 r_fillet3 D_d_3 0 0];
+% cs_9 = [cs_9 d_S3 r_fillet3 D_d_3 0 0];
+% cs_H = [cs_H d_G r_keyseat3 D_d_3 1 K_t_keyseat3];
 
 
 %%%%%%%%%%%%%%%% Select corss section to evaluate %%%%%%%%%%%%%%%%
-cs = cs_A;
-first_itteration = "n"; % ("y" / "n") First itteration for diameter equation (limited geomertry data)
-keyseat = "y";          % ("y" / "n") Stress concentration for cross section A and H 
-
-K_t_keyseat = 3.5;
+% cs = cs_A;
+% first_iteration = "n";  % ("y" / "n") First iteration for diameter equation (limited geomertry data)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-run("fatigue.m")
+% Lists for for loop
+shaft1_lists = [cs_A; cs_0; cs_1; cs_2];
+shaft1_names = {'Cross section A', 'Cross section 0', 'Cross section 1', 'Cross section 2'};
+% shaft2_design = [cs_6; cs_5; cs_4; cs_3];
+% shaft2_names = {'Cross section 6', 'Cross section 5', 'Cross section 4', 'Cross section 3'};
+% shaft3_design = [cs_7; cs_8; cs_9; cs_H];
+% shaft1_names = {'Cross section 7', 'Cross section 8', 'Cross section 9', 'Cross section H'};
 
-%%%%% Modified Goodman Diagram %%%%%
-modifiedGoodman(S_y, S_yc, S_ut, S_e, sigma_vm_mean, sigma_vm_amp);
+
+%% Shaft 1 loop
+
+shaft1_results = zeros(size(shaft1_lists, 1), 5);  % 4 x 5
+for i = 1:size(shaft1_lists, 1)
+    fprintf('\n------ %s ------\n', shaft1_names{i});
+    cs = shaft1_lists(i, :);
+    run("fatigue.m")
+    shaft1_results(i, :) = [S_e, sigma_vm_mean, sigma_vm_amp, n_y, n_f];
+end
+
+modifiedGoodman(S_y, S_yc, S_ut, shaft1_results)
+
+% %% Shaft 2 loop
+% 
+% shaft2_results = zeros(size(shaft2_lists, 1), 5);  % 4 x 5
+% for i = 1:size(shaft2_lists, 1)
+%     fprintf('\n------ %s ------\n', shaft2_names{i});
+%     cs = shaft2_lists(i, :);
+%     run("fatigue.m")
+%     shaft2_results(i, :) = [S_e, sigma_vm_mean, sigma_vm_amp, n_y, n_f];
+% end
+% 
+% 
+% %% Shaft 3 loop
+% 
+% shaft3_results = zeros(size(shaft3_lists, 1), 5);  % 4 x 5
+% for i = 1:size(shaft3_lists, 1)
+%     fprintf('\n------ %s ------\n', shaft3_names{i});
+%     cs = shaft3_lists(i, :);
+%     run("fatigue.m")
+%     shaft3_results(i, :) = [S_e, sigma_vm_mean, sigma_vm_amp, n_y, n_f];
+% end
