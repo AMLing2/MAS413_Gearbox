@@ -65,6 +65,7 @@ L_BG1 = b_B/2 + L_78 + b_s2 + L_45 + b_s1/2; % [m]
 L_G1C = L_BC - L_BG1; % [m]
 L_AG1 = L_AB + L_BG1; % [m]
 L_AC = L_AG1 + L_G1C; % [m]
+L_A0 = L_AB + b_B/2;  % [m]
 L_A1 = L_AG1 + b_s1/2; % [m]
 L_A2 = L_A1 + L_12; % [m]
 % For Reaction forces @ bearings
@@ -250,8 +251,8 @@ cs_A_T = xy_T(cs_A_idx);
 cs_A_M = M(cs_A_idx);
 cs_A = [cs_A_P cs_A_T*1e3 cs_A_M*1e3]; % [(N) (Nmm) (Nmm)]
 
-% Cross Section B
-[~, cs_0_idx] = closest(xy_x, L_AB);
+% Cross Section 0
+[~, cs_0_idx] = closest(xy_x, L_A0);
 cs_0_P = xy_P(cs_0_idx);
 cs_0_T = xy_T(cs_0_idx);
 cs_0_M = M(cs_0_idx);
