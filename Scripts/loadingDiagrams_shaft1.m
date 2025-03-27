@@ -425,15 +425,9 @@ delta_g_G1 = theta_G_corrected(index_L_AG1);
 omega_c = sqrt(g * (   ( (m_G1*delta_g_G1) / (m_G1*delta_g_G1^2))   )); %Machine design equation 10.25c
 n_c = (60/(2*pi))* omega_c; %[rpm]
 
-n_shaft1 = 1450;
-
 % Test if n_shaft1 is outside [0.8*n_c, 1.25*n_c]
-if (n_shaft1 < 0.8 * n_c) || (n_shaft1 > 1.25 * n_c)
+if (n_1 < 0.8 * n_c) || (n_1 > 1.25 * n_c)
     disp("Lateral vibration good");
 else
     disp("Lateral vibration not good");
 end
-
-close all;
-figure
-plot(x_values,delta_G_corrected)
