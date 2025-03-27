@@ -2,26 +2,44 @@ import camelot
 import pandas as pd
 print('Camelot version:', camelot.__version__)
 
+def df_search_text(df,search_text,phrase):
+    phrase_found = False
+    h_index = None
+    for index,line in df.iterrows():
+        if line.str.contains(phrase).any():
+            phrase_found = True
+        if line.str.contains(search_text).any():
+            h_index = index
+        if phrase_found and h_index is not None:
+            break
+    if h_index is None:
+        print("search text not found")
+        exit()
+    else:
+        return [h_index,phrase_found]
+
 # Extract tables from the PDF: Single Row Deep Groove Ball Bearings
 # start = 262
 # end = 309
 start = 1
-end = 5
-tables = camelot.read_pdf('SKFbearings_20250321_ballBearings-1-5.pdf', pages=f'{start}-{end}', flavor='stream')
+end = 47
+#tables = camelot.read_pdf('SKFbearings_20250321_ballBearings-1-5.pdf', pages=f'{start}-{end}', flavor='stream')
+tables = camelot.read_pdf('SKFbearings_20250321_ballBearings.pdf', pages=f'{start}-{end}', flavor='stream')
 print('\nBall Bearing Tables found: ', len(tables))
 
 fulltabs = []
 newtab_principle_df = []
 newtab_extra_df = []
 n = 0
-header_length = 6
+a = 0;
 for i, table in enumerate(tables):
+        
     print(f'Saved table {i + start}:\n')
     if table.df[0].str.contains("mm").any(): # exclude corrupted tables
         # check table type
-        princ_str = "Principal"
-        princ_func = lambda column: column.str.contains(princ_str,na=False).any()
-        if table.df.iloc[0:header_length].apply(princ_func).any():
+        princ_str = "▶"
+        [h_index,princ_p] = df_search_text(table.df,"mm",princ_str)
+        if princ_p:
             #remove "SKF Explorer bearing" text on some table last rows
             explorer_str = "SKF Explorer bearing"
             if table.df.iloc[-1].str.contains(explorer_str).any():
@@ -31,22 +49,23 @@ for i, table in enumerate(tables):
             if n == 0:
                 newtab_principle_df.append(newtab)
             else: # remove header
-                newtab_principle_df.append(newtab.iloc[header_length:]) # bad hardcoded
+                newtab_principle_df.append(newtab.iloc[h_index+1:]) # bad hardcoded
+            a += 1
 
         else: # extra data table
-            num_padded_rows = newtab_principle_df[n].shape[0] - table.df.shape[0]
-            print(num_padded_rows)
-            padded_df = pd.DataFrame(
-                [[''] * len(table.df.columns)] * num_padded_rows,  # Fill with empty strings for each column
-                columns=table.df.columns  # Ensure columns match the original DataFrame
-            )
-            padded_table = pd.concat([padded_df,table.df], ignore_index=True)
             if n == 0:
+                num_padded_rows = newtab_principle_df[0].shape[0] - table.df.shape[0]
+                padded_df = pd.DataFrame(
+                    # Fill with empty strings for each column:
+                    [[''] * len(table.df.columns)] * num_padded_rows,
+                    columns=table.df.columns  # Ensure columns match the original DataFrame
+                )
+                padded_table = pd.concat([padded_df,table.df], ignore_index=True)
                 newtab_extra_df.append(padded_table)
             else: # remove header
-                newtab_extra_df.append(padded_table.iloc[1:])
-            print(padded_table)
+                newtab_extra_df.append(table.df.iloc[h_index+1:])
             n += 1
+            a += 1
 
 # Combine all tables into one DataFrame
 principle_combined = pd.concat([df for df in newtab_principle_df])
