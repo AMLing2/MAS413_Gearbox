@@ -85,8 +85,8 @@ tau_xz_tor_amp_nom =  (tau_xz_tor_max_nom - tau_xz_tor_min_nom)/2; % [MPa]
 
 %%%%% Material data %%%%% Machine Design, Table A8 & A9 page 1039-1040
 material_key = [1045, 4130, 4140, 4340];
-material_data = struct('S_y', num2cell([593, 655, 1462, 1365]),...
-                       'S_ut', num2cell([779, 862, 1627, 1627]));
+material_data = struct('S_y', num2cell([0, 0, 655, 0]),...
+                       'S_ut', num2cell([0, 0, 1020, 0]));
 material_table = dictionary(material_key, material_data);
 S_y = material_table(material).S_y;
 S_ut = material_table(material).S_ut;
@@ -147,6 +147,11 @@ b_axial = D_d_axial_table(D_d).b;
 K_t_bend = A_bend*(r_fillet/d_shaft)^b_bend;    % Normal Stress - fig C-2
 K_t_tor = A_tor*(r_fillet/d_shaft)^b_tor;       % Shear  Stress - fig C-3
 K_t_axial = A_axial*(r_fillet/d_shaft)^b_axial; % Normal Stress - fig C-1
+
+% For end-milled keyseat (Machine Design, figure 10-16, page 615)
+if keyseat == "y"
+    K_t_tor = K_t_keyseat;
+end
 
 % Fatigue (dynamic) stress concentration foactors:
 K_f_bend = 1 + q * (K_t_bend - 1);   % Normal Stress
