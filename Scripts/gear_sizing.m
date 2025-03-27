@@ -220,7 +220,7 @@ if true%exist("shaftDesign.mat","file")
 
     mu = 0.175; % pg 621 machine design, between 0.15 and 0.2 for shrink fit hubs
     %mu = 0.74; % for static dry, mild steel on mild steel, tab 7-1 pg 464 machine design
-    E_mat = E_mat_dic(material); % [GPa]
+    E_mat = E_mat_dic(material); % [MPa]
     V_mat = 0.29; % where does this come from?...
     % calculate press fits of each gear
     if ~stress_s1_checked

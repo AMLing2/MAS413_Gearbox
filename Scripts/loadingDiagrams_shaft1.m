@@ -7,7 +7,12 @@ clc; clear; close all;
 
 g = 9.81; %[m/s^2]
 m_G1 = 0.52675; %[kg]
-E = 210e9; % E-modulus [Pa]
+
+% Diameters of shaft
+d_c   = 0.010; % [m]
+d_12  = 0.015; % [m]
+d_S11 = 0.011; % [m]
+d_S12 = 0.013; % [m]
 
 % Common Plotting Constants
 colFill = [0.7765 0.9176 0.9843];
@@ -35,7 +40,7 @@ b_C = b_B; % [m]
 
 % Import from Gear Sizing
 load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', ...
-    'b_s1', 'b_s2', 'i_tot')
+    'b_s1', 'b_s2', 'i_tot','E_mat')
     
 % Convert from Gear Sizing
 r_G1 = d_g1/2 * 1e-3; % [m]
@@ -44,6 +49,7 @@ r_G3 = d_g3/2 * 1e-3; % [m]
 r_G4 = d_g4/2 * 1e-3; % [m]
 b_s1 = b_s1 * 1e-3; % [m]
 b_s2 = b_s2 * 1e-3; % [m]
+E = E_mat*1e6;%[Pa]
 
 % Calculated values
 omega_1 = n_1 * 2*pi / 60; % [rad/sec]
@@ -305,18 +311,11 @@ delta = zeros(1, res);
 delta_G = zeros(1, res);
 I_shaft = zeros(1, res);
 
-% Diameters of shaft
-d_c   = 0.010; % [m]
-d_12  = 0.015; % [m]
-d_S11 = 0.011; % [m]
-d_S12 = 0.013; % [m]
-
 % Calculate I for the different intervals
 x_values = linspace(0, L_AC, res);
 
 for i = 1:res
     x = x_values(i);
-
     if     x < (L_AB + (b_B/2) )
         d = d_S11;
     elseif x < ( L_AG1 + (b_s1/2) )
@@ -420,7 +419,7 @@ grid on;
 
 index_L_AG1 = find(x_values >= L_AG1, 1, 'first');
 
-delta_g_G1 = theta_G_corrected(index_L_AG1);
+delta_g_G1 = abs(delta_G_corrected(index_L_AG1)); %abs to make sure that imaginary numbers dont get calculated in omega_c
 
 omega_c = sqrt(g * (   ( (m_G1*delta_g_G1) / (m_G1*delta_g_G1^2))   )); %Machine design equation 10.25c
 n_c = (60/(2*pi))* omega_c; %[rpm]
