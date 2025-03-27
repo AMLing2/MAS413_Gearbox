@@ -63,14 +63,15 @@ function [p,T_max,d_c,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_o,sigma_r_s
 
     % stress calculations
     sigma = 2 * delta_r;
-    p = 0.5*sigma / ...
-        ( ((r/(E_o*1e3)) * ( ((r_o^2 + r^2)/(r_o^2 - r^2) ) + V_o)) + ...
-          ((r/(E_i*1e3)) * ( ((r^2 + r_i^2)/(r^2 - r_i^2) ) - V_i))); % [Mpa] pressure in interface, eq 10.14a, pg 620 machine design
+    p = (0.5 * sigma)/ ((r/(E_o*1e3))*((r_o^2 + r^2)/(r_o^2 - r^2) + V_o) + ((r/(E_i*1e3)) * ((r^2)/(r^2) -V_i)))
+    % p = (0.5*sigma) / ...
+    %     ( ((r/(E_o*1e3)) * ( ((r_o^2 + r^2)/(r_o^2 - r^2) ) + V_o)) + ...
+    %       ((r/(E_i*1e3)) * ( ((r^2 + r_i^2)/(r^2 - r_i^2) ) - V_i))); % [Mpa] pressure in interface, eq 10.14a, pg 620 machine design
     T_max = (2*pi*r^2 * mu * p * l) * 1e-3; % [Nm] eq 10.14b pg 621 machine design
 
     % tangential and radial stresses for shaft and hub, eq 10.15a to 10.16b pg 621 machine design
     sigma_t_s = -p * ((r^2 + r_i^2) / (r^2 - r_i^2));
-    sigma_t_o = -p * ((r_o^2 + r^2) / (r_o^2 - r^2));
+    sigma_t_o =  p * ((r_o^2 + r^2) / (r_o^2 - r^2));
 
     sigma_r_s = -p;
     sigma_r_o = -p;

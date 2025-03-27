@@ -79,7 +79,7 @@ extra_combined.reset_index(drop=True, inplace=True)
 combinedDataframe = pd.concat([principle_combined,extra_combined], axis=1, ignore_index=False)
     
 # Export the combined DataFrame to a single CSV file
-combinedDataframe.to_csv('combined_ballBearings.csv')
+combinedDataframe.to_csv('combined_ballBearings.csv',sep=';')
 print('Saved all tables to combined_ballBearings.csv')
 
 # Notes:
