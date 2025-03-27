@@ -244,33 +244,40 @@ dashLineV(L, 3, 2, 2)
 
 %% Export
 
+%%%% For Fatigue %%%%
 % Cross Section A
 [~, cs_A_idx] = closest(xy_x, 0);
 cs_A_P = xy_P(cs_A_idx);
 cs_A_T = xy_T(cs_A_idx);
 cs_A_M = M(cs_A_idx);
 cs_A = [cs_A_P cs_A_T*1e3 cs_A_M*1e3]; % [(N) (Nmm) (Nmm)]
-
 % Cross Section 0
 [~, cs_0_idx] = closest(xy_x, L_A0);
 cs_0_P = xy_P(cs_0_idx);
 cs_0_T = xy_T(cs_0_idx);
 cs_0_M = M(cs_0_idx);
 cs_0 = [cs_0_P cs_0_T*1e3 cs_0_M*1e3]; % [(N) (Nmm) (Nmm)]
-
 % Cross Section 1
 [~, cs_1_idx] = closest(xy_x, L_A1);
 cs_1_P = xy_P(cs_1_idx);
 cs_1_T = xy_T(cs_1_idx);
 cs_1_M = M(cs_1_idx);
 cs_1 = [cs_1_P cs_1_T*1e3 cs_1_M*1e3]; % [(N) (Nmm) (Nmm)]
-
 % Cross Section 2
 [~, cs_2_idx] = closest(xy_x, L_A2);
 cs_2_P = xy_P(cs_2_idx);
 cs_2_T = xy_T(cs_2_idx);
 cs_2_M = M(cs_2_idx);
 cs_2 = [cs_2_P cs_2_T*1e3 cs_2_M*1e3]; % [(N) (Nmm) (Nmm)]
+%%%% For Fatigue %%%%
+%%%% For Bearings %%%%
+[~, B_idx] = closest(xy_x, L_AB);
+B_Fa = xy_P(B_idx); % [N] Axial Force
+B_Fr = sqrt( xy_V(B_idx)^2 + xz_V(B_idx)^2 ); % [N] Radial Force
+[~, C_idx] = closest(xy_x, L_AC);
+C_Fa = xy_P(C_idx); % [N] Axial Force
+C_Fr = sqrt( xy_V(C_idx)^2 + xz_V(C_idx)^2 ); % [N] Radial Force
+%%%% For Bearings %%%%
 
 % Export data w/o figures (https://stackoverflow.com/questions/
                             % 45560181/avoid-saving-of-graphics-in-matlab)

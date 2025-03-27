@@ -12,9 +12,7 @@ load('gear_sizes.mat', 'z_1','z_2','z_3','z_4','i_tot','i_s1','i_s2', ...
 
 % Import from Loading Diagrams
 %TODO: need help with loading correct Fa and Fr for bearings
-% load('loadingDiagram_shaft1.mat', 'xz_P', 'xy_V', 'xz_V')
-% shaft1_Fa = xz_P;
-% shaft1_Fr = sqrt(xy_V.^2 + xz_V.^2);
+load('loadingDiagram_shaft1.mat', 'B_Fa', 'B_Fr', 'C_Fa', 'C_Fr')
 % load('loadingDiagram_shaft2.mat', 'xz_P', 'xy_V', 'xz_V')
 % shaft2_Fa = xz_P;
 % shaft2_Fr = sqrt(xy_V.^2 + xz_V.^2);
