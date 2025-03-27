@@ -4,6 +4,11 @@ clc; clear; close all;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Constants
+% Masses of gears
+g = 9.81; %[m/s^2]
+m_G4 = 2; %[kg]
+E = 210e9; % E-modulus [Pa]
+
 
 % Common Plotting Constants
 colFill = [0.7765 0.9176 0.9843];
@@ -31,7 +36,7 @@ b_G = b_F; % [m]
 eta = 1.00; % [-] Ideal Stages
 
 % Import from Gear Sizing
-load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2', 'i_tot')
+load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2', 'i_tot', 'i_s2')
     % Convert from Gear Sizing
 r_G1 = d_g1/2 * 1e-3; % [m]
 r_G2 = d_g2/2 * 1e-3; % [m]
@@ -57,12 +62,16 @@ L_FH = L_FG + L_GH; % [m]
 F_t4 = T_out / r_G4; % [N]
 F_a4 = F_t4 * tand(beta); % [N]
 F_r4 = F_t4 * tand(alpha)/cosd(beta); % [N]
+F_G4 = (m_G4*g);  %[N]
     % Reaction forces @ bearings
 F_Fz = (F_a4*r_G4 + F_r4*L_G4G) / L_FG; % [N]
 F_Fy = (F_t4*L_G4G) / L_FG; % [N]
 F_Fx = F_a4; % [N]
 F_Gz = F_r4 - F_Fz; % [N]
 F_Gy = F_t4 - F_Fy; % [N]
+
+F_FG = (F_G4 *L_G4G )/(L_FG); %[N]
+F_GG = F_G4 - F_FG; %TODO
 
 
 %% XY - Plane
@@ -146,6 +155,7 @@ xz_P = [];
 xz_V = [];
 xz_M = [];
 xz_T = [];
+xz_Mg = [];
 
 XZplaneFig = figure(figHandle);
 set(figHandle,'Units','Centimeter')
@@ -175,6 +185,7 @@ xz_P = [xz_P, ones(size(x)) * (-F_Fx)]; % [N]
 xz_V = [xz_V, ones(size(x)) * (F_Fz)]; % [N]
 xz_M = [xz_M, ( F_Fz*(x) )]; % [Nm]
 xz_T = [xz_T, zeros(size(x))]; % [Nm]
+xz_Mg = [xz_Mg, F_FG*x];
 
 % L_FG4 < x < L_FG
 x = linspace(L_FG4, L_FG, resolution);
@@ -183,6 +194,7 @@ xz_P = [xz_P, ones(size(x)) * (-F_Fx + F_a4) ]; % [N]
 xz_V = [xz_V, ones(size(x)) * (F_Fz - F_r4)]; % [N]
 xz_M = [xz_M, ( F_Fz*(x) - F_r4*(x - L_FG4) - F_a4*(r_G4) )]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * F_t4 *r_G4]; % [Nm]
+xz_Mg = [xz_Mg, F_FG*x - F_G4*(x-L_FG4)];
 
 % L_FG < x < L_FH
 x = linspace(L_FG, L_FH, resolution);
@@ -192,6 +204,7 @@ xz_V = [xz_V, ones(size(x)) * (F_Fz - F_r4 + F_Gz)]; % [N]
 xz_M = [xz_M, ( F_Fz*(x) - F_r4*(x - L_FG4) - F_a4*(r_G4) + ...
                 F_Gz*(x - L_FG) )]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * (F_t4*r_G4)]; % [Nm]
+xz_Mg = [xz_Mg, F_FG*x - F_G4*(x-L_FG4)+F_GG*(x-L_FG)];
 
 subplot(2,2,1)
 plotLD(xz_x,xz_P,colFill)
@@ -249,8 +262,7 @@ xlim( [ (-L_FH*0.1), (L_FH + L_FH*0.1) ] )
 ylim( [-5 5] )
 title('One Directional Length', 'interpreter', 'latex')
 
-%% Shaft Deflection
-% close all;
+%% Shaft Deflection - Free and forced
 
 % Visuals
 lwDeflection = 2;
@@ -259,10 +271,20 @@ ok = 10;
 
 res = 300;
 
-% Initialization
+%Initialize arrays:
+I_shaft = [];
+
 theta = zeros(1, res);
+theta_G = zeros(1, res);
+
+theta_corrected = [];
+theta_corrected_G = [];
+
 delta = zeros(1, res);
-I_shaft = zeros(1, res);
+delta_G = zeros(1, res);
+
+delta_corrected = [];
+delta_corrected_G = [];
 
 E = 210e9; % E-modulus [Pa]
 
@@ -300,9 +322,11 @@ for i = 2:res
 
     % Integrate to find rotation (omega)
     theta(i) = theta(i-1) + (M(i) / EI(i)) * dx;
+    theta_G(i) = theta_G(i-1) + (xz_Mg(i) / EI(i)) * dx;
 
     % Integrate to find deflection
     delta(i) = delta(i-1) + theta(i) * dx;
+    delta_G(i) = delta_G(i-1) + theta_G(i) * dx;
 end
 
 % Apply boundary conditions (deflection at bearings is zero), deflection is 0 at L_AB and L_AC
@@ -313,10 +337,14 @@ K_4 = 0;
 
 % Correction Factor K_3: non deflection @ second bearing
 K_3 = delta(index_L_FG) / L_FG;
+K_3_G = delta_G(index_L_FG) / L_FG;
 
 % Correct the Deflection and Beam Slope
-delta_corrected = delta - K_3 * (x_values) - K_4;
+% Correct the deflection
+delta_corrected = delta - K_3 * x_values;
+delta_corrected_G = delta_G - K_3_G * x_values; 
 theta_corrected = theta - K_3;
+theta_corrected_G = theta_G - K_3_G;
 
 maxDeflection = max( abs(delta_corrected) );
 checkEmpiricalRequirement = maxDeflection / L_FH;
@@ -367,3 +395,23 @@ title('\textbf{Beam Slope $\theta$ of shaft 3}', 'interpreter', ...
         'latex', 'FontSize', sizeDeflectionText)
 legend('location', 'northwest')
 grid on;
+
+%% Critical speed calculations
+%masses of the gears
+
+index_L_EG4 = find(x_values >= L_FG4, 1, 'first');
+
+
+delta_g_G4 = abs(theta_corrected_G(index_L_EG4));
+
+omega_c = sqrt(g * (    (m_G4 * delta_g_G4) /   (m_G4*delta_g_G4^2)   )); %Machine design equation 10.25c
+n_c = (60/(2*pi))* omega_c; %[rpm]
+
+n_shaft3 = n_1/i_tot;
+
+% Test if n_shaft1 is outside [0.8*n_c, 1.25*n_c]
+if (n_shaft3 < 0.8 * n_c) || (n_shaft3 > 1.25 * n_c)
+    disp("Lateral vibration good");
+else
+    disp("Lateral vibration not good");
+end
