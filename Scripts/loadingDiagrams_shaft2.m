@@ -75,6 +75,10 @@ L_EG2 = L_EG3 + b_s2/2 + L_45 + b_s1/2; % [m]
 L_G3G2 = L_EG2 - L_EG3; % [m]
 L_G3D = L_ED - L_EG3; % [m]
 L_G2D = L_ED - L_EG2; % [m]
+L_E3 = L_ED - b_E/2; % [m]
+L_E4 = L_EG2 - b_s1/2; % [m]
+L_E5 = L_EG3 + b_s2/2; % [m]
+L_E6 = b_E/2; % [m]
     % Gear 2 forces
 F_t2 = T_M/r_G1; % [N]
 F_a2 = F_t2 * tand(beta); % [N]
@@ -259,6 +263,36 @@ xlim([0 L_ED])
 [M_max, M_max_idx] = max(M);
 L = xy_x(M_max_idx);
 dashLineV(L, 3, 2, 2)
+
+%% Export
+
+% Cross Section 3
+[~, cs_3_idx] = closest(xy_x, L_E3);
+cs_3_P = xy_P(cs_3_idx);
+cs_3_T = xy_T(cs_3_idx);
+cs_3_M = M(cs_3_idx);
+cs_3 = [cs_3_P cs_3_T*1e3 cs_3_M*1e3]; % [(N) (Nmm) (Nmm)]
+
+% Cross Section 4
+[~, cs_4_idx] = closest(xy_x, L_E4);
+cs_4_P = xy_P(cs_4_idx);
+cs_4_T = xy_T(cs_4_idx);
+cs_4_M = M(cs_4_idx);
+cs_4 = [cs_4_P cs_4_T*1e3 cs_4_M*1e3]; % [(N) (Nmm) (Nmm)]
+
+% Cross Section 5
+[~, cs_5_idx] = closest(xy_x, L_E5);
+cs_5_P = xy_P(cs_5_idx);
+cs_5_T = xy_T(cs_5_idx);
+cs_5_M = M(cs_5_idx);
+cs_5 = [cs_5_P cs_5_T*1e3 cs_5_M*1e3]; % [(N) (Nmm) (Nmm)]
+
+% Cross Section 6
+[~, cs_6_idx] = closest(xy_x, L_E6);
+cs_6_P = xy_P(cs_6_idx);
+cs_6_T = xy_T(cs_6_idx);
+cs_6_M = M(cs_6_idx);
+cs_6 = [cs_6_P cs_6_T*1e3 cs_6_M*1e3]; % [(N) (Nmm) (Nmm)]
 
 % Export data w/o figures (https://stackoverflow.com/questions/
                             % 45560181/avoid-saving-of-graphics-in-matlab)
