@@ -232,28 +232,28 @@ dashLineV(L, 3, 2, 2)
 cs_A_P = xy_P(cs_A_idx);
 cs_A_T = xy_T(cs_A_idx);
 cs_A_M = M(cs_A_idx);
-cs_A = [cs_A_P cs_A_T cs_A_M];
+cs_A = [cs_A_P cs_A_T*1e3 cs_A_M*1e3]; % [(N) (Nmm) (Nmm)]
 
 % Cross Section B
-[~, cs_B_idx] = closest(xy_x, L_AB);
-cs_B_P = xy_P(cs_B_idx);
-cs_B_T = xy_T(cs_B_idx);
-cs_B_M = M(cs_B_idx);
-cs_B = [cs_B_P cs_B_T cs_B_M];
+[~, cs_0_idx] = closest(xy_x, L_AB);
+cs_0_P = xy_P(cs_0_idx);
+cs_0_T = xy_T(cs_0_idx);
+cs_0_M = M(cs_0_idx);
+cs_0 = [cs_0_P cs_0_T*1e3 cs_0_M*1e3]; % [(N) (Nmm) (Nmm)]
 
 % Cross Section 1
 [~, cs_1_idx] = closest(xy_x, L_A1);
 cs_1_P = xy_P(cs_1_idx);
 cs_1_T = xy_T(cs_1_idx);
 cs_1_M = M(cs_1_idx);
-cs_1 = [cs_1_P cs_1_T cs_1_M];
+cs_1 = [cs_1_P cs_1_T*1e3 cs_1_M*1e3]; % [(N) (Nmm) (Nmm)]
 
 % Cross Section 2
 [~, cs_2_idx] = closest(xy_x, L_A2);
 cs_2_P = xy_P(cs_2_idx);
 cs_2_T = xy_T(cs_2_idx);
 cs_2_M = M(cs_2_idx);
-cs_2 = [cs_2_P cs_2_T cs_2_M];
+cs_2 = [cs_2_P cs_2_T*1e3 cs_2_M*1e3]; % [(N) (Nmm) (Nmm)]
 
 % Export data w/o figures (https://stackoverflow.com/questions/
                             % 45560181/avoid-saving-of-graphics-in-matlab)
