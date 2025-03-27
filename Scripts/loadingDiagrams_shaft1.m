@@ -5,6 +5,11 @@ clc; clear; close all;
 
 %% Constants
 
+g = 9.81; %[m/s^2]
+m_G1 = 0.52675; %[kg]
+
+F_G1 = m_G1*g;
+
 % Common Plotting Constants
 colFill = [0.7765 0.9176 0.9843];
 resolution = 100;
@@ -59,6 +64,7 @@ L_A2 = L_A1 + L_12; % [m]
 % For Reaction forces @ bearings
 F_By = F_t1*L_G1C/L_BC; % [N]
 F_Bz = (F_r1*L_G1C - F_a1*r_G1)/L_BC; % [N]
+F_Bg1 = (F_G1*L_G1C)/L_BC;
 
 
 %% XY - Plane
@@ -143,6 +149,7 @@ xz_P = [];
 xz_V = [];
 xz_M = [];
 xz_T = [];
+xz_Mg = [];
 
 XZplaneFig = figure(figHandle);
 set(figHandle,'Units','Centimeter')
@@ -172,6 +179,7 @@ xz_P = [xz_P, zeros(size(x))]; % [N]
 xz_V = [xz_V, zeros(size(x))]; % [N]
 xz_M = [xz_M, zeros(size(x))]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * T_M]; % [Nm]
+xz_Mg =[xz_Mg, zeros(size(x))];
 
 
 % L_AB < x < L_AG1
@@ -181,6 +189,7 @@ xz_P = [xz_P, zeros(size(x))]; % [N]
 xz_V = [xz_V, ones(size(x)) * (-F_Bz)]; % [N]
 xz_M = [xz_M, ( - F_Bz*(x - L_AB) )]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * T_M]; % [Nm]
+xz_Mg =[xz_Mg, +( F_Bg1 * (x-L_AB)) ]; %[Nm]
 
 
 % L_AG1 < x < L_AC
@@ -190,6 +199,7 @@ xz_P = [xz_P, ones(size(x)) * (-F_a1)]; % [N]
 xz_V = [xz_V, ones(size(x)) * (F_r1 - F_Bz)]; % [N]
 xz_M = [xz_M, ( F_r1*(x - L_AG1) - F_Bz*(x - L_AB) - F_a1*(r_G1) )]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * (T_M - F_t1*r_G1)]; % [Nm]
+xz_Mg =[xz_Mg, +( F_Bg1 * (x - L_AB) ) - ( F_G1 * (x - L_AG1) ) ]; %[Nm]
 
 
 subplot(2,2,1)
