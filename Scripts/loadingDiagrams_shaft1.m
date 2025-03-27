@@ -349,18 +349,21 @@ end
 
 % Apply boundary conditions (deflection at bearings is zero), deflection is 0 at L_AB and L_AC
 index_L_AB = find(x_values >= L_AB, 1, 'first');
-index_G1 = find(x_values >= L_AG1,1,'first');
 index_L_AC = res;
 
 % Correction Factor K_4: no deflection @ first bearing
 K_4 = 0;
+K_4_G = 0;
 
 % Correction Factor K_3: non deflection @ second bearing
 K_3 = delta(index_L_AC) / L_BC;
+K_3_G = delta_G(index_L_AC) / L_BC; 
 
 % Correct the Deflection and Beam Slope
 delta_corrected = delta - K_3 * (x_values - x_values(index_L_AB)) - K_4;
+delta_G_corrected = delta_G - K_3_G * (x_values - x_values(index_L_AB)) - K_4;
 theta_corrected = theta - K_3;
+theta_G_corrected = theta_G -K_3_G;
 
 maxDeflection = max( abs(delta_corrected) );
 checkEmpiricalRequirement = maxDeflection / L_AC;
@@ -413,35 +416,13 @@ legend('location', 'northwest')
 grid on;
 
 %% Critical speed calculations
-%Constants and mass initialisation
-g=9.81;
-delta_g = zeros(1, res);
-
 %masses of the gears
-m_G1 = 0.52675; %[kg]
-
-EI_48 = 48 * I_shaft * E;
-
 
 index_L_AG1 = find(x_values >= L_AG1, 1, 'first');
-tol = 1e-6;
 
-for i = 2:res
-    x = x_values(i);
-    
-    if abs(x - x_values(index_L_AG1)) < tol
-        W = m_G1 * g; % Få m fra Adrian
-    else
-        W = 0;
-    end
+delta_g_G1 = theta_G_corrected(index_L_AG1);
 
-    delta_g(i) = W*x^3 / EI_48(i);
-
-end
-
-max_delta_g = max(abs(delta_g));
-
-omega_c = sqrt(g * (   ( (m_G1*max_delta_g) / (m_G1*max_delta_g^2))   )); %Machine design equation 10.25c
+omega_c = sqrt(g * (   ( (m_G1*delta_g_G1) / (m_G1*delta_g_G1^2))   )); %Machine design equation 10.25c
 n_c = (60/(2*pi))* omega_c; %[rpm]
 
 n_shaft1 = 1450;
@@ -452,3 +433,7 @@ if (n_shaft1 < 0.8 * n_c) || (n_shaft1 > 1.25 * n_c)
 else
     disp("Lateral vibration not good");
 end
+
+close all;
+figure
+plot(x_values,delta_G_corrected)
