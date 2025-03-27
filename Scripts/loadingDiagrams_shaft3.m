@@ -7,7 +7,13 @@ clc; clear; close all;
 % Masses of gears
 g = 9.81; %[m/s^2]
 m_G4 = 2; %[kg]
-E = 210e9; % E-modulus [Pa]
+
+% Diameters of shaft
+d_F   = 0.020; % [m]
+d_78  = 0.030; % [m]
+d_S32 = 0.027; % [m]
+d_S31 = 0.025; % [m]
+
 
 
 % Common Plotting Constants
@@ -36,7 +42,7 @@ b_G = b_F; % [m]
 eta = 1.00; % [-] Ideal Stages
 
 % Import from Gear Sizing
-load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2', 'i_tot', 'i_s2')
+load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2', 'i_tot', 'i_s2', 'E_mat')
     % Convert from Gear Sizing
 r_G1 = d_g1/2 * 1e-3; % [m]
 r_G2 = d_g2/2 * 1e-3; % [m]
@@ -44,6 +50,7 @@ r_G3 = d_g3/2 * 1e-3; % [m]
 r_G4 = d_g4/2 * 1e-3; % [m]
 b_s1 = b_s1 * 1e-3; % [m]
 b_s2 = b_s2 * 1e-3; % [m]
+E = E_mat*1e6;
 
 % Calculated Values
 omega_1 = n_1 * 2*pi / 60; % [rad/sec]
@@ -71,7 +78,7 @@ F_Gz = F_r4 - F_Fz; % [N]
 F_Gy = F_t4 - F_Fy; % [N]
 
 F_FG = (F_G4 *L_G4G )/(L_FG); %[N]
-F_GG = F_G4 - F_FG; %TODO
+F_GG = F_G4 - F_FG; %[N]
 
 
 %% XY - Plane
@@ -285,14 +292,6 @@ delta_G = zeros(1, res);
 
 delta_corrected = [];
 delta_corrected_G = [];
-
-E = 210e9; % E-modulus [Pa]
-
-% Diameters of shaft
-d_F   = 0.020; % [m]
-d_78  = 0.030; % [m]
-d_S32 = 0.027; % [m]
-d_S31 = 0.025; % [m]
 
 % Calculate I for the different intervals
 x_values = linspace(0, L_FH, res);

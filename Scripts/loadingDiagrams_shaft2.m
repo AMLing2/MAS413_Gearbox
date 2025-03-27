@@ -10,7 +10,22 @@ g = 9.81; %[m/s^2]
 m_G2 = 0.52675; %[kg]
 m_G3 = 1; %[kg]
 E = 210e9; % E-modulus [Pa]
+E = 210e9; % E-modulus [Pa]
 
+% Diameters of shaft
+d_D = 0.01; % [m]
+d_E = 0.015; % [m]
+d_S21 = 0.02; % [m]
+d_S22 = 0.02; %[m]
+d_45 = 0.02; %[m]
+
+% Lengths of gears
+b_s1 = 0.005; % [m]
+b_s2 = 0.005; % [m]
+
+%Lengths of bearings
+L_BE = 0.005; %[m]
+L_BD = 0.005; %[m]
 
 % Common Plotting Constants
 colFill = [0.7765 0.9176 0.9843];
@@ -37,7 +52,7 @@ b_E = b_D; % [m]
 eta = 1.00; % [-] Ideal Stages
  
 % Import from Gear Sizing
-load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2', 'i_tot', 'i_s1')
+load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2', 'i_tot', 'i_s1', 'E_mat')
     % Convert from Gear Sizing
 r_G1 = d_g1/2 * 1e-3; % [m]
 r_G2 = d_g2/2 * 1e-3; % [m]
@@ -45,6 +60,7 @@ r_G3 = d_g3/2 * 1e-3; % [m]
 r_G4 = d_g4/2 * 1e-3; % [m]
 b_s1 = b_s1 * 1e-3; % [m]
 b_s2 = b_s2 * 1e-3; % [m]
+E = E_mat*1e6;%[Pa]
 
 % Calculated Values
 omega_1 = n_1 * 2*pi / 60; % [rad/sec]
@@ -296,23 +312,6 @@ delta_G = zeros(1, res);
 
 delta_corrected = [];
 delta_corrected_G = [];
-
-E = 210e9; % E-modulus [Pa]
-
-% Diameters of shaft
-d_D = 0.01; % [m]
-d_E = 0.015; % [m]
-d_S21 = 0.02; % [m]
-d_S22 = 0.02; %[m]
-d_45 = 0.02; %[m]
-
-% Lengths of gears
-b_s1 = 0.005; % [m]
-b_s2 = 0.005; % [m]
-
-%Lengths of bearings
-L_BE = 0.005 %[m]
-L_BD = 0.005
 
 % Calculate I for the different intervals
 x_values = linspace(0, L_ED, res);
