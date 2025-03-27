@@ -339,7 +339,6 @@ K_3 = delta(index_L_FG) / L_FG;
 K_3_G = delta_G(index_L_FG) / L_FG;
 
 % Correct the Deflection and Beam Slope
-% Correct the deflection
 delta_corrected = delta - K_3 * x_values;
 delta_corrected_G = delta_G - K_3_G * x_values; 
 theta_corrected = theta - K_3;

@@ -8,6 +8,12 @@ clc; clear; close all;
 g = 9.81; %[m/s^2]
 m_G1 = 0.52675; %[kg]
 
+% Diameters of shaft
+d_c   = 0.010; % [m]
+d_12  = 0.015; % [m]
+d_S11 = 0.011; % [m]
+d_S12 = 0.013; % [m]
+
 % Common Plotting Constants
 colFill = [0.7765 0.9176 0.9843];
 resolution = 100;
@@ -305,18 +311,11 @@ delta = zeros(1, res);
 delta_G = zeros(1, res);
 I_shaft = zeros(1, res);
 
-% Diameters of shaft
-d_c   = 0.010; % [m]
-d_12  = 0.015; % [m]
-d_S11 = 0.011; % [m]
-d_S12 = 0.013; % [m]
-
 % Calculate I for the different intervals
 x_values = linspace(0, L_AC, res);
 
 for i = 1:res
     x = x_values(i);
-
     if     x < (L_AB + (b_B/2) )
         d = d_S11;
     elseif x < ( L_AG1 + (b_s1/2) )
@@ -431,7 +430,3 @@ if (n_1 < 0.8 * n_c) || (n_1 > 1.25 * n_c)
 else
     disp("Lateral vibration not good");
 end
-
-close all
-figure
-plot(x_values,delta_G_corrected)
