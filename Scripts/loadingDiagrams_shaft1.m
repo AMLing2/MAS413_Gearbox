@@ -5,6 +5,10 @@ clc; clear; close all;
 
 %% Constants
 
+g = 9.81; %[m/s^2]
+m_G1 = 0.52675; %[kg]
+E = 210e9; % E-modulus [Pa]
+
 % Common Plotting Constants
 colFill = [0.7765 0.9176 0.9843];
 resolution = 100;
@@ -44,6 +48,7 @@ b_s2 = b_s2 * 1e-3; % [m]
 % Calculated values
 omega_1 = n_1 * 2*pi / 60; % [rad/sec]
 T_M = P_1 / omega_1; % [Nm]
+F_G1 = m_G1*g;
 % Gear Forces
 F_t1 = T_M / r_G1; % [N]
 F_a1 = F_t1 * tand(beta); % [N]
@@ -59,6 +64,7 @@ L_A2 = L_A1 + L_12; % [m]
 % For Reaction forces @ bearings
 F_By = F_t1*L_G1C/L_BC; % [N]
 F_Bz = (F_r1*L_G1C - F_a1*r_G1)/L_BC; % [N]
+F_Bg1 = (F_G1*L_G1C)/L_BC;
 
 
 %% XY - Plane
@@ -143,6 +149,7 @@ xz_P = [];
 xz_V = [];
 xz_M = [];
 xz_T = [];
+xz_Mg = [];
 
 XZplaneFig = figure(figHandle);
 set(figHandle,'Units','Centimeter')
@@ -172,6 +179,7 @@ xz_P = [xz_P, zeros(size(x))]; % [N]
 xz_V = [xz_V, zeros(size(x))]; % [N]
 xz_M = [xz_M, zeros(size(x))]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * T_M]; % [Nm]
+xz_Mg =[xz_Mg, zeros(size(x))];
 
 
 % L_AB < x < L_AG1
@@ -181,6 +189,7 @@ xz_P = [xz_P, zeros(size(x))]; % [N]
 xz_V = [xz_V, ones(size(x)) * (-F_Bz)]; % [N]
 xz_M = [xz_M, ( - F_Bz*(x - L_AB) )]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * T_M]; % [Nm]
+xz_Mg =[xz_Mg, +( F_Bg1 * (x-L_AB)) ]; %[Nm]
 
 
 % L_AG1 < x < L_AC
@@ -190,6 +199,7 @@ xz_P = [xz_P, ones(size(x)) * (-F_a1)]; % [N]
 xz_V = [xz_V, ones(size(x)) * (F_r1 - F_Bz)]; % [N]
 xz_M = [xz_M, ( F_r1*(x - L_AG1) - F_Bz*(x - L_AB) - F_a1*(r_G1) )]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * (T_M - F_t1*r_G1)]; % [Nm]
+xz_Mg =[xz_Mg, +( F_Bg1 * (x - L_AB) ) - ( F_G1 * (x - L_AG1) ) ]; %[Nm]
 
 
 subplot(2,2,1)
@@ -280,7 +290,7 @@ ylim( [-5 5] )
 title('One Directional Length', 'interpreter', 'latex')
 
 
-%% Shaft Deflection
+%% Shaft Deflection - Forced and free
 % Visuals
 lwDeflection = 2;
 sizeDeflectionText = 16;
@@ -290,11 +300,10 @@ res = 300;
 
 % Initialization
 theta = zeros(1, res);
+theta_G = zeros(1, res);
 delta = zeros(1, res);
+delta_G = zeros(1, res);
 I_shaft = zeros(1, res);
-
-
-E = 210e9; % E-modulus [Pa]
 
 % Diameters of shaft
 d_c   = 0.010; % [m]
@@ -330,9 +339,12 @@ for i = 2:res
 
     % Integrate to find rotation (omega)
     theta(i) = theta(i-1) + (M(i) / EI(i)) * dx;
+    theta_G(i) = theta_G(i-1) + (xz_Mg(i) / EI(i)) * dx;
 
     % Integrate to find deflection
     delta(i) = delta(i-1) + theta(i) * dx;
+    delta_G(i) = delta_G(i-1) + theta_G(i) * dx;
+    
 end
 
 % Apply boundary conditions (deflection at bearings is zero), deflection is 0 at L_AB and L_AC
@@ -341,13 +353,17 @@ index_L_AC = res;
 
 % Correction Factor K_4: no deflection @ first bearing
 K_4 = 0;
+K_4_G = 0;
 
 % Correction Factor K_3: non deflection @ second bearing
 K_3 = delta(index_L_AC) / L_BC;
+K_3_G = delta_G(index_L_AC) / L_BC; 
 
 % Correct the Deflection and Beam Slope
 delta_corrected = delta - K_3 * (x_values - x_values(index_L_AB)) - K_4;
+delta_G_corrected = delta_G - K_3_G * (x_values - x_values(index_L_AB)) - K_4;
 theta_corrected = theta - K_3;
+theta_G_corrected = theta_G -K_3_G;
 
 maxDeflection = max( abs(delta_corrected) );
 checkEmpiricalRequirement = maxDeflection / L_AC;
@@ -400,41 +416,17 @@ legend('location', 'northwest')
 grid on;
 
 %% Critical speed calculations
-%Constants and mass initialisation
-g=9.81;
-delta_g = zeros(1, res);
-
 %masses of the gears
-m_G1 = 0.52675; %[kg]
-
-EI_48 = 48 * I_shaft * E;
-
 
 index_L_AG1 = find(x_values >= L_AG1, 1, 'first');
-tol = 1e-6;
 
-for i = 2:res
-    x = x_values(i);
-    
-    if abs(x - x_values(index_L_AG1)) < tol
-        W = m_G1 * g; % Få m fra Adrian
-    else
-        W = 0;
-    end
+delta_g_G1 = theta_G_corrected(index_L_AG1);
 
-    delta_g(i) = W*x^3 / EI_48(i);
-
-end
-
-max_delta_g = max(abs(delta_g));
-
-omega_c = sqrt(g * (   ( (m_G1*max_delta_g) / (m_G1*max_delta_g^2))   )); %Machine design equation 10.25c
+omega_c = sqrt(g * (   ( (m_G1*delta_g_G1) / (m_G1*delta_g_G1^2))   )); %Machine design equation 10.25c
 n_c = (60/(2*pi))* omega_c; %[rpm]
 
-n_shaft1 = 1450;
-
 % Test if n_shaft1 is outside [0.8*n_c, 1.25*n_c]
-if (n_shaft1 < 0.8 * n_c) || (n_shaft1 > 1.25 * n_c)
+if (n_1 < 0.8 * n_c) || (n_1 > 1.25 * n_c)
     disp("Lateral vibration good");
 else
     disp("Lateral vibration not good");
