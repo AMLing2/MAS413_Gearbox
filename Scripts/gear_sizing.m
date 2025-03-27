@@ -24,6 +24,8 @@ clc;close all;clear;
 %%% Chosen Parameters %%%
 material = "16 MnCr 5";
 lambda = 14; % width factor, processed:  8-16, pg 17 lec 1, 14 to increase axial contact ratio to 1.15
+n_f = 2; % safety factor
+step = 0.05; % module increase for interference fit
 %%% Chosen Parameters %%%
 
 % Given Parameters:
@@ -91,6 +93,7 @@ mat_names = ["Fe 430", "Fe 590", "C 45 N", "C 60 N",...
 sigma_b_lim_mat = dictionary(mat_names, sigma_b_lim_mat_list);
 sigma_o_lim_mat = dictionary(mat_names, sigma_o_lim_mat_list);
 E_mat_dic = dictionary(mat_names, E_mat_list);
+Sy_mat = 417; % [Mpa] yield strenght of 16 MnCr 5, turn into list in the future? https://shop.machinemfg.com/composition-properties-and-uses-of-sae-aisi-5115-alloy-steel/
 
 sigma_b_lim = sigma_b_lim_mat(material) / V_b;
 % Z_v is calculated in the module_calc function
@@ -135,10 +138,10 @@ increment = 0.01; % for module iteration
 % [m_n_4, sigma_b_4, sigma_o_4] = module_calc(increment, sigma_b_lim, sigma_o_lim, z_4, n_4, T_4, A, ...
 %         K_a, lambda, gamma_4, F_w, F_c, d4, i_s2, z_3);
 
-d1 = m_n_1*z_1;
-d2 = m_n_1*z_2;
-d3 = m_n_3*z_3;
-d4 = m_n_3*z_4;
+% d1 = m_n_1*z_1;
+% d2 = m_n_1*z_2;
+% d3 = m_n_3*z_3;
+% d4 = m_n_3*z_4;
 m_n_2 = m_n_1;
 m_n_4 = m_n_3;
 
@@ -156,16 +159,22 @@ mt_1 = m_n_1 / cosd(beta);
 mt_2 = m_n_2 / cosd(beta);
 mt_3 = m_n_3 / cosd(beta);
 mt_4 = m_n_4 / cosd(beta);
-mt_s1 = max([mt_1,mt_2]) % 3.1180 w/ 15 CrNi 6
-mt_s2 = max([mt_3,mt_4]) % 4.5334 w/ 15 CrNi 6
+mt_s1 = max([mt_1,mt_2]); % 3.1180 w/ 15 CrNi 6
+mt_s2 = max([mt_3,mt_4]); % 4.5334 w/ 15 CrNi 6
 
 %%%%%%%% sizing calcs for helical gears
-
-% pitch circle diameters [mm]
+fits_unchecked = true;
+stress_s1_checked = false;
+while fits_unchecked
+% pitch circle diameters iteration 1 [mm]
 d_g1 = mt_s1 * z_1;
 d_g2 = mt_s1 * z_2;
 d_g3 = mt_s2 * z_3;
 d_g4 = mt_s2 * z_4;
+
+% width of helical gears [mm]
+b_s1 = mt_s1 * lambda;
+b_s2 = mt_s2 * lambda;
 
 % top (ht) and bottom (hf) heights [mm]
 ht_1 = mt_s1;
@@ -193,11 +202,85 @@ dt_g2 = d_g2 + 2 * ht_2;
 dt_g3 = d_g3 + 2 * ht_3;
 dt_g4 = d_g4 + 2 * ht_4;
 
-% % dedendum circle [mm]
-% df_g1 = d_g1 - 2 * hf_1;
-% df_g2 = d_g2 - 2 * hf_2;
-% df_g3 = d_g3 - 2 * hf_3;
-% df_g4 = d_g4 - 2 * hf_4;
+% dedendum circle [mm]
+df_g1 = d_g1 - 2 * hf_1;
+df_g2 = d_g2 - 2 * hf_2;
+df_g3 = d_g3 - 2 * hf_3;
+df_g4 = d_g4 - 2 * hf_4;
+
+% helical module iteration 2 and press fits:
+if true%exist("shaftDesign.mat","file")
+    if false %~exist("d_s_111","var") % only load once
+        load("shaftDesign.mat")
+    end
+    d_shaft_g1 = 30; % [mm] % replace with loaded variable
+    d_shaft_g2 = 50;
+    d_shaft_g3 = 50;
+    d_shaft_g4 = 60;
+
+    mu = 0.175; % pg 621 machine design, between 0.15 and 0.2 for shrink fit hubs
+    %mu = 0.74; % for static dry, mild steel on mild steel, tab 7-1 pg 464 machine design
+    E_mat = E_mat_dic(material); % [GPa]
+    V_mat = 0.29; % where does this come from?...
+    % calculate press fits of each gear
+    if ~stress_s1_checked
+        % g1
+        [p_g1,T_max_g1,d_i_g1,h_tol_g1,s_tol_g1,heat_temp_hub_g1,cool_temp_shaft_g1 ...
+            ,sigma_t_s_g1,sigma_t_o_g1,sigma_r_s_g1,sigma_r_o_g1] = ... % stresses
+            pressFitsShaft(df_g1,d_shaft_g1,b_s1,mu,E_mat*1e-3,E_mat*1e-3,V_mat,V_mat);
+        sigma_t_o_g1
+        sigma_r_o_g1
+        
+        % g2
+        [p_g2,T_max_g2,d_i_g2,h_tol_g2,s_tol_g2,heat_temp_hub_g2,cool_temp_shaft_g2 ...
+            ,sigma_t_s_g2,sigma_t_o_g2,sigma_r_s_g2,sigma_r_o_g2] = ... % stresses
+            pressFitsShaft(df_g2,d_shaft_g2,b_s1,mu,E_mat*1e-3,E_mat*1e-3,V_mat,V_mat);
+        sigma_t_o_g2
+        sigma_r_o_g2
+    
+        % check if stresses are not too large for each gear:
+        if (abs(sigma_t_s_g1) > (Sy_mat / n_f) &&  abs(sigma_r_o_g1) > (Sy_mat / n_f)) || ...
+           (abs(sigma_t_s_g2) > (Sy_mat / n_f) &&  abs(sigma_r_o_g2) > (Sy_mat / n_f))  
+            % increase module of first stage
+            mt_s1 = mt_s1 + step;
+            continue % restart loop
+        else
+            stress_s1_checked = true; % don't recalculate in future loops
+        end
+    end
+    % check for stage 2
+    % g3
+    [p_g3,T_max_g3,d_i_g3,h_tol_g3,s_tol_g3,heat_temp_hub_g3,cool_temp_shaft_g3 ...
+        ,sigma_t_s_g3,sigma_t_o_g3,sigma_r_s_g3,sigma_r_o_g3] = ... % stresses
+        pressFitsShaft(df_g3,d_shaft_g3,b_s2,mu,E_mat*1e-3,E_mat*1e-3,V_mat,V_mat);
+    % g4
+    [p_g4,T_max_g4,d_i_g4,h_tol_g4,s_tol_g4,heat_temp_hub_g4,cool_temp_shaft_g4 ...
+        ,sigma_t_s_g4,sigma_t_o_g4,sigma_r_s_g4,sigma_r_o_g4] = ... % stresses
+        pressFitsShaft(df_g4,d_shaft_g4,b_s2,mu,E_mat*1e-3,E_mat*1e-3,V_mat,V_mat);
+
+    % check
+    if (abs(sigma_t_s_g3) > (Sy_mat / n_f) &&  abs(sigma_r_o_g3) > (Sy_mat / n_f)) || ...
+       (abs(sigma_t_s_g4) > (Sy_mat / n_f) &&  abs(sigma_r_o_g4) > (Sy_mat / n_f))  
+        % increase module of second stage
+        mt_s2 = mt_s2 + step;
+        continue % restart loop
+    end
+    if T_max_g1 < T_1*1e-3
+        error("Shaft 1 cant transmit torque")
+    elseif T_max_g2 < T_2*1e-3
+        error("Shaft 2 cant transmit torque")
+    elseif T_max_g3 < T_3*1e-3
+        error("Shaft 3 cant transmit torque")
+    elseif T_max_g4 < T_4*1e-3
+        error("Shaft 4 cant transmit torque")
+    end
+    fits_unchecked = false; % exit loop
+else
+    warning("Unknown shaft diameters, skipping shrink fits")
+    fits_unchecked = false; % dont loop
+end
+end
+modules = table(mt_s1, mt_s2)
 
 % % gearbox total length of gears
 % l_tot = (dt_g1 + d_g2/2 + d_g3/2 + dt_g4)/1e3; % [m]
@@ -218,10 +301,6 @@ dt_g4 = d_g4 + 2 * ht_4;
 % % diameteral pitch [mm]
 % dp_s1 = pi/p_s1;
 % dp_s2 = pi/p_s2;
-
-% width of helical gears [mm]
-b_s1 = mt_s1 * lambda;
-b_s2 = mt_s2 * lambda;
 
 % rough sum of material volume for gears [mm^3] -> [m^3]
 volume_g1 = pi * b_s1 * (d_g1/2)^2 * 1e-9;
@@ -304,3 +383,6 @@ disp(T)
 save("gear_sizes.mat")
 
 
+function m_t = module_from_fit()
+    
+end

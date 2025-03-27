@@ -66,9 +66,3 @@ function [m_n,sigma_o] = sigma_o_calc(increment, sigma_o_lim, z, n, T, A, ...
     end
     sigma_o = new_sigma_o;
 end
-
-%from https://www.mathworks.com/matlabcentral/answers/152301-find-closest-value-in-array#answer_1559017
-function [cl] = closest(arr,val) 
-    [~,closestIndex] = min(arr-val.', [], ComparisonMethod = "abs");
-    cl = arr(closestIndex);
-end

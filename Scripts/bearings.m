@@ -171,13 +171,3 @@ function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R
         error("No suitable bearing found")
     end
 end
-
-%{
- Find corresponding index:
-    https://www.mathworks.com/matlabcentral/answers/
-    152301-find-closest-value-in-array#answer_1559017
-%}
-function [cl,closestIndex] = closest(arr,val) 
-    [~,closestIndex] = min(arr-val.', [], ComparisonMethod = "abs");
-    cl = arr(closestIndex);
-end

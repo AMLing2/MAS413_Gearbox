@@ -2,8 +2,7 @@ close all; clear; clc;
 
 
 % TO DO:
-% - Complete check if stress due to shear can be necglected
-
+% - Complete check if stress due to shear can be neglected
 
 % Common input parameters (for all shafts)
 n_f = 2; % Safety factor
@@ -18,7 +17,10 @@ operating_temperature = 70; % Celsius, defined by Kjell (only significant if > 4
 %%%%% Shaft 1 %%%%%  From loadingDiagrams_shaft1.m
 % Input parameters
 r_S1 = 2; % [mm]
-D_d_1 = 1.2; % !! ASK ABOUT THIS !!
+D_d_1 = 1.2; % [-] ASK ABOUT THIS - RKH
+
+% Import from Gear Sizing
+load('loadingDiagram_shaft1.mat', 'cs_A', 'cs_B', 'cs_1', 'cs_2')
 
 cs_A =  [30 0.25 D_d_1 0 0 0 83*1e3];
 cs_B =  [29 r_S1 D_d_1 0 0 0 cs_A(7)];
