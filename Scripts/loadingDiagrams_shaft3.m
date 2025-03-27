@@ -14,8 +14,6 @@ d_78  = 0.030; % [m]
 d_S32 = 0.027; % [m]
 d_S31 = 0.025; % [m]
 
-
-
 % Common Plotting Constants
 colFill = [0.7765 0.9176 0.9843];
 resolution = 100;
@@ -65,6 +63,9 @@ L_FG = b_F/2 + L_78 + b_s2 + L_45 + b_s1 + L_12 + b_G/2; % [m]
 L_FG4 = b_F/2 + L_78 + b_s2/2; % [m]
 L_G4G = L_FG - L_FG4; % [m]
 L_FH = L_FG + L_GH; % [m]
+L_F7 = b_F/2; % [m]
+L_F8 = b_F/2 + L_78; % [m]
+L_F9 = L_FG - b_G/2; % [m]
     % Gear 4 forces
 F_t4 = T_out / r_G4; % [N]
 F_a4 = F_t4 * tand(beta); % [N]
@@ -244,6 +245,37 @@ xlim([0 L_FH])
 [M_max, M_max_idx] = max(M);
 L = xy_x(M_max_idx);
 dashLineV(L, 3, 2, 2)
+
+
+%% Export
+
+% Cross Section 7
+[~, cs_7_idx] = closest(xy_x, L_F7);
+cs_7_P = xy_P(cs_7_idx);
+cs_7_T = xy_T(cs_7_idx);
+cs_7_M = M(cs_7_idx);
+cs_7 = [cs_7_P cs_7_T*1e3 cs_7_M*1e3]; % [(N) (Nmm) (Nmm)]
+
+% Cross Section 8
+[~, cs_8_idx] = closest(xy_x, L_F8);
+cs_8_P = xy_P(cs_8_idx);
+cs_8_T = xy_T(cs_8_idx);
+cs_8_M = M(cs_8_idx);
+cs_8 = [cs_8_P cs_8_T*1e3 cs_8_M*1e3]; % [(N) (Nmm) (Nmm)]
+
+% Cross Section 9
+[~, cs_9_idx] = closest(xy_x, L_F9);
+cs_9_P = xy_P(cs_9_idx);
+cs_9_T = xy_T(cs_9_idx);
+cs_9_M = M(cs_9_idx);
+cs_9 = [cs_9_P cs_9_T*1e3 cs_9_M*1e3]; % [(N) (Nmm) (Nmm)]
+
+% Cross Section H
+[~, cs_H_idx] = closest(xy_x, L_FH);
+cs_H_P = xy_P(cs_H_idx);
+cs_H_T = xy_T(cs_H_idx);
+cs_H_M = M(cs_H_idx);
+cs_H = [cs_H_P cs_H_T*1e3 cs_H_M*1e3]; % [(N) (Nmm) (Nmm)]
 
 % Export data w/o figures (https://stackoverflow.com/questions/
                             % 45560181/avoid-saving-of-graphics-in-matlab)
