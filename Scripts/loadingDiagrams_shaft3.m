@@ -413,3 +413,7 @@ if (n_shaft3 < 0.8 * n_c) || (n_shaft3 > 1.25 * n_c)
 else
     disp("Lateral vibration not good");
 end
+
+close all;
+figure
+plot(x_values,delta_corrected_G )
