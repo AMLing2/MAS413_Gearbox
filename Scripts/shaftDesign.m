@@ -19,63 +19,72 @@ operating_temperature = 70; % [celsius] defined by Kjell (only significant if > 
 %        1|0 (1 for keyseat 0 for shoulder-fillet), K_t_keyseat]
 
 
-%%%%% Shaft 1 %%%%%  From loadingDiagrams_shaft1.m
-% Input parameters
-d_B  = 30;        % [mm] 
-d_S1 = d_B;       % [mm]
-d_12 = d_S1 + 10; % [mm]
-d_C  = d_B;       % [mm]
-
+%%%%%%%%%%%% Shaft 1 %%%%%%%%%%%%
 r_keyseat1 = 0.25; % [mm]
 K_t_keyseat1 = 3.75; % Keyseat stress concentration factor % Machine Design fig 10-16 pg 615
 r_fillet1 = 2; % [mm]
 D_d_1 = 1.2; % [-] ASK ABOUT THIS - RKH
 
-% Import from Gear Sizing
-load('loadingDiagram_shaft1.mat', 'cs_A', 'cs_0', 'cs_1', 'cs_2')
+% Import
+load('loadingDiagram_shaft1.mat', 'cs_A', 'cs_0', 'cs_1', 'cs_2', ...
+    'd_B', 'd_S1', 'd_12', 'd_C')
+
+% [m] to [mm]
+d_B  = d_B*1000;  % [mm]
+d_S1 = d_S1*1000; % [mm]
+d_12 = d_12*1000; % [mm]
+d_C  = d_C*1000;  % [mm]
 
 cs_A = [cs_A d_B r_keyseat1 D_d_1 1 K_t_keyseat1];
 cs_0 = [cs_0 d_B r_fillet1 D_d_1 0 0];
 cs_1 = [cs_1 d_S1 r_fillet1 D_d_1 0 0];
 cs_2 = [cs_2 d_C r_fillet1 D_d_1 0 0];
 
-%%%%% Shaft 2 %%%%%  From loadingDiagrams_shaft2.m
-% Input parameters
-d_E    = 30; % [mm] 
-d_S2_2 = 30; % [mm]
-d_45   = 30; % [mm]
-d_S2_1 = 30; % [mm]
-d_D    = 30; % [mm]
-
+%%%%%%%%%%%% Shaft 2 %%%%%%%%%%%%
 r_fillet2 = 2; % [mm]
-D_d_2 = 1.2; % !! ASK ABOUT THIS !!
+D_d_2 = 1.2; % [-] ASK ABOUT THIS - RKH
 
-% cs_6 = [cs_6 d_E r_fillet2 D_d_2 0 0];
-% cs_5 = [cs_5 d_S2_2 r_fillet2 D_d_2 0 0];
-% cs_4 = [cs_4 d_S2_1 r_fillet2 D_d_2 0 0];
-% cs_3 = [cs_3 d_D r_fillet2 D_d_2 0 0];
+% Import
+load('loadingDiagram_shaft2.mat', 'cs_3', 'cs_4', 'cs_5', 'cs_6', ...
+    'd_E', 'd_S22', 'd_45', 'd_S21', 'd_D')
 
-%%%%% Shaft 3 %%%%%  From loadingDiagrams_shaft3.m
-% Input parameters
-d_F  = 30; % [mm] 
-d_78 = 30; % [mm]
-d_S3 = 30; % [mm]
-d_G  = 30; % [mm]
+% [m] to [mm]
+d_E = d_E*1000;     % [mm]
+d_S22 = d_S22*1000; % [mm]
+d_45 = d_45*1000;   % [mm]
+d_S21 = d_S21*1000; % [mm]
+d_D = d_D*1000;     % [mm]
 
+cs_6 = [cs_6 d_E r_fillet2 D_d_2 0 0];
+cs_5 = [cs_5 d_S22 r_fillet2 D_d_2 0 0];
+cs_4 = [cs_4 d_S21 r_fillet2 D_d_2 0 0];
+cs_3 = [cs_3 d_D r_fillet2 D_d_2 0 0];
+
+%%%%%%%%%%%% Shaft 3 %%%%%%%%%%%%
 r_keyseat3 = 0.25; % [mm]
 K_t_keyseat3 = 3.75; % Keyseat stress concentration factor % Machine Design fig 10-16 pg 615
 r_fillet3 = 2; % [mm]
 D_d_3 = 1.2; % !! ASK ABOUT THIS !!
 
-% cs_7 = [cs_7 d_F r_fillet3 D_d_3 0 0];
-% cs_8 = [cs_8 d_78 r_fillet3 D_d_3 0 0];
-% cs_9 = [cs_9 d_S3 r_fillet3 D_d_3 0 0];
-% cs_H = [cs_H d_G r_keyseat3 D_d_3 1 K_t_keyseat3];
+% Import
+load('loadingDiagram_shaft3.mat', 'cs_7', 'cs_8', 'cs_9', 'cs_H', ...
+    'd_F', 'd_78', 'd_S3', 'd_G')
+
+% [m] to [mm]
+d_F = d_F*1000;   % [mm]
+d_78 = d_78*1000; % [mm]
+d_S3 = d_S3*1000; % [mm]
+d_G = d_G*1000;   % [mm]
+
+cs_7 = [cs_7 d_F r_fillet3 D_d_3 0 0];
+cs_8 = [cs_8 d_78 r_fillet3 D_d_3 0 0];
+cs_9 = [cs_9 d_S3 r_fillet3 D_d_3 0 0];
+cs_H = [cs_H d_G r_keyseat3 D_d_3 1 K_t_keyseat3];
 
 
-%%%%%%%%%%%%%%%% Select corss section to evaluate %%%%%%%%%%%%%%%%
-% cs = cs_A;
-% first_iteration = "n";  % ("y" / "n") First iteration for diameter equation (limited geomertry data)
+%%%%%%%%%%%%%%%% Select cross section to evaluate %%%%%%%%%%%%%%%%
+cs = cs_A;
+first_iteration = "n";  % ("y" / "n") First iteration for diameter equation (limited geomertry data)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Lists for for loop

@@ -11,8 +11,8 @@ m_G4 = 2; %[kg]
 % Diameters of shaft
 d_F   = 0.020; % [m]
 d_78  = 0.030; % [m]
-d_S32 = 0.027; % [m]
-d_S31 = 0.025; % [m]
+d_G = 0.027; % [m]
+d_S3 = 0.025; % [m]
 
 % Common Plotting Constants
 colFill = [0.7765 0.9176 0.9843];
@@ -336,9 +336,9 @@ for i = 1:res
     elseif x < ( (b_F/2) + L_78 )
         d = d_78;
     elseif x < ( (b_F/2) + L_78 + b_s2 + L_45 + b_s1 + L_12)
-        d = d_S32;
+        d = d_G;
     else
-        d = d_S31;
+        d = d_S3;
     end
 
     I_shaft(i) = (pi * d^4) / 64;

@@ -9,10 +9,10 @@ g = 9.81; %[m/s^2]
 m_G1 = 0.52675; %[kg]
 
 % Diameters of shaft
-d_c   = 0.010; % [m]
+d_C   = 0.010; % [m]
 d_12  = 0.015; % [m]
-d_S11 = 0.011; % [m]
-d_S12 = 0.013; % [m]
+d_B   = 0.011; % [m]
+d_S1  = 0.013; % [m]
 
 % Common Plotting Constants
 colFill = [0.7765 0.9176 0.9843];
@@ -318,13 +318,13 @@ x_values = linspace(0, L_AC, res);
 for i = 1:res
     x = x_values(i);
     if     x < (L_AB + (b_B/2) )
-        d = d_S11;
+        d = d_B;
     elseif x < ( L_AG1 + (b_s1/2) )
-        d = d_S12;
+        d = d_S1;
     elseif x < ( L_AG1 + (b_s1/2) + L_12 )
         d = d_12;
     else
-        d = d_c;
+        d = d_C;
     end
 
     I_shaft(i) = (pi * d^4) / 64;
