@@ -7,8 +7,7 @@ clc; clear; close all;
 
 g = 9.81; %[m/s^2]
 m_G1 = 0.52675; %[kg]
-
-F_G1 = m_G1*g;
+E = 210e9; % E-modulus [Pa]
 
 % Common Plotting Constants
 colFill = [0.7765 0.9176 0.9843];
@@ -49,6 +48,7 @@ b_s2 = b_s2 * 1e-3; % [m]
 % Calculated values
 omega_1 = n_1 * 2*pi / 60; % [rad/sec]
 T_M = P_1 / omega_1; % [Nm]
+F_G1 = m_G1*g;
 % Gear Forces
 F_t1 = T_M / r_G1; % [N]
 F_a1 = F_t1 * tand(beta); % [N]
@@ -290,7 +290,7 @@ ylim( [-5 5] )
 title('One Directional Length', 'interpreter', 'latex')
 
 
-%% Shaft Deflection
+%% Shaft Deflection - Forced and free
 % Visuals
 lwDeflection = 2;
 sizeDeflectionText = 16;
@@ -300,11 +300,10 @@ res = 300;
 
 % Initialization
 theta = zeros(1, res);
+theta_G = zeros(1, res);
 delta = zeros(1, res);
+delta_G = zeros(1, res);
 I_shaft = zeros(1, res);
-
-
-E = 210e9; % E-modulus [Pa]
 
 % Diameters of shaft
 d_c   = 0.010; % [m]
@@ -340,13 +339,17 @@ for i = 2:res
 
     % Integrate to find rotation (omega)
     theta(i) = theta(i-1) + (M(i) / EI(i)) * dx;
+    theta_G(i) = theta_G(i-1) + (xz_Mg(i) / EI(i)) * dx;
 
     % Integrate to find deflection
     delta(i) = delta(i-1) + theta(i) * dx;
+    delta_G(i) = delta_G(i-1) + theta_G(i) * dx;
+    
 end
 
 % Apply boundary conditions (deflection at bearings is zero), deflection is 0 at L_AB and L_AC
 index_L_AB = find(x_values >= L_AB, 1, 'first');
+index_G1 = find(x_values >= L_AG1,1,'first');
 index_L_AC = res;
 
 % Correction Factor K_4: no deflection @ first bearing
