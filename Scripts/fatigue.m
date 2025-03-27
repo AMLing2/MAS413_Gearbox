@@ -366,9 +366,9 @@ end
 n_f = S_e/sigma_rev;
 
 if n_f > 1
-    fprintf('n_f = %.2f --> No fatigue failure, infinete life\n', n_f)
+    fprintf('n_f = %.2f --> No fatigue failure, infinite life\n', n_f)
 else
-    fprintf('n_f = %.2f --> Fatigue failure, finete life\n', n_f)
+    fprintf('n_f = %.2f --> Fatigue failure, finite life\n', n_f)
 end
 
 

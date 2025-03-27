@@ -1,5 +1,5 @@
 % function modifiedGoodman(S_y, S_yc, S_ut, S_e, sigma_vm_mean, sigma_vm_amp)
-function modifiedGoodman(S_y, S_yc, S_ut, shaft_design_results)
+function modifiedGoodman(S_y, S_yc, S_ut, shaft_design_results, titleName)
     
     % Modified-Goodman Graph % MAS236 L4 s12-22)
     % (Work in progress)
@@ -72,4 +72,5 @@ function modifiedGoodman(S_y, S_yc, S_ut, shaft_design_results)
     
     xlabel('\sigma_m [MPa]', 'FontSize', 14, 'FontWeight', 'bold');
     ylabel('\sigma_a [MPa]', 'FontSize', 14, 'FontWeight', 'bold');
+    title(titleName)
 end
