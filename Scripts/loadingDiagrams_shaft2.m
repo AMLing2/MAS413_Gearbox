@@ -9,8 +9,6 @@ clc; clear; close all;
 g = 9.81; %[m/s^2]
 m_G2 = 0.52675; %[kg]
 m_G3 = 1; %[kg]
-E = 210e9; % E-modulus [Pa]
-E = 210e9; % E-modulus [Pa]
 
 % Diameters of shaft
 d_D = 0.01; % [m]

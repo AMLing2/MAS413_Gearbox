@@ -7,7 +7,6 @@ clc; clear; close all;
 
 g = 9.81; %[m/s^2]
 m_G1 = 0.52675; %[kg]
-E = 210e9; % E-modulus [Pa]
 
 % Common Plotting Constants
 colFill = [0.7765 0.9176 0.9843];
