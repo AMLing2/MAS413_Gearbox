@@ -13,17 +13,24 @@ load('gear_sizes.mat', 'z_1','z_2','z_3','z_4','i_tot','i_s1','i_s2', ...
 % Import from Loading Diagrams
 load('loadingDiagram_shaft1.mat', 'xz_P', 'xy_V', 'xz_V')
 shaft1_Fa = xz_P;
-shaft1_Fr = sqrt(xy_V^2 + xz_V^2);
+shaft1_Fr = sqrt(xy_V.^2 + xz_V.^2);
 load('loadingDiagram_shaft2.mat', 'xz_P', 'xy_V', 'xz_V')
 shaft2_Fa = xz_P;
-shaft2_Fr = sqrt(xy_V^2 + xz_V^2);
+shaft2_Fr = sqrt(xy_V.^2 + xz_V.^2);
 load('loadingDiagram_shaft3.mat', 'xz_P', 'xy_V', 'xz_V')
 shaft3_Fa = xz_P;
-shaft3_Fr = sqrt(xy_V^2 + xz_V^2);
+shaft3_Fr = sqrt(xy_V.^2 + xz_V.^2);
 
 % Import from Shaft Design
-load('shaftDesign.mat', 'd_S11', 'd_C')
+%load('shaftDesign.mat', 'd_S11', 'd_C')
 
+% load bearing .CSV file
+csvfile = "../Data/combined_ballBearings_manual2.csv";
+bearingdata = readtable(csvfile,'NumHeaderLines',9,'DecimalSeparator','.','Delimiter',';');
+bearingdata.Properties.VariableNames = ["num","d","D","B","C","C0","Pu",...
+    "ref_speed","max_speed","mass","name_null","designations", ...
+    "capped","name","D_null","d1","d2","D1","D2","r1,2","da_min","da_max","Da_max","ra_max","kr","f0"];
+return
 % number of cycles through lifetime:
 cycles_lifetime_sh1 = ly * n_1
 cycles_lifetime_sh2 = ly * n_2
@@ -122,6 +129,68 @@ function [bearing_index,lifetime] = tapered_bearing_sizing(d_min,F_r,F_a,cycles,
         error("No suitable bearing found")
     end
 end
+
+
+%% Ball Bearing Selection
+function [bearing_index,lifetime] = ball_bearing_sizing2(d_min,F_r,F_a,cycles,K_R,d_list,C_dyn_list,C_0_list,f0_list)
+    % Single Row Deep Groove (Conrad) Ball Bearing
+% d_min: minimum rod diameter [mm] % add max diameter?
+% F_r: Force in the radial direction [N]
+% F_a: Force in the axial direction [N]
+% cycles: minimum lifetime cycles
+% K_R: Reliability factor for weibull distribution, tab 11-5 pg 7-1 machine design
+% d_list: list of bearing inner diameter [mm]
+% C_dyn_list: list of bearing dynamic load rating [N]
+% C_st_list: list of bearing static load rating [N]
+
+    % values from Fig 11-24 pg 705 machine design:
+    % AND from table 9 pg 257 of SKF bearings catalogue
+    V = 1.0; % rotation factor, rotating inner ring
+    X = 0.56; % radial factor
+    Y_list = [2.3,1.99,1.71,1.55,1.45,1.31,1.15,1.04,1.00];
+    F0Fa_C0_list = [0.172,0.345,0.689,1.03,1.38,2.07,3.45,5.17,6.89];
+    e_list = [0.19, 0.22, 0.26, 0.28, 0.30, 0.34, 0.38, 0.42, 0.44];
+    
+    bearing_index = -1;
+    lifetime = -1;
+    for i = 1:length(d_list)
+        if d_list(i) > d_min
+            e_check_val = f0_list(i) * F_a / C_0_list(i);
+            [~,Y_index] = closest(F0Fa_C0_list,e_check_val);
+            Y = Y_list(Y_index);
+            e = e_list(Y_index);
+    
+            if (F_a/(F_r*V)) <= e % axal load is irrelevant
+                P = F_r; % [N] equivalent load
+            else
+                P = X * V * F_r + Y * F_a; % [N] equivalent load, eq 11.22a pg 704 machine design
+            end
+
+            L_P = ( K_R*(C_dyn_list(i)/P)^3 ) * 1e6; % eq 11.20a pg 701 machine design
+            if (L_P > cycles) && (P < C_0_list(i))
+                bearing_index = i; % smallest fitting bearing found, exit loop
+                lifetime = L_P;
+                break
+            end
+        end
+    end
+    if bearing_index == -1
+        error("No suitable bearing found")
+    end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 %% Ball Bearing Selection
