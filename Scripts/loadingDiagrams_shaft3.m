@@ -277,6 +277,15 @@ cs_H_T = xy_T(cs_H_idx);
 cs_H_M = M(cs_H_idx);
 cs_H = [cs_H_P cs_H_T*1e3 cs_H_M*1e3]; % [(N) (Nmm) (Nmm)]
 
+%%%% For Bearings %%%%
+[~, F_idx] = closest(xy_x, 0);
+F_Fa = xy_P(F_idx); % [N] Axial Force
+F_Fr = sqrt( xy_V(F_idx)^2 + xz_V(F_idx)^2 ); % [N] Radial Force
+[~, G_idx] = closest(xy_x, L_FG);
+G_Fa = xy_P(G_idx); % [N] Axial Force
+G_Fr = sqrt( xy_V(G_idx)^2 + xz_V(G_idx)^2 ); % [N] Radial Force
+%%%% For Bearings %%%%
+
 % Export data w/o figures (https://stackoverflow.com/questions/
                             % 45560181/avoid-saving-of-graphics-in-matlab)
 varData = whos;

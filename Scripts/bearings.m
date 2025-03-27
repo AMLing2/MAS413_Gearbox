@@ -10,15 +10,11 @@ ly = lifetime * daysPerYear * work_cycle * minPerHour; % [min]
 load('gear_sizes.mat', 'z_1','z_2','z_3','z_4','i_tot','i_s1','i_s2', ...
     'n_1','n_2','n_3','n_4')
 
-% Import from Loading Diagrams
-%TODO: need help with loading correct Fa and Fr for bearings
+% Import from Loading Diagrams: Axial Load Fa & Radial Load Fr
 load('loadingDiagram_shaft1.mat', 'B_Fa', 'B_Fr', 'C_Fa', 'C_Fr')
-% load('loadingDiagram_shaft2.mat', 'xz_P', 'xy_V', 'xz_V')
-% shaft2_Fa = xz_P;
-% shaft2_Fr = sqrt(xy_V.^2 + xz_V.^2);
-% load('loadingDiagram_shaft3.mat', 'xz_P', 'xy_V', 'xz_V')
-% shaft3_Fa = xz_P;
-% shaft3_Fr = sqrt(xy_V.^2 + xz_V.^2);
+load('loadingDiagram_shaft2.mat', 'D_Fa', 'D_Fr', 'E_Fa', 'E_Fr')
+load('loadingDiagram_shaft3.mat', 'F_Fa', 'F_Fr', 'G_Fa', 'G_Fr')
+
 %%%%%%%%%%%%%%%%% TEMPORARY
 shaft1_Fa = 50;
 shaft2_Fa = 50;
