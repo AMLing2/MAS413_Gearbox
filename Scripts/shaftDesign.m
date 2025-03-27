@@ -83,7 +83,6 @@ cs_H = [cs_H d_G  r_keyseat3 D_d_3 1 K_t_keyseat3];
 
 
 %%%%%%%%%%%%%%%% Select cross section to evaluate %%%%%%%%%%%%%%%%
-cs = cs_A;
 first_iteration = "n";  % ("y" / "n") First iteration for diameter equation (limited geometry data)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

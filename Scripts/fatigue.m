@@ -4,18 +4,18 @@ MPa_to_ksi = 0.1450377377; % [MPa] to [ksi] conversion factor
 %%%%% Imported values from shaftDesign.m %%%%%
 % Forces
 P_x = cs(1); % [N] % Axial
-T = cs(2); % [Nmm] % Torque
-M = cs(3); % [Nmm] % Bending
+T   = cs(2); % [Nmm] % Torque
+M   = cs(3); % [Nmm] % Bending
 
 % Neglect shear
 V_xy = 0; % [N] % Shear
 V_xz = 0; % [N] % Shear
 
 % Geometry for stress concentration
-d_shaft = cs(4);  % [mm] Shaft diameter
+d_shaft  = cs(4); % [mm] Shaft diameter
 r_fillet = cs(5); % [mm] Notch fillet radius
-D_d = cs(6);      % [-]
-keyseat = cs(8);  % Is 1 for keyseat, 0 for shoulder-fillet
+D_d      = cs(6); % [-]
+keyseat  = cs(8); % Is 1 for keyseat, 0 for shoulder-fillet
 
 % Calculated values
 R = (d_shaft/2);  % [mm] Shaft radius
@@ -85,14 +85,15 @@ tau_xz_tor_amp_nom =  (tau_xz_tor_max_nom - tau_xz_tor_min_nom)/2; % [MPa]
 
 
 %%%%% Material data %%%%% Machine Design, Table A8 & A9 pg 1039-1040
+% "Key-value pair" not physical/mechanical key
 material_key = [355, 4140];
 material_data = struct('S_y', num2cell([355, 655]),...
                        'S_ut', num2cell([470, 758]));
 material_table = dictionary(material_key, material_data);
+
 S_y = material_table(material).S_y;
 S_ut = material_table(material).S_ut;
 S_yc = -S_y; % [MPa] Compressive yeild strength ! PLACEHOLDER VALUE must be incorporated with material data table
-
 
 %%%%% Neubler's Constant for Steels %%%%% Machine Design, Table 6-6 page 382
 S_ut_ksi_table = [50 55 60 70 80 90 100 110 120 130 140 160 180 200 220 240]; % [ksi]
@@ -103,15 +104,18 @@ S_ut_ksi_temp = S_ut * MPa_to_ksi; % [ksi] converts S_ut from MPa to ksi
 S_ut_ksi = find_closest_value(S_ut_ksi_temp, S_ut_ksi_table);
 
 a_sqrt_in = Neublers_table(S_ut_ksi); % [sqrt(in)]
-a_sqrt_mm = a_sqrt_in * sqrt(25.4); % [sqrt(mm)] % MAS236, L3 s13 ~ Usikker på om dette er rett - RKH
+a_sqrt_mm = a_sqrt_in * sqrt(25.4); % [sqrt(mm)] % MAS236, L3 s13
 
 % Notch sensitivity factor % MAS236 L3 s13 & Machine Design eq 6.13 pg 381
-q = 1/(1 + (a_sqrt_mm/sqrt(r_fillet))); 
+q = 1/(1 + (a_sqrt_mm/sqrt(r_fillet)));
 
 
 %%%%% Stress concentration factors %%%%% MAS236 L3 s12
+
 % Geometrical (theoretical) stress concentration factors:
     % Tables/values: Machine Design Appendix C (page 1048-1049)
+
+% "Key-value pair" not physical/mechanical key
 D_d_bend_key = [6.00, 3.00, 2.00, 1.50, 1.20, 1.10, 1.07, 1.05, ...
                 1.03, 1.02, 1.01];
 D_d_bend_values = struct('A', num2cell([0.87868, 0.89334, 0.90879, ...
@@ -125,6 +129,7 @@ D_d_bend_table = dictionary(D_d_bend_key, D_d_bend_values);
 A_bend = D_d_bend_table(D_d).A;
 b_bend = D_d_bend_table(D_d).b;
 
+% "Key-value pair" not physical/mechanical key
 D_d_tor_key = [2.00, 1.33, 1.20, 1.09];
 D_d_tor_values = struct('A', num2cell([0.86331, 0.84897, 0.83425, 0.90337]),...
                         'b', num2cell([-0.23865, -0.23161, -0.21649, -0.12692]));
@@ -133,6 +138,7 @@ D_d_tor_table = dictionary(D_d_tor_key, D_d_tor_values);
 A_tor = D_d_tor_table(D_d).A;
 b_tor = D_d_tor_table(D_d).b;
 
+% "Key-value pair" not physical/mechanical key
 D_d_axial_key = [2.00, 1.50, 1.30, 1.20, 1.15, 1.10, 1.07, 1.05, 1.02, 1.01];
 D_d_axial_values = struct('A', num2cell([1.01470, 0.99957, 0.99682, ...
                             0.96272, 0.98084, 0.98450, 0.98498, ...
@@ -145,8 +151,8 @@ D_d_axial_table = dictionary(D_d_axial_key, D_d_axial_values);
 A_axial = D_d_axial_table(D_d).A;
 b_axial = D_d_axial_table(D_d).b;
 
-K_t_bend = A_bend*(r_fillet/d_shaft)^b_bend;    % Normal Stress - fig C-2
-K_t_tor = A_tor*(r_fillet/d_shaft)^b_tor;       % Shear  Stress - fig C-3
+K_t_bend  = A_bend *(r_fillet/d_shaft)^b_bend;  % Normal Stress - fig C-2
+K_t_tor   = A_tor  *(r_fillet/d_shaft)^b_tor;   % Shear  Stress - fig C-3
 K_t_axial = A_axial*(r_fillet/d_shaft)^b_axial; % Normal Stress - fig C-1
 
 % For end-milled keyseat % Machine Design, fig 10-16, pg 615
@@ -210,22 +216,23 @@ sigma_vm_max = sigma_vm_mean + sigma_vm_amp; % [MPa]
 
 %%%%% Correction factors %%%%%
 % Load factor % MAS236 L3 s43 & Machine Design pg 366
-C_load_table_key = ["Pure bending" "Pure axial" "Pure torsion" "Complex axial" "Complex non axial"];
+C_load_table_key = ["Pure bending" "Pure axial" "Pure torsion" ...
+                    "Complex axial" "Complex non axial"]; % Key-Value Pair
 C_load_table_value = [1 0.75 1 0.75 1];
 C_load_table = dictionary(C_load_table_key, C_load_table_value);
 
 C_load = C_load_table(load_type);
 
 % Size factor % MAS236 L3 s44 & Machine Design pg 367
-if d_shaft <= 8
+if d_shaft <= 8 % [mm]
     C_size = 1;
-elseif d_shaft <= 250
+elseif d_shaft <= 250 % [mm]
     C_size = 1.189*d_shaft^(-0.097);
 else
     C_size = 0.6;
 end
 
-% Surface factor % MAS236 L3 s45 & Machine Design pg 369
+% Surface factor % MAS236 L3 s45 & Machine Design pg 369: for S_ut in [MPa]
 C_surf_table_key = ["Ground" "Machined" "Hot-rolled" "As-forged"];
 C_surf_table_value = struct('A', num2cell([1.58 4.51 57.7 272]), ...
                             'b', num2cell([-0.085 -0.265 -0.718 -0.995]));
@@ -248,7 +255,7 @@ else
 end
 
 % Reliability factor % MAS236 L3 s48 & Machine Design pg 371
-C_reliab_table_key = [50 90 95 99 99.9 99.99 99.999 99.9999];
+C_reliab_table_key = [50 90 95 99 99.9 99.99 99.999 99.9999]; % Key-Value
 C_reliab_table_value = [1 0.897 0.868 0.814 0.753 0.702 0.659 0.620];
 C_reliab_table = dictionary(C_reliab_table_key, C_reliab_table_value);
 C_reliab = C_reliab_table(reliability);
@@ -256,10 +263,10 @@ C_reliab = C_reliab_table(reliability);
 % Other factors: MAS236 lecture 3 s49
 
 % For steels with "knee" % MAS236 L3 s39
-if S_ut < 1400
-    S_e_prime = 0.5*S_ut;
+if S_ut < 1400 % [MPa]
+    S_e_prime = 0.5*S_ut; % [MPa]
 else
-    S_e_prime = 700;
+    S_e_prime = 700; % [MPa]
 end
 
 
@@ -306,10 +313,15 @@ end
 % Endurance limit
 S_e = C_load*C_size*C_surf*C_temp*C_reliab*S_e_prime; % MAS236 L4 s5
 
-d_eq =  (((16*n_f)/pi) * (sqrt(4*(K_f_bend*M_amp)^2+3*(K_f_tor*T_amp)^2)/S_e + sqrt(4*(K_f_bend*M_mean)^2+3*(K_f_tor*T_mean)^2)/S_ut))^(1/3);
+% Diameter Equation: MAS236 L5 s6
+d_eq =  ( ( (16*n_f) /pi) * ( sqrt(4*(K_f_bend*M_amp)^2 + ...
+                                   3*(K_f_tor*T_amp)^2)/S_e + ...
+                              sqrt(4*(K_f_bend*M_mean)^2 + ...
+                                   3*(K_f_tor*T_mean)^2)/S_ut) )^(1/3);
 fprintf('d_eq = %.2f [mm],  Recomended shaft diameter\n', d_eq)
+% Other formulation in equation (10.8) - Machine Design page 600 & 653
 
-% Quick check: failure againt yels at the first cycle % MAS236 L5 s7
+% Quick check: failure againt yield at the first cycle % MAS236 L5 s7
 % sigma_prime_amp = sqrt(((32*K_f_bend*M_amp)/(pi*d_shaft^3)) + 3*((16*K_f_tor*T_amp)/(pi*d_shaft^3)));
 % sigma_prime_mean = sqrt(((32*K_f_bend*M_mean)/(pi*d_shaft^3)) + 3*((16*K_f_tor*T_mean)/(pi*d_shaft^3))); 
 % sigma_max = sigma_prime_mean + sigma_prime_amp;
@@ -338,7 +350,7 @@ fprintf('d_eq = %.2f [mm],  Recomended shaft diameter\n', d_eq)
 % end
 
 %%%%% Safety factors %%%%%
-% Static safety factor
+% Static safety factor: MAS236 L5 s7
 if sigma_vm_mean >= 0
     n_y = S_y/(sigma_vm_mean + sigma_vm_amp);
 else
@@ -351,14 +363,18 @@ else
     fprintf('n_y = %.2f --> Static failure\n', n_y)
 end
 
-% Fatigue safety factor
-if sigma_vm_mean >= 0 && sigma_vm_mean + sigma_vm_amp < S_y
-    sigma_rev = sigma_vm_amp/(1-(sigma_vm_mean/S_ut));
-elseif sigma_vm_mean >= 0 && sigma_vm_mean + sigma_vm_amp > S_y
+% Fatigue safety factor: MAS236 L4 s19
+if ( sigma_vm_mean >= 0 ) && ...
+        ( (sigma_vm_mean + sigma_vm_amp) < S_y )
+    sigma_rev = sigma_vm_amp / ( 1 - (sigma_vm_mean/S_ut) );
+elseif ( sigma_vm_mean >= 0 ) && ...
+        ( (sigma_vm_mean + sigma_vm_amp) > S_y )
     sigma_rev = S_y;
-elseif sigma_vm_mean < 0 && abs(sigma_vm_mean - sigma_vm_amp) < abs(S_yc)
+elseif ( sigma_vm_mean < 0 ) && ...
+        ( abs(sigma_vm_mean - sigma_vm_amp) < abs(S_yc) )
     sigma_rev = sigma_vm_amp;
-elseif sigma_vm_mean < 0 && abs(sigma_vm_mean - sigma_vm_amp) > abs(S_yc)
+elseif ( sigma_vm_mean < 0 ) && ...
+        ( abs(sigma_vm_mean - sigma_vm_amp) > abs(S_yc) )
     sigma_rev = abs(S_yc);
 else
     fprintf('\sigma_{rev} error in Modified Goodman Diagram')
