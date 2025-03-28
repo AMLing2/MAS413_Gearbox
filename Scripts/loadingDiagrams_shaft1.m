@@ -5,8 +5,8 @@ clc; clear; close all;
 
 %% Constants
 
-g = 9.81; %[m/s^2]
-m_G1 = 0.52675; %[kg]
+g = 9.81; % [m/s^2]
+m_G1 = 0.52675; % [kg]
 
 % Diameters of shaft
 d_C   = 0.010; % [m]
@@ -112,7 +112,7 @@ title('Torque $T(x)$', 'Interpreter','latex')
 % 0 < x < L_AB
 x = linspace(0, L_AB, resolution);
 x(size(x))
-xy_x = [xy_x, x];
+xy_x = [xy_x, x]; % [m]
 xy_P = [xy_P, zeros(size(x))]; % [N]
 xy_V = [xy_V, zeros(size(x))]; % [N]
 xy_M = [xy_M, zeros(size(x))]; % [Nm]
@@ -120,7 +120,7 @@ xy_T = [xy_T, ones(size(x)) * T_M ]; % [Nm]
 
 % L_AB < x < L_AG1
 x = linspace(L_AB, L_AG1, resolution);
-xy_x = [xy_x, x];
+xy_x = [xy_x, x]; % [m]
 xy_P = [xy_P, zeros(size(x))]; % [N]
 xy_V = [xy_V, ones(size(x)) * F_By]; % [N]
 xy_M = [xy_M, ( F_By*(x - L_AB) )]; % [Nm]
@@ -128,7 +128,7 @@ xy_T = [xy_T, ones(size(x)) * T_M]; % [Nm]
 
 % L_AG1 < x < L_AC
 x = linspace(L_AG1, L_AC, resolution);
-xy_x = [xy_x, x];
+xy_x = [xy_x, x]; % [m]
 xy_P = [xy_P, ones(size(x)) * (-F_a1)]; % [N]
 xy_V = [xy_V, ones(size(x)) * (F_By - F_t1)]; % [N]
 xy_M = [xy_M, ( F_By*(x - L_AB) - F_t1*(x - L_AG1) )]; % [Nm]
@@ -181,33 +181,30 @@ title('Torque $T(x)$', 'Interpreter','latex')
 
 % 0 < x < L_AB
 x = linspace(0, L_AB, resolution); % L_AB blir duplikert i xz_[n] listene
-xz_x = [xz_x, x];
+xz_x = [xz_x, x]; % [m]
 xz_P = [xz_P, zeros(size(x))]; % [N]
 xz_V = [xz_V, zeros(size(x))]; % [N]
 xz_M = [xz_M, zeros(size(x))]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * T_M]; % [Nm]
-xz_Mg =[xz_Mg, zeros(size(x))];
-
+xz_Mg =[xz_Mg, zeros(size(x))]; % [Nm]
 
 % L_AB < x < L_AG1
 x = linspace(L_AB, L_AG1, resolution);
-xz_x = [xz_x, x];
+xz_x = [xz_x, x]; % [m]
 xz_P = [xz_P, zeros(size(x))]; % [N]
 xz_V = [xz_V, ones(size(x)) * (-F_Bz)]; % [N]
 xz_M = [xz_M, ( - F_Bz*(x - L_AB) )]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * T_M]; % [Nm]
-xz_Mg =[xz_Mg, +( F_Bg1 * (x-L_AB)) ]; %[Nm]
-
+xz_Mg =[xz_Mg, +( F_Bg1 * (x-L_AB)) ]; % [Nm]
 
 % L_AG1 < x < L_AC
 x = linspace(L_AG1, L_AC, resolution);
-xz_x = [xz_x, x];
+xz_x = [xz_x, x]; % [m]
 xz_P = [xz_P, ones(size(x)) * (-F_a1)]; % [N]
 xz_V = [xz_V, ones(size(x)) * (F_r1 - F_Bz)]; % [N]
 xz_M = [xz_M, ( F_r1*(x - L_AG1) - F_Bz*(x - L_AB) - F_a1*(r_G1) )]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * (T_M - F_t1*r_G1)]; % [Nm]
-xz_Mg =[xz_Mg, +( F_Bg1 * (x - L_AB) ) - ( F_G1 * (x - L_AG1) ) ]; %[Nm]
-
+xz_Mg =[xz_Mg, +( F_Bg1 * (x - L_AB) ) - ( F_G1 * (x - L_AG1) ) ]; % [Nm]
 
 subplot(2,2,1)
 plotLD(xz_x,xz_P,colFill)
@@ -247,35 +244,35 @@ dashLineV(L, 3, 2, 2)
 %%%% For Fatigue %%%%
 % Cross Section A
 [~, cs_A_idx] = closest(xy_x, 0);
-cs_A_P = xy_P(cs_A_idx);
+cs_A_P = xy_P(cs_A_idx); % [N]
 cs_A_T = xy_T(cs_A_idx)*1e3; % [Nmm]
 cs_A_M = M(cs_A_idx)*1e3; % [Nmm]
-cs_A_Vy = xy_V(cs_A_idx);
-cs_A_Vz = xz_V(cs_A_idx);
+cs_A_Vy = xy_V(cs_A_idx); % [N]
+cs_A_Vz = xz_V(cs_A_idx); % [N]
 cs_A = [cs_A_P cs_A_T cs_A_M cs_A_Vy cs_A_Vz];
 % Cross Section 0
 [~, cs_0_idx] = closest(xy_x, L_A0);
-cs_0_P = xy_P(cs_0_idx);
+cs_0_P = xy_P(cs_0_idx); % [N]
 cs_0_T = xy_T(cs_0_idx)*1e3; % [Nmm]
 cs_0_M = M(cs_0_idx)*1e3; % [Nmm]
-cs_0_Vy = xy_V(cs_0_idx);
-cs_0_Vz = xz_V(cs_0_idx);
+cs_0_Vy = xy_V(cs_0_idx); % [N]
+cs_0_Vz = xz_V(cs_0_idx); % [N]
 cs_0 = [cs_0_P cs_0_T cs_0_M cs_0_Vy cs_0_Vz];
 % Cross Section 1
 [~, cs_1_idx] = closest(xy_x, L_A1);
-cs_1_P = xy_P(cs_1_idx);
+cs_1_P = xy_P(cs_1_idx); % [N]
 cs_1_T = xy_T(cs_1_idx)*1e3; % [Nmm]
 cs_1_M = M(cs_1_idx)*1e3; % [Nmm]
-cs_1_Vy = xy_V(cs_1_idx);
-cs_1_Vz = xz_V(cs_1_idx);
+cs_1_Vy = xy_V(cs_1_idx); % [N]
+cs_1_Vz = xz_V(cs_1_idx); % [N]
 cs_1 = [cs_1_P cs_1_T cs_1_M cs_1_Vy cs_1_Vz];
 % Cross Section 2
 [~, cs_2_idx] = closest(xy_x, L_A2);
-cs_2_P = xy_P(cs_2_idx);
+cs_2_P = xy_P(cs_2_idx); % [N]
 cs_2_T = xy_T(cs_2_idx)*1e3; % [Nmm]
 cs_2_M = M(cs_2_idx)*1e3; % [Nmm]
-cs_2_Vy = xy_V(cs_2_idx);
-cs_2_Vz = xz_V(cs_2_idx);
+cs_2_Vy = xy_V(cs_2_idx); % [N]
+cs_2_Vz = xz_V(cs_2_idx); % [N]
 cs_2 = [cs_2_P cs_2_T cs_2_M cs_2_Vy cs_2_Vz];
 %%%% For Fatigue %%%%
 %%%% For Bearings %%%%
