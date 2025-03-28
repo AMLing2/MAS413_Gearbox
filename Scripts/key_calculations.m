@@ -1,4 +1,8 @@
 clc; close all; clear;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MAS413 Project: Key calculations - Shaft 1 & 3 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %% Parameters
 
 d_shaft_1 = 1; %[m]
@@ -7,7 +11,7 @@ d_shaft_3 = 1; %[m]
 T_shaft1 = 1; %[Nm]
 T_shaft3 = 1; %[Nm]
 
-S_yield = 100; %[Pa]
+S_yield = 190 * 10^9;  % [Pa] medium carbon steel typical e-modulus
 
 %% Calculated values
 
