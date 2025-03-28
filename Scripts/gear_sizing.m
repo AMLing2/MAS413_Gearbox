@@ -280,6 +280,7 @@ else
     fits_unchecked = false; % dont loop
 end
 end
+max_torques = table(T_max_g1, T_max_g2,T_max_g3,T_max_g4)
 modules = table(mt_s1, mt_s2)
 
 % % gearbox total length of gears
