@@ -26,7 +26,7 @@ I_p = (pi/2)*R^4; % [mm^4] Polar moment of inertia
 %%%%% Material data %%%%% Machine Design, Table A8 & A9 pg 1039-1040
 % "Key-value pair" not physical/mechanical key
 material_key = [355, 4140];
-material_data = struct('S_y', num2cell([355, 655]),...
+material_data = struct('S_y', num2cell([335, 655]),...
                        'S_ut', num2cell([470, 758]));
 material_table = dictionary(material_key, material_data);
 
@@ -170,12 +170,12 @@ P_m   = (P_max + P_min)/2; % [N]
 P_a   = (P_max - P_min)/2; % [N]
 
 % Shear (fully reversed)
-V_y_max =  V_y; % [N]
-V_y_min = -V_y; % [N]
+V_y_max =  abs(V_y); % [N]
+V_y_min = -V_y_max; % [N]
 V_y_m   = (V_y_max + V_y_min)/2; % [N]
 V_y_a   = (V_y_max - V_y_min)/2; % [N]
-V_z_max =  V_z; % [N]
-V_z_min = -V_z; % [N]
+V_z_max =  abs(V_z); % [N]
+V_z_min = -V_z_max; % [N]
 V_z_m   = (V_y_max + V_y_min)/2; % [N]
 V_z_a   = (V_y_max - V_y_min)/2; % [N]
 
@@ -216,14 +216,10 @@ sigma_x_bend_m_nom   = (sigma_x_bend_max_nom + sigma_x_bend_min_nom)/2; % [MPa]
 sigma_x_bend_a_nom   = (sigma_x_bend_max_nom - sigma_x_bend_min_nom)/2; % [MPa]
 
 % Torsion
-tau_y_tor_max_nom = (T_max*R)/I_p; % [MPa]
-tau_y_tor_min_nom = (T_min*R)/I_p; % [MPa]
-tau_y_tor_m_nom   = (tau_y_tor_max_nom + tau_y_tor_min_nom)/2; % [MPa]
-tau_y_tor_a_nom   = (tau_y_tor_max_nom - tau_y_tor_min_nom)/2; % [MPa]
-tau_z_tor_max_nom = (T_max*R)/I_p; % [MPa]
-tau_z_tor_min_nom = (T_min*R)/I_p; % [MPa]
-tau_z_tor_m_nom   = (tau_z_tor_max_nom + tau_z_tor_min_nom)/2; % [MPa]
-tau_z_tor_a_nom   = (tau_z_tor_max_nom - tau_z_tor_min_nom)/2; % [MPa]
+tau_tor_max_nom = (T_max*R)/I_p; % [MPa]
+tau_tor_min_nom = (T_min*R)/I_p; % [MPa]
+tau_tor_m_nom   = (tau_tor_max_nom + tau_tor_min_nom)/2; % [MPa]
+tau_tor_a_nom   = (tau_tor_max_nom - tau_tor_min_nom)/2; % [MPa]
 
 
 %%%%% Mean & Amplitude stress w/stress concentration (Ductile materials) %%%%%
@@ -244,38 +240,26 @@ sigma_x_bend_m = sigma_x_bend_m_nom * K_f_bend; % [MPa]
 sigma_x_bend_a = sigma_x_bend_a_nom * K_f_bend; % [MPa]
 
 % Torsion
-tau_y_tor_m = tau_y_tor_m_nom * K_f_tor; % [MPa]
-tau_y_tor_a = tau_y_tor_a_nom * K_f_tor; % [MPa]
-tau_z_tor_m = tau_z_tor_m_nom * K_f_tor; % [MPa]
-tau_z_tor_a = tau_z_tor_a_nom * K_f_tor; % [MPa]
+tau_tor_m = tau_tor_m_nom * K_f_tor; % [MPa]
+tau_tor_a = tau_tor_a_nom * K_f_tor; % [MPa]
 
 % Resultant mean and amplitude % MAS236 L3 s23-24
 sigma_x_m = sigma_x_axial_m + sigma_x_bend_m; % [MPa]
 sigma_x_a = sigma_x_axial_a + sigma_x_bend_a; % [MPa]
 
-% Included shear NOT SURE IF CORRECT - RKH
-tau_y_m = tau_y_shear_m + tau_y_tor_m; % [MPa]
-tau_y_a = tau_y_shear_a + tau_y_tor_a; % [MPa]
-tau_z_m = tau_z_shear_m + tau_z_tor_m; % [MPa]
-tau_z_a = tau_z_shear_a + tau_z_tor_a; % [MPa]
-
-% Von Mises Equivalent Stress
-sigma_e_m   = sqrt(sigma_x_m^2 + 3*(tau_y_m^2+tau_z_m^2)); % [MPa]
-sigma_e_a   = sqrt(sigma_x_a^2 + 3*(tau_y_a^2+tau_z_a^2)); % [MPa]
-sigma_e_max = sigma_e_m + sigma_e_a; % [MPa]
-fprintf('Included shear  -->  sigma_e = %4f\n', sigma_e_max)
-
 % Shear neglected
-tau_y_m = tau_y_tor_m; % [MPa]
-tau_y_a = tau_y_tor_a; % [MPa]
-tau_z_m = tau_z_tor_m; % [MPa]
-tau_z_a = tau_z_tor_a; % [MPa]
-
 % Von Mises Equivalent Stress
-sigma_e_m   = sqrt(sigma_x_m^2 + 3*(tau_y_m^2+tau_z_m^2)); % [MPa]
-sigma_e_a   = sqrt(sigma_x_a^2 + 3*(tau_y_a^2+tau_z_a^2)); % [MPa]
+sigma_e_m   = sqrt(sigma_x_m^2 + 3*(tau_tor_m^2)); % [MPa]
+sigma_e_a   = sqrt(sigma_x_a^2 + 3*(tau_tor_a^2)); % [MPa]
 sigma_e_max = sigma_e_m + sigma_e_a; % [MPa]
-fprintf('Neglected shear -->  sigma_e = %4f\n', sigma_e_max)
+fprintf('Neglected shear -->  sigma_e = %2f\n', sigma_e_max)
+
+% Shear included
+% Von Mises Equivalent Stress
+sigma_e_m   = sqrt(sigma_x_m^2 + 3*(tau_tor_m^2+tau_y_shear_m^2+tau_z_shear_m^2)); % [MPa]
+sigma_e_a   = sqrt(sigma_x_a^2 + 3*(tau_tor_a^2+tau_y_shear_a^2+tau_z_shear_a^2)); % [MPa]
+sigma_e_max = sigma_e_m + sigma_e_a; % [MPa]
+fprintf('Included shear  -->  sigma_e = %2f\n', sigma_e_max)
 
 
 %%%%% Diameter Equation %%%%%
@@ -335,27 +319,6 @@ fprintf('d_eq = %.2f [mm],  Recomended shaft diameter\n', d_eq)
 % sigma_max = sigma_prime_mean + sigma_prime_amp;
 % n_y = S_y / sigma_max
 
-
-%%%%% Check if shear can be neglected %%%%% INCOMPLETE
-% fprintf('sigma_bend = %.2f [MPa]\n', sigma_x_bend_max_nom + sigma_x_axial_max_nom)
-% fprintf('tau_tor = %.2f [MPa]\n', tau_xy_tor_max_nom)
-% fprintf('tau_shear = %.2f [MPa]\n', tau_xy_shear_max_nom + tau_xz_shear_max_nom)
-% shear_bending = (tau_xy_shear_max_nom + tau_xz_shear_max_nom)/(sigma_x_bend_max_nom + sigma_x_axial_max_nom);
-% shear_tor = (tau_xy_shear_max_nom + tau_xz_shear_max_nom)/tau_xy_tor_max_nom;
-% 
-% fprintf('tau_shear / sigma_bending = %.2f --> ', shear_bending)
-% if shear_bending <= 0.1
-%     fprintf('shear force can be neglected\n')
-% else
-%     fprintf('shear force can NOT be neglected\n')
-% end
-% 
-% fprintf('tau_shear / tau_tor = %.2f --> ', shear_tor)
-% if shear_tor <= 0.1
-%     fprintf('shear force can be neglected\n')
-% else
-%     fprintf('shear force can NOT be neglected\n')
-% end
 
 %%%%% Safety factors %%%%%
 % Static safety factor: MAS236 L5 s7
