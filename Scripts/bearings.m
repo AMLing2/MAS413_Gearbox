@@ -8,18 +8,18 @@ hours = lifetime * daysPerYear * work_cycle % [hours]
 ly = lifetime * daysPerYear * work_cycle * minPerHour; % [min]
 
 % Import from Gear Sizing
-load('gear_sizes.mat','i_tot','i_s1','i_s2', ...
-    'n_1','n_2','n_3','n_4')
+load("gear_sizes.mat","i_tot","i_s1","i_s2", ...
+    "n_1","n_2","n_3","n_4")
 % n_x unit is in [rpm]
 
 % Import from Loading Diagrams: Axial Load Fa & Radial Load Fr
 
-load('loadingDiagram_shaft1.mat', 'B_Fa', 'B_Fr', 'C_Fa', 'C_Fr')
-load('loadingDiagram_shaft2.mat', 'D_Fa', 'D_Fr', 'E_Fa', 'E_Fr')
-load('loadingDiagram_shaft3.mat', 'F_Fa', 'F_Fr', 'G_Fa', 'G_Fr')
+load("loadingDiagram_shaft1.mat", "B_Fa", "B_Fr", "C_Fa", "C_Fr")
+load("loadingDiagram_shaft2.mat", "D_Fa", "D_Fr", "E_Fa", "E_Fr")
+load("loadingDiagram_shaft3.mat", "F_Fa", "F_Fr", "G_Fa", "G_Fr")
 
 % Import from Shaft Design
-%load('shaftDesign.mat', 'd_S11', 'd_C')
+%load("shaftDesign.mat", "d_S11", "d_C")
 d_min_B = 24; % TEMP [mm]
 d_min_C = 24; % TEMP [mm]
 d_min_D = 40; % TEMP [mm]
@@ -29,7 +29,7 @@ d_min_sh3 = 20; % TEMP [mm]
 % load bearing .CSV file
 % data from: https://www.skf.com/group/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings#cid-493604
 csvfile = "../Data/combined_ballBearings_manual2.csv";
-b_data = readtable(csvfile,'NumHeaderLines',9,'DecimalSeparator','.','Delimiter',';');
+b_data = readtable(csvfile,"NumHeaderLines",9,"DecimalSeparator",".","Delimiter",";");
 b_data.Properties.VariableNames = ["num","d","D","B","C","C0","Pu",...
     "ref_speed","max_speed","mass","name_null","designations", ...
     "capped_one_side","D_null","d1","d2","D1","D2","r1,2","da_min","da_max","Da_max","ra_max","kr","f0"];
@@ -82,20 +82,51 @@ bearing_sh3_i = sh3_i(i);
 bearing_sh3_n = sh3_n(i);
 bearing3_hours = (bearing_sh3_n / n_4) / minPerHour;
 % display as tables:
-bearing_tab_sh1 = table(b_data.d(bearing_sh1_i), b_data.capped_one_side(bearing_sh1_i), bearing_sh1_n, ...
-    bearing1_hours, ...
-    'VariableNames', {'Bearing Diameter', 'Bearing Name', 'Bearing Lifetime', 'lifetime hours'});
-fprintf("Bearing for shaft 1:\n")
+% shaft 1
+data_sh1 = [b_data.d(bearing_sh1_i);
+    b_data.D(bearing_sh1_i);
+    b_data.B(bearing_sh1_i);
+    b_data.d2(bearing_sh1_i);
+    b_data.mass(bearing_sh1_i);
+    b_data.max_speed(bearing_sh1_i);
+    string(b_data.capped_one_side(bearing_sh1_i));
+    bearing_sh1_n*1e-6;
+    bearing1_hours;];
+data_names = ["Bore diameter [mm]";
+    "Outer diameter [mm]";
+    "Width [mm]";
+    "d2 [mm]";
+    "mass [kg]";
+    "limiting speed [rpm]";
+    "Name";
+    "lifetime cycles [millions of revs]";
+    "lifetime hours [h]"];
+bearing_tab_sh1 = table(data_sh1,data_names,'VariableNames',["Bearing 1 data","variables"]');
 disp(bearing_tab_sh1);
-bearing_tab_sh2 = table(b_data.d(bearing_sh2_i), b_data.capped_one_side(bearing_sh2_i), bearing_sh2_n, ...
-    bearing2_hours, ...
-    'VariableNames', {'Bearing Diameter', 'Bearing Name', 'Bearing Lifetime', 'lifetime hours'});
-fprintf("Bearing for shaft 2:\n")
+% shaft 2
+data_sh2 = [b_data.d(bearing_sh2_i);
+    b_data.D(bearing_sh2_i);
+    b_data.B(bearing_sh2_i);
+    b_data.d2(bearing_sh2_i);
+    b_data.mass(bearing_sh2_i);
+    b_data.max_speed(bearing_sh2_i);
+    string(b_data.capped_one_side(bearing_sh2_i));
+    bearing_sh2_n*1e-6;
+    bearing2_hours;];
+bearing_tab_sh2 = table(data_sh2,data_names,'VariableNames',["Bearing 2 data","variables"]');
+
 disp(bearing_tab_sh2);
-bearing_tab_sh3 = table(b_data.d(bearing_sh3_i), b_data.capped_one_side(bearing_sh3_i), bearing_sh3_n, ...
-    bearing3_hours, ...
-    'VariableNames', {'Bearing Diameter', 'Bearing Name', 'Bearing Lifetime', 'lifetime hours'});
-fprintf("Bearing for shaft 3:\n")
+% shaft 3
+data_sh3 = [b_data.d(bearing_sh3_i);
+    b_data.D(bearing_sh3_i);
+    b_data.B(bearing_sh3_i);
+    b_data.d2(bearing_sh3_i);
+    b_data.mass(bearing_sh3_i);
+    b_data.max_speed(bearing_sh3_i);
+    string(b_data.capped_one_side(bearing_sh3_i));
+    bearing_sh3_n*1e-6;
+    bearing3_hours;];
+bearing_tab_sh3 = table(data_sh3,data_names,'VariableNames',["Bearing 3 data","variables"]');
 disp(bearing_tab_sh3);
 
 %% Ball Bearing Selection
@@ -119,7 +150,7 @@ function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R
     Y_list = [2.3,1.99,1.71,1.55,1.45,1.31,1.15,1.04,1.00]; % table 9 pg 257 skf datasheet
     F0Fa_C0_list = [0.172,0.345,0.689,1.03,1.38,2.07,3.45,5.17,6.89];
     e_list = [0.19, 0.22, 0.26, 0.28, 0.30, 0.34, 0.38, 0.42, 0.44];
-    regex_seal = '-RS1|-RS2|-RSH|-RSH2|RSJEM'; % bearings with contact seal on one side, pg 258 skf datasheet
+    regex_seal = "-RS1|-RS2|-RSH|-RSH2|RSJEM"; % bearings with contact seal on one side, pg 258 skf datasheet
     a_skf = 1; % life modification factor 
     
     bearing_index = -1;
@@ -127,7 +158,7 @@ function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R
     for i = 1:length(d_list)
         name_cell = desg_list(i);
         % check if bearing fits case:
-        % (dosen't check for limiting RPM as it's much higher than current case)
+        % (dosen"t check for limiting RPM as it"s much higher than current case)
         if d_list(i) >= d_min && ...
            ~isempty(regexp(string(name_cell{1}),regex_seal,"once"))
             e_check_val = (f0_list(i) * abs(F_a)) / (C_0_list(i)*1e3); % tab 9 pg 257 skf datasheet
@@ -147,8 +178,8 @@ function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R
             L_P = (a_skf* (K_R*((C_dyn_list(i)*1e3)/P)^3) ) * 1e6; % eq 11.20a pg 701 machine design
 
             if (L_P > cycles) && (P < C_0_list(i)*1e3)
-                P = P*1e-3
-                (C_dyn_list(i)*1e3)/(P*1e3)
+                % P = P*1e-3
+                % (C_dyn_list(i)*1e3)/(P*1e3)
                 bearing_index = i; % smallest fitting bearing found, exit loop
                 lifetime = L_P;
                 break
