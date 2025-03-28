@@ -1,9 +1,10 @@
 clc; close all; clear;
 
 lifetime = 10; % [years]
-daysPerYear = 365.25; % [days/year]
+daysPerYear = 260; % [days/year] work days
 work_cycle = 10; % [hours/day]
 minPerHour = 60; % [min/hour]
+hours = lifetime * daysPerYear * work_cycle % [hours]
 ly = lifetime * daysPerYear * work_cycle * minPerHour; % [min]
 
 % Import from Gear Sizing
@@ -19,9 +20,11 @@ load('loadingDiagram_shaft3.mat', 'F_Fa', 'F_Fr', 'G_Fa', 'G_Fr')
 
 % Import from Shaft Design
 %load('shaftDesign.mat', 'd_S11', 'd_C')
-d_min_sh1 = 10; % TEMP [mm]
-d_min_sh2 = 30; % TEMP [mm]
-d_min_sh3 = 6; % TEMP [mm]
+d_min_B = 24; % TEMP [mm]
+d_min_C = 24; % TEMP [mm]
+d_min_D = 40; % TEMP [mm]
+d_min_E = 40; % TEMP [mm]
+d_min_sh3 = 20; % TEMP [mm]
 
 % load bearing .CSV file
 % data from: https://www.skf.com/group/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings#cid-493604
@@ -38,19 +41,19 @@ cycles_lifetime_sh3 = ly * n_4;
 cycles_tab = table(cycles_lifetime_sh1,cycles_lifetime_sh2,cycles_lifetime_sh3)
 
 % Reliability factor, weibull distribution - tab 11-5 pg 701 machine design
-K_R = 0.62; % R% = 95
+K_R = 1.0; % R% = 90
 
 % shaft 1 bearings B , C
-[b_index_B,n_bB] = ball_bearing_sizing(d_min_sh1 ,B_Fr,B_Fa,cycles_lifetime_sh1, ...
+[b_index_B,n_bB] = ball_bearing_sizing(d_min_B ,B_Fr,B_Fa,cycles_lifetime_sh1, ...
     K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side); 
-[b_index_C,n_bC] = ball_bearing_sizing(d_min_sh1 ,C_Fr,C_Fa,cycles_lifetime_sh1, ...
+[b_index_C,n_bC] = ball_bearing_sizing(d_min_C ,C_Fr,C_Fa,cycles_lifetime_sh1, ...
     K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side); 
 sh1_i = [b_index_B,b_index_C];
 sh1_n = [n_bB,n_bC];
 % shaft 2: D E
-[b_index_D,n_bD] = ball_bearing_sizing(d_min_sh2 ,D_Fr,D_Fa,cycles_lifetime_sh2, ...
+[b_index_D,n_bD] = ball_bearing_sizing(d_min_D ,D_Fr,D_Fa,cycles_lifetime_sh2, ...
     K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side); 
-[b_index_E,n_bE] = ball_bearing_sizing(d_min_sh2 ,E_Fr,E_Fa,cycles_lifetime_sh2, ...
+[b_index_E,n_bE] = ball_bearing_sizing(d_min_E ,E_Fr,E_Fa,cycles_lifetime_sh2, ...
     K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side); 
 sh2_i = [b_index_D,b_index_E];
 sh2_n = [n_bD,n_bE];
@@ -67,25 +70,31 @@ sh3_n = [n_bF,n_bG];
 [~,i] = max([b_data.C0(sh1_i(1)),b_data.C0(sh1_i(2))]);
 bearing_sh1_i = sh1_i(i);
 bearing_sh1_n = sh1_n(i);
+bearing1_hours = (bearing_sh1_n / n_1) / minPerHour;
 % shaft 2:
 [~,i] = max([b_data.C0(sh2_i(1)),b_data.C0(sh2_i(2))]);
 bearing_sh2_i = sh2_i(i);
 bearing_sh2_n = sh2_n(i);
+bearing2_hours = (bearing_sh2_n / n_2) / minPerHour;
 % shaft 3:
 [~,i] = max([b_data.C0(sh3_i(1)),b_data.C0(sh3_i(2))]);
 bearing_sh3_i = sh3_i(i);
 bearing_sh3_n = sh3_n(i);
+bearing3_hours = (bearing_sh3_n / n_4) / minPerHour;
 % display as tables:
 bearing_tab_sh1 = table(b_data.d(bearing_sh1_i), b_data.capped_one_side(bearing_sh1_i), bearing_sh1_n, ...
-    'VariableNames', {'Bearing Diameter', 'Bearing Name', 'Bearing Lifetime'});
+    bearing1_hours, ...
+    'VariableNames', {'Bearing Diameter', 'Bearing Name', 'Bearing Lifetime', 'lifetime hours'});
 fprintf("Bearing for shaft 1:\n")
 disp(bearing_tab_sh1);
 bearing_tab_sh2 = table(b_data.d(bearing_sh2_i), b_data.capped_one_side(bearing_sh2_i), bearing_sh2_n, ...
-    'VariableNames', {'Bearing Diameter', 'Bearing Name', 'Bearing Lifetime'});
+    bearing2_hours, ...
+    'VariableNames', {'Bearing Diameter', 'Bearing Name', 'Bearing Lifetime', 'lifetime hours'});
 fprintf("Bearing for shaft 2:\n")
 disp(bearing_tab_sh2);
 bearing_tab_sh3 = table(b_data.d(bearing_sh3_i), b_data.capped_one_side(bearing_sh3_i), bearing_sh3_n, ...
-    'VariableNames', {'Bearing Diameter', 'Bearing Name', 'Bearing Lifetime'});
+    bearing3_hours, ...
+    'VariableNames', {'Bearing Diameter', 'Bearing Name', 'Bearing Lifetime', 'lifetime hours'});
 fprintf("Bearing for shaft 3:\n")
 disp(bearing_tab_sh3);
 
@@ -111,6 +120,7 @@ function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R
     F0Fa_C0_list = [0.172,0.345,0.689,1.03,1.38,2.07,3.45,5.17,6.89];
     e_list = [0.19, 0.22, 0.26, 0.28, 0.30, 0.34, 0.38, 0.42, 0.44];
     regex_seal = '-RS1|-RS2|-RSH|-RSH2|RSJEM'; % bearings with contact seal on one side, pg 258 skf datasheet
+    a_skf = 1; % life modification factor 
     
     bearing_index = -1;
     lifetime = -1;
@@ -118,7 +128,7 @@ function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R
         name_cell = desg_list(i);
         % check if bearing fits case:
         % (dosen't check for limiting RPM as it's much higher than current case)
-        if d_list(i) > d_min && ...
+        if d_list(i) >= d_min && ...
            ~isempty(regexp(string(name_cell{1}),regex_seal,"once"))
             e_check_val = (f0_list(i) * abs(F_a)) / (C_0_list(i)*1e3); % tab 9 pg 257 skf datasheet
             [~,Y_index] = closest(F0Fa_C0_list,e_check_val);
@@ -128,11 +138,17 @@ function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R
             if (abs(F_a)/(F_r*V)) <= e % axal load is irrelevant, pg 256 skf datasheet
                 P = F_r; % [N] equivalent load
             else
-                P = X * V * F_r + Y * F_a; % [N] equivalent load, eq 11.22a pg 704 machine design
+                P = X * V * F_r + Y * abs(F_a); % [N] equivalent load, eq 11.22a pg 704 machine design
             end
+            if P == 0
+                warning("Divide by zero")
+            end
+            % calculate lifetime
+            L_P = (a_skf* (K_R*((C_dyn_list(i)*1e3)/P)^3) ) * 1e6; % eq 11.20a pg 701 machine design
 
-            L_P = ( K_R*((C_dyn_list(i)*1e3)/P)^3 ) * 1e6; % eq 11.20a pg 701 machine design
             if (L_P > cycles) && (P < C_0_list(i)*1e3)
+                P = P*1e-3
+                (C_dyn_list(i)*1e3)/(P*1e3)
                 bearing_index = i; % smallest fitting bearing found, exit loop
                 lifetime = L_P;
                 break

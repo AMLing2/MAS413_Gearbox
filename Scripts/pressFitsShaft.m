@@ -36,10 +36,11 @@ function [p,T_max,d_c,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_o,sigma_r_s
     C_s = 0.0052;
     C_i_8 = 0.0010;
     C_i_7 = 0.0005;
-    i_7 = C_i_7 * d_s; % [mm] average interference h7
-    i_8 = C_i_8 * d_s; % [mm] average interference h8
+    i_7 = C_i_7 * d_s; % [mm] average interference h7p6
+    i_8 = C_i_8 * d_s; % [mm] average interference h7s6
+    % h7s6 from table 4.1a lecture 0.78
     
-    delta_r = i_7/2; % is dividing by 2 correct here?
+    delta_r = i_8/2;
     % resize:
     d_c = (r - delta_r)*2; % [mm] diameter of gear / hub inner hole
     h = C_h * d_c^(1/3); % hub inner hole diameter tolerence 
