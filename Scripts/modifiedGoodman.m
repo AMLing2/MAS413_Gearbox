@@ -5,8 +5,8 @@ function modifiedGoodman(S_y, S_yc, S_ut, shaft_design_results, titleName)
     % (Work in progress)
 
     S_e = shaft_design_results(:, 1);
-    sigma_vm_mean = shaft_design_results(:, 2);
-    sigma_vm_amp = shaft_design_results(:, 3);
+    sigma_e_m = shaft_design_results(:, 2);
+    sigma_e_a = shaft_design_results(:, 3);
     n_y = shaft_design_results(:, 4);
     n_f = shaft_design_results(:, 5);
 
@@ -54,7 +54,7 @@ function modifiedGoodman(S_y, S_yc, S_ut, shaft_design_results, titleName)
     plot(0, S_e(i), 'x', 'Color', marker_colour{i}, 'MarkerSize', 6); % S_e point
 
     % Calculated point
-    plot(sigma_vm_mean(i), sigma_vm_amp(i), 'ko', 'MarkerFaceColor', marker_colour{i}, 'MarkerSize', 6);
+    plot(sigma_e_m(i), sigma_e_a(i), 'ko', 'MarkerFaceColor', marker_colour{i}, 'MarkerSize', 6);
     
     end
 

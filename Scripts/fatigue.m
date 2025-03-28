@@ -6,16 +6,15 @@ MPa_to_ksi = 0.1450377377; % [MPa] to [ksi] conversion factor
 P = cs(1); % [N] % Axial
 T = cs(2); % [Nmm] % Torque
 M = cs(3); % [Nmm] % Bending
-
-% Neglect shear
-V_y = 0; % [N] % Shear
-V_z = 0; % [N] % Shear
+V_y = cs(4); % [N] % Shear
+V_z = cs(5); % [N] % Shear
 
 % Geometry for stress concentration
-d_shaft  = cs(4); % [mm] Shaft diameter
-r_fillet = cs(5); % [mm] Notch fillet radius
-D_d      = cs(6); % [-]
-keyseat  = cs(8); % Is 1 for keyseat, 0 for shoulder-fillet
+d_shaft  = cs(6); % [mm] Shaft diameter
+r_fillet = cs(7); % [mm] Notch fillet radius
+D_d      = cs(8); % [-]
+keyseat  = cs(9); % Is 1 for keyseat, 0 for shoulder-fillet
+K_t_keyseat = cs(10); % Stress concentration for keyseat
 
 % Calculated values
 R = (d_shaft/2);  % [mm] Shaft radius
@@ -232,44 +231,51 @@ tau_z_tor_a_nom   = (tau_z_tor_max_nom - tau_z_tor_min_nom)/2; % [MPa]
 
 % Axial
 sigma_x_axial_m = sigma_x_axial_m_nom * K_f_axial; % [MPa]
-sigma_x_axial_a = sigma_x_axial_a_nom  * K_f_axial; % [MPa]
+sigma_x_axial_a = sigma_x_axial_a_nom * K_f_axial; % [MPa]
 
 % Shear
-tau_y_shear_m = tau_y_shear_mean_nom * K_f_tor; % [MPa]
-tau_y_shear_a = tau_y_shear_amp_nom  * K_f_tor; % [MPa]
-tau_z_shear_m = tau_z_shear_mean_nom * K_f_tor; % [MPa]
-tau_z_shear_a = tau_z_shear_amp_nom  * K_f_tor; % [MPa]
+tau_y_shear_m = tau_y_shear_m_nom * K_f_tor; % [MPa]
+tau_y_shear_a = tau_y_shear_a_nom * K_f_tor; % [MPa]
+tau_z_shear_m = tau_z_shear_m_nom * K_f_tor; % [MPa]
+tau_z_shear_a = tau_z_shear_a_nom * K_f_tor; % [MPa]
 
 % Bending
 sigma_x_bend_m = sigma_x_bend_m_nom * K_f_bend; % [MPa]
-sigma_x_bend_a = sigma_x_bend_a_nom  * K_f_bend; % [MPa]
+sigma_x_bend_a = sigma_x_bend_a_nom * K_f_bend; % [MPa]
 
 % Torsion
 tau_y_tor_m = tau_y_tor_m_nom * K_f_tor; % [MPa]
-tau_y_tor_a = tau_y_tor_a_nom  * K_f_tor; % [MPa]
+tau_y_tor_a = tau_y_tor_a_nom * K_f_tor; % [MPa]
 tau_z_tor_m = tau_z_tor_m_nom * K_f_tor; % [MPa]
-tau_z_tor_a = tau_z_tor_a_nom  * K_f_tor; % [MPa]
+tau_z_tor_a = tau_z_tor_a_nom * K_f_tor; % [MPa]
 
 % Resultant mean and amplitude % MAS236 L3 s23-24
 sigma_x_m = sigma_x_axial_m + sigma_x_bend_m; % [MPa]
 sigma_x_a = sigma_x_axial_a + sigma_x_bend_a; % [MPa]
 
-% Shear neglected
-tau_y_m = tau_y_tor_m; % [MPa]
-tau_y_a = tau_y_tor_a;  % [MPa]
-tau_z_m = tau_z_tor_m; % [MPa]
-tau_z_a = tau_z_tor_a;  % [MPa]
-
-% Included shear (done incorrectly)
-% tau_y_m = tau_y_shear_m + tau_y_tor_m; % [MPa]
-% tau_y_a =  tau_y_shear_a + tau_y_tor_a;   % [MPa]
-% tau_z_m = tau_z_shear_m + tau_z_tor_m; % [MPa]
-% tau_z_a =  tau_z_shear_a + tau_z_tor_a;   % [MPa]
+% Included shear NOT SURE IF CORRECT - RKH
+tau_y_m = tau_y_shear_m + tau_y_tor_m; % [MPa]
+tau_y_a = tau_y_shear_a + tau_y_tor_a; % [MPa]
+tau_z_m = tau_z_shear_m + tau_z_tor_m; % [MPa]
+tau_z_a = tau_z_shear_a + tau_z_tor_a; % [MPa]
 
 % Von Mises Equivalent Stress
 sigma_e_m   = sqrt(sigma_x_m^2 + 3*(tau_y_m^2+tau_z_m^2)); % [MPa]
-sigma_e_a   = sqrt(sigma_x_a^2 + 3*(tau_y_a^2+tau_z_a^2));   % [MPa]
+sigma_e_a   = sqrt(sigma_x_a^2 + 3*(tau_y_a^2+tau_z_a^2)); % [MPa]
 sigma_e_max = sigma_e_m + sigma_e_a; % [MPa]
+fprintf('Included shear  -->  sigma_e = %4f\n', sigma_e_max)
+
+% Shear neglected
+tau_y_m = tau_y_tor_m; % [MPa]
+tau_y_a = tau_y_tor_a; % [MPa]
+tau_z_m = tau_z_tor_m; % [MPa]
+tau_z_a = tau_z_tor_a; % [MPa]
+
+% Von Mises Equivalent Stress
+sigma_e_m   = sqrt(sigma_x_m^2 + 3*(tau_y_m^2+tau_z_m^2)); % [MPa]
+sigma_e_a   = sqrt(sigma_x_a^2 + 3*(tau_y_a^2+tau_z_a^2)); % [MPa]
+sigma_e_max = sigma_e_m + sigma_e_a; % [MPa]
+fprintf('Neglected shear -->  sigma_e = %4f\n', sigma_e_max)
 
 
 %%%%% Diameter Equation %%%%%
