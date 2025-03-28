@@ -86,7 +86,7 @@ bearing3_hours = (bearing_sh3_n / n_4) / minPerHour;
 data_sh1 = [b_data.d(bearing_sh1_i);
     b_data.D(bearing_sh1_i);
     b_data.B(bearing_sh1_i);
-    b_data.d2(bearing_sh1_i);
+    b_data.da_max(bearing_sh1_i);
     b_data.mass(bearing_sh1_i);
     b_data.max_speed(bearing_sh1_i);
     string(b_data.capped_one_side(bearing_sh1_i));
@@ -95,7 +95,7 @@ data_sh1 = [b_data.d(bearing_sh1_i);
 data_names = ["Bore diameter [mm]";
     "Outer diameter [mm]";
     "Width [mm]";
-    "d2 [mm]";
+    "da_max [mm]";
     "mass [kg]";
     "limiting speed [rpm]";
     "Name";
@@ -107,7 +107,7 @@ disp(bearing_tab_sh1);
 data_sh2 = [b_data.d(bearing_sh2_i);
     b_data.D(bearing_sh2_i);
     b_data.B(bearing_sh2_i);
-    b_data.d2(bearing_sh2_i);
+    b_data.da_max(bearing_sh2_i);
     b_data.mass(bearing_sh2_i);
     b_data.max_speed(bearing_sh2_i);
     string(b_data.capped_one_side(bearing_sh2_i));
@@ -120,7 +120,7 @@ disp(bearing_tab_sh2);
 data_sh3 = [b_data.d(bearing_sh3_i);
     b_data.D(bearing_sh3_i);
     b_data.B(bearing_sh3_i);
-    b_data.d2(bearing_sh3_i);
+    b_data.da_max(bearing_sh3_i);
     b_data.mass(bearing_sh3_i);
     b_data.max_speed(bearing_sh3_i);
     string(b_data.capped_one_side(bearing_sh3_i));
@@ -151,7 +151,7 @@ function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R
     F0Fa_C0_list = [0.172,0.345,0.689,1.03,1.38,2.07,3.45,5.17,6.89];
     e_list = [0.19, 0.22, 0.26, 0.28, 0.30, 0.34, 0.38, 0.42, 0.44];
     regex_seal = "-RS1|-RS2|-RSH|-RSH2|RSJEM"; % bearings with contact seal on one side, pg 258 skf datasheet
-    a_skf = 1; % life modification factor 
+    a_skf = 1; % life modification factor, pg 92-98 skf datasheet
     
     bearing_index = -1;
     lifetime = -1;
