@@ -26,14 +26,13 @@ r_fillet1 = 2; % [mm]
 D_d_1 = 1.2; % [-] ASK ABOUT THIS - RKH
 
 % Import
-load('loadingDiagram_shaft1.mat', 'cs_A', 'cs_0', 'cs_1', 'cs_2', ...
-    'd_B', 'd_S1', 'd_12', 'd_C')
+load('loadingDiagram_shaft1.mat', 'cs_A', 'cs_0', 'cs_1', 'cs_2')
 
-% [m] to [mm]
-d_B  = d_B*1000;  % [mm]
-d_S1 = d_S1*1000; % [mm]
-d_12 = d_12*1000; % [mm]
-d_C  = d_C*1000;  % [mm]
+% Input parameters
+d_B  = 30;        % [mm] 
+d_S1 = d_B;       % [mm]
+d_12 = d_S1 + 10; % [mm]
+d_C  = d_B;       % [mm]
 
 cs_A = [cs_A d_B r_keyseat1 D_d_1 1 K_t_keyseat1];
 cs_0 = [cs_0 d_B r_fillet1  D_d_1 0 0];
@@ -45,15 +44,14 @@ r_fillet2 = 2; % [mm]
 D_d_2 = 1.2; % [-] ASK ABOUT THIS - RKH
 
 % Import
-load('loadingDiagram_shaft2.mat', 'cs_3', 'cs_4', 'cs_5', 'cs_6', ...
-    'd_E', 'd_S22', 'd_45', 'd_S21', 'd_D')
+load('loadingDiagram_shaft2.mat', 'cs_3', 'cs_4', 'cs_5', 'cs_6')
 
-% [m] to [mm]
-d_E = d_E*1000;     % [mm]
-d_S22 = d_S22*1000; % [mm]
-d_45 = d_45*1000;   % [mm]
-d_S21 = d_S21*1000; % [mm]
-d_D = d_D*1000;     % [mm]
+% Input parameters
+d_E    = 30; % [mm] 
+d_S2_2 = 30; % [mm]
+d_45   = 30; % [mm]
+d_S2_1 = 30; % [mm]
+d_D    = 30; % [mm]
 
 cs_6 = [cs_6 d_E    r_fillet2 D_d_2 0 0];
 cs_5 = [cs_5 d_S22  r_fillet2 D_d_2 0 0];
@@ -67,14 +65,13 @@ r_fillet3 = 2; % [mm]
 D_d_3 = 1.2; % !! ASK ABOUT THIS !!
 
 % Import
-load('loadingDiagram_shaft3.mat', 'cs_7', 'cs_8', 'cs_9', 'cs_H', ...
-    'd_F', 'd_78', 'd_S3', 'd_G')
+load('loadingDiagram_shaft3.mat', 'cs_7', 'cs_8', 'cs_9', 'cs_H')
 
-% [m] to [mm]
-d_F = d_F*1000;   % [mm]
-d_78 = d_78*1000; % [mm]
-d_S3 = d_S3*1000; % [mm]
-d_G = d_G*1000;   % [mm]
+% Input parameters
+d_F  = 30; % [mm] 
+d_78 = 30; % [mm]
+d_S3 = 30; % [mm]
+d_G  = 30; % [mm]
 
 cs_7 = [cs_7 d_F  r_fillet3  D_d_3 0 0];
 cs_8 = [cs_8 d_78 r_fillet3  D_d_3 0 0];
@@ -102,7 +99,7 @@ for i = 1:size(shaft1_AllCS, 1)
     fprintf('\n------ %s ------\n', shaft1_names{i});
     cs = shaft1_AllCS(i, :);
     run("fatigue.m")
-    shaft1_results(i, :) = [S_e, sigma_vm_mean, sigma_vm_amp, n_y, n_f];
+    shaft1_results(i, :) = [S_e, sigma_e_m, sigma_e_a, n_y, n_f];
 end
 
 modifiedGoodman(S_y, S_yc, S_ut, shaft1_results, 'Shaft 1')
@@ -114,7 +111,7 @@ for i = 1:size(shaft2_AllCS, 1)
     fprintf('\n------ %s ------\n', shaft2_names{i});
     cs = shaft2_AllCS(i, :);
     run("fatigue.m")
-    shaft2_results(i, :) = [S_e, sigma_vm_mean, sigma_vm_amp, n_y, n_f];
+    shaft2_results(i, :) = [S_e, sigma_e_m, sigma_e_a, n_y, n_f];
 end
 
 modifiedGoodman(S_y, S_yc, S_ut, shaft2_results, 'Shaft 2')
@@ -126,7 +123,7 @@ for i = 1:size(shaft3_AllCS, 1)
     fprintf('\n------ %s ------\n', shaft3_names{i});
     cs = shaft3_AllCS(i, :);
     run("fatigue.m")
-    shaft3_results(i, :) = [S_e, sigma_vm_mean, sigma_vm_amp, n_y, n_f];
+    shaft3_results(i, :) = [S_e, sigma_e_m, sigma_e_a, n_y, n_f];
 end
 
 modifiedGoodman(S_y, S_yc, S_ut, shaft3_results, 'Shaft 3')

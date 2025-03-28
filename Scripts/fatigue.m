@@ -3,13 +3,13 @@ MPa_to_ksi = 0.1450377377; % [MPa] to [ksi] conversion factor
 
 %%%%% Imported values from shaftDesign.m %%%%%
 % Forces
-P_x = cs(1); % [N] % Axial
-T   = cs(2); % [Nmm] % Torque
-M   = cs(3); % [Nmm] % Bending
+P = cs(1); % [N] % Axial
+T = cs(2); % [Nmm] % Torque
+M = cs(3); % [Nmm] % Bending
 
 % Neglect shear
-V_xy = 0; % [N] % Shear
-V_xz = 0; % [N] % Shear
+V_y = 0; % [N] % Shear
+V_z = 0; % [N] % Shear
 
 % Geometry for stress concentration
 d_shaft  = cs(4); % [mm] Shaft diameter
@@ -24,66 +24,6 @@ I = (pi/4)*R^4;   % [mm^4] Moment of inertia (I_x = I_y)
 I_p = (pi/2)*R^4; % [mm^4] Polar moment of inertia
 
 
-%%%%% Max / Min forces %%%%%
-% Axial (constant)
-P_x_max = P_x; % [N]
-P_x_min = P_x; % [N]
-
-% Shear (fully reversed)
-V_xy_max =  V_xy; % [N]
-V_xy_min = -V_xy; % [N]
-V_xz_max =  V_xz; % [N]
-V_xz_min = -V_xz; % [N]
-
-% Bending (fully reversed)
-M_max =  M; % [Nmm]
-M_min = -M; % [Nmm]
-M_mean = (M_max + M_min)/2; % [Nmm]
-M_amp =  (M_max - M_min)/2; % [Nmm]
-
-% Torque (constant)
-T_max = T; % [Nmm]
-T_min = T; % [Nmm]
-T_mean = (T_max + T_min)/2; % [Nmm]
-T_amp =  (T_max - T_min)/2; % [Nmm]
-
-
-%%%%% Mean & Amplitude nominal stress %%%%% MAS236 L3 s15-18
-% Axial
-sigma_x_axial_max_nom = abs(P_x_max)/A; % [MPa]
-sigma_x_axial_min_nom = abs(P_x_max)/A; % [MPa]
-sigma_x_axial_mean_nom = (sigma_x_axial_max_nom + sigma_x_axial_min_nom)/2; % [MPa]
-sigma_x_axial_amp_nom =  (sigma_x_axial_max_nom - sigma_x_axial_min_nom)/2; % [MPa]
-
-% Shear
-% tau_xy_shear_max_nom = (4/3)*(abs(V_xy_max)/A); % [MPa]
-% tau_xy_shear_min_nom = (4/3)*(V_xy_min/A); % [MPa]
-% tau_xy_shear_mean_nom = (tau_xy_shear_max_nom + tau_xy_shear_min_nom)/2; % [MPa]
-% tau_xy_shear_amp_nom =  (tau_xy_shear_max_nom - tau_xy_shear_min_nom)/2; % [MPa]
-
-% tau_xz_shear_max_nom = (4/3)*(abs(V_xz_max)/A); % [MPa]
-% tau_xz_shear_min_nom = (4/3)*(V_xz_min/A); % [MPa]
-% tau_xz_shear_mean_nom = (tau_xz_shear_max_nom + tau_xz_shear_min_nom)/2; % [MPa]
-% tau_xz_shear_amp_nom =  (tau_xz_shear_max_nom - tau_xz_shear_min_nom)/2; % [MPa]
-
-% Bending
-sigma_x_bend_max_nom = (M_max*R)/I; % [MPa]
-sigma_x_bend_min_nom = (M_min*R)/I; % [MPa]
-sigma_x_bend_mean_nom = (sigma_x_bend_max_nom + sigma_x_bend_min_nom)/2; % [MPa]
-sigma_x_bend_amp_nom =  (sigma_x_bend_max_nom - sigma_x_bend_min_nom)/2; % [MPa]
-
-% Torsion
-tau_xy_tor_max_nom = (T_max*R)/I_p; % [MPa]
-tau_xy_tor_min_nom = (T_min*R)/I_p; % [MPa]
-tau_xy_tor_mean_nom = (tau_xy_tor_max_nom + tau_xy_tor_min_nom)/2; % [MPa]
-tau_xy_tor_amp_nom =  (tau_xy_tor_max_nom - tau_xy_tor_min_nom)/2; % [MPa]
-
-tau_xz_tor_max_nom = (T_max*R)/I_p; % [MPa]
-tau_xz_tor_min_nom = (T_min*R)/I_p; % [MPa]
-tau_xz_tor_mean_nom = (tau_xz_tor_max_nom + tau_xz_tor_min_nom)/2; % [MPa]
-tau_xz_tor_amp_nom =  (tau_xz_tor_max_nom - tau_xz_tor_min_nom)/2; % [MPa]
-
-
 %%%%% Material data %%%%% Machine Design, Table A8 & A9 pg 1039-1040
 % "Key-value pair" not physical/mechanical key
 material_key = [355, 4140];
@@ -94,6 +34,7 @@ material_table = dictionary(material_key, material_data);
 S_y = material_table(material).S_y;
 S_ut = material_table(material).S_ut;
 S_yc = -S_y; % [MPa] Compressive yeild strength ! PLACEHOLDER VALUE must be incorporated with material data table
+
 
 %%%%% Neubler's Constant for Steels %%%%% Machine Design, Table 6-6 page 382
 S_ut_ksi_table = [50 55 60 70 80 90 100 110 120 130 140 160 180 200 220 240]; % [ksi]
@@ -161,57 +102,9 @@ if keyseat == 1
 end
 
 % Fatigue (dynamic) stress concentration foactors:
-K_f_bend = 1 + q * (K_t_bend - 1);   % Normal Stress
-K_f_tor = 1 + q * (K_t_tor - 1);     % Shear  Stress
+K_f_bend  = 1 + q * (K_t_bend - 1);  % Normal Stress
+K_f_tor   = 1 + q * (K_t_tor - 1);   % Shear  Stress
 K_f_axial = 1 + q * (K_t_axial - 1); % Normal Stress
-
-
-%%%%% Mean & Amplitude stress w/stress concentration (Ductile materials) %%%%%
-% MAS236 L3 s19 & s21
-
-% Axial
-sigma_x_axial_mean = sigma_x_axial_mean_nom * K_f_axial; % [MPa]
-sigma_x_axial_amp =  sigma_x_axial_amp_nom  * K_f_axial; % [MPa]
-
-% Shear
-% tau_xy_shear_max = tau_xy_shear_max_nom * K_f_tor; % [MPa] Only xy !!
-% tau_xy_shear_mean = tau_xy_shear_mean_nom * K_f_tor; % [MPa]
-% tau_xy_shear_amp =  tau_xy_shear_amp_nom  * K_f_tor; % [MPa]
-% tau_xz_shear_mean = tau_xz_shear_mean_nom * K_f_tor; % [MPa]
-% tau_xz_shear_amp =  tau_xz_shear_amp_nom  * K_f_tor; % [MPa]
-
-% Bending
-% sigma_x_bend = sigma_x_bend_max_nom * K_f_bend; % [MPa]
-sigma_x_bend_mean = sigma_x_bend_mean_nom * K_f_bend; % [MPa]
-sigma_x_bend_amp =  sigma_x_bend_amp_nom  * K_f_bend; % [MPa]
-
-% Torsion
-% tau_xy_tor_max = tau_xy_tor_max_nom * K_f_tor; % [MPa]
-tau_xy_tor_mean = tau_xy_tor_mean_nom * K_f_tor; % [MPa]
-tau_xy_tor_amp =  tau_xy_tor_amp_nom  * K_f_tor; % [MPa]
-tau_xz_tor_mean = tau_xz_tor_mean_nom * K_f_tor; % [MPa]
-tau_xz_tor_amp =  tau_xz_tor_amp_nom  * K_f_tor; % [MPa]
-
-% Resultant mean and amplitude % MAS236 L3 s23-24
-sigma_x_mean = sigma_x_axial_mean + sigma_x_bend_mean; % [MPa]
-sigma_x_amp =  sigma_x_axial_amp + sigma_x_bend_amp;   % [MPa]
-
-% Shear neglected
-tau_xy_mean = tau_xy_tor_mean; % [MPa]
-tau_xy_amp =  tau_xy_tor_amp;  % [MPa]
-tau_xz_mean = tau_xz_tor_mean; % [MPa]
-tau_xz_amp =  tau_xz_tor_amp;  % [MPa]
-
-% Included shear (done incorrectly)
-% tau_xy_mean = tau_xy_shear_mean + tau_xy_tor_mean; % [MPa]
-% tau_xy_amp =  tau_xy_shear_amp + tau_xy_tor_amp;   % [MPa]
-% tau_xz_mean = tau_xz_shear_mean + tau_xz_tor_mean; % [MPa]
-% tau_xz_amp =  tau_xz_shear_amp + tau_xz_tor_amp;   % [MPa]
-
-% Von Mises Equivalent Stress
-sigma_vm_mean = sqrt(sigma_x_mean^2 + 3*(tau_xy_mean^2+tau_xz_mean^2)); % [MPa]
-sigma_vm_amp =  sqrt(sigma_x_amp^2 + 3*(tau_xy_mean^2+tau_xz_amp^2));   % [MPa]
-sigma_vm_max = sigma_vm_mean + sigma_vm_amp; % [MPa]
 
 
 %%%%% Correction factors %%%%%
@@ -270,6 +163,115 @@ else
 end
 
 
+%%%%% Max & Min forces %%%%%
+% Axial (constant)
+P_max =  P; % [N]
+P_min =  P; % [N]
+P_m   = (P_max + P_min)/2; % [N]
+P_a   = (P_max - P_min)/2; % [N]
+
+% Shear (fully reversed)
+V_y_max =  V_y; % [N]
+V_y_min = -V_y; % [N]
+V_y_m   = (V_y_max + V_y_min)/2; % [N]
+V_y_a   = (V_y_max - V_y_min)/2; % [N]
+V_z_max =  V_z; % [N]
+V_z_min = -V_z; % [N]
+V_z_m   = (V_y_max + V_y_min)/2; % [N]
+V_z_a   = (V_y_max - V_y_min)/2; % [N]
+
+% Bending (fully reversed)
+M_max =  M; % [Nmm]
+M_min = -M; % [Nmm]
+M_m   = (M_max + M_min)/2; % [Nmm]
+M_a   = (M_max - M_min)/2; % [Nmm]
+
+% Torque (constant)
+T_max =  T; % [Nmm]
+T_min =  T; % [Nmm]
+T_m   = (T_max + T_min)/2; % [Nmm]
+T_a   = (T_max - T_min)/2; % [Nmm]
+
+
+%%%%% Mean & Amplitude nominal stress %%%%% MAS236 L3 s15-18
+% Axial
+sigma_x_axial_max_nom = (P_max)/A; % [MPa]
+sigma_x_axial_min_nom = (P_min)/A; % [MPa]
+sigma_x_axial_m_nom   = (sigma_x_axial_max_nom + sigma_x_axial_min_nom)/2; % [MPa]
+sigma_x_axial_a_nom   = (sigma_x_axial_max_nom - sigma_x_axial_min_nom)/2; % [MPa]
+
+% Shear
+tau_y_shear_max_nom = (4/3)*(V_y_max/A); % [MPa]
+tau_y_shear_min_nom = (4/3)*(V_y_min/A); % [MPa]
+tau_y_shear_m_nom   = (tau_y_shear_max_nom + tau_y_shear_min_nom)/2; % [MPa]
+tau_y_shear_a_nom   = (tau_y_shear_max_nom - tau_y_shear_min_nom)/2; % [MPa]
+tau_z_shear_max_nom = (4/3)*(V_z_max/A); % [MPa]
+tau_z_shear_min_nom = (4/3)*(V_z_min/A); % [MPa]
+tau_z_shear_m_nom   = (tau_z_shear_max_nom + tau_z_shear_min_nom)/2; % [MPa]
+tau_z_shear_a_nom   = (tau_z_shear_max_nom - tau_z_shear_min_nom)/2; % [MPa]
+
+% Bending
+sigma_x_bend_max_nom = (M_max*R)/I; % [MPa]
+sigma_x_bend_min_nom = (M_min*R)/I; % [MPa]
+sigma_x_bend_m_nom   = (sigma_x_bend_max_nom + sigma_x_bend_min_nom)/2; % [MPa]
+sigma_x_bend_a_nom   = (sigma_x_bend_max_nom - sigma_x_bend_min_nom)/2; % [MPa]
+
+% Torsion
+tau_y_tor_max_nom = (T_max*R)/I_p; % [MPa]
+tau_y_tor_min_nom = (T_min*R)/I_p; % [MPa]
+tau_y_tor_m_nom   = (tau_y_tor_max_nom + tau_y_tor_min_nom)/2; % [MPa]
+tau_y_tor_a_nom   = (tau_y_tor_max_nom - tau_y_tor_min_nom)/2; % [MPa]
+tau_z_tor_max_nom = (T_max*R)/I_p; % [MPa]
+tau_z_tor_min_nom = (T_min*R)/I_p; % [MPa]
+tau_z_tor_m_nom   = (tau_z_tor_max_nom + tau_z_tor_min_nom)/2; % [MPa]
+tau_z_tor_a_nom   = (tau_z_tor_max_nom - tau_z_tor_min_nom)/2; % [MPa]
+
+
+%%%%% Mean & Amplitude stress w/stress concentration (Ductile materials) %%%%%
+% MAS236 L3 s19 & s21
+
+% Axial
+sigma_x_axial_m = sigma_x_axial_m_nom * K_f_axial; % [MPa]
+sigma_x_axial_a = sigma_x_axial_a_nom  * K_f_axial; % [MPa]
+
+% Shear
+tau_y_shear_m = tau_y_shear_mean_nom * K_f_tor; % [MPa]
+tau_y_shear_a = tau_y_shear_amp_nom  * K_f_tor; % [MPa]
+tau_z_shear_m = tau_z_shear_mean_nom * K_f_tor; % [MPa]
+tau_z_shear_a = tau_z_shear_amp_nom  * K_f_tor; % [MPa]
+
+% Bending
+sigma_x_bend_m = sigma_x_bend_m_nom * K_f_bend; % [MPa]
+sigma_x_bend_a = sigma_x_bend_a_nom  * K_f_bend; % [MPa]
+
+% Torsion
+tau_y_tor_m = tau_y_tor_m_nom * K_f_tor; % [MPa]
+tau_y_tor_a = tau_y_tor_a_nom  * K_f_tor; % [MPa]
+tau_z_tor_m = tau_z_tor_m_nom * K_f_tor; % [MPa]
+tau_z_tor_a = tau_z_tor_a_nom  * K_f_tor; % [MPa]
+
+% Resultant mean and amplitude % MAS236 L3 s23-24
+sigma_x_m = sigma_x_axial_m + sigma_x_bend_m; % [MPa]
+sigma_x_a = sigma_x_axial_a + sigma_x_bend_a; % [MPa]
+
+% Shear neglected
+tau_y_m = tau_y_tor_m; % [MPa]
+tau_y_a = tau_y_tor_a;  % [MPa]
+tau_z_m = tau_z_tor_m; % [MPa]
+tau_z_a = tau_z_tor_a;  % [MPa]
+
+% Included shear (done incorrectly)
+% tau_y_m = tau_y_shear_m + tau_y_tor_m; % [MPa]
+% tau_y_a =  tau_y_shear_a + tau_y_tor_a;   % [MPa]
+% tau_z_m = tau_z_shear_m + tau_z_tor_m; % [MPa]
+% tau_z_a =  tau_z_shear_a + tau_z_tor_a;   % [MPa]
+
+% Von Mises Equivalent Stress
+sigma_e_m   = sqrt(sigma_x_m^2 + 3*(tau_y_m^2+tau_z_m^2)); % [MPa]
+sigma_e_a   = sqrt(sigma_x_a^2 + 3*(tau_y_a^2+tau_z_a^2));   % [MPa]
+sigma_e_max = sigma_e_m + sigma_e_a; % [MPa]
+
+
 %%%%% Diameter Equation %%%%%
 if first_iteration == "y"
     
@@ -310,16 +312,16 @@ if first_iteration == "y"
     C_size = 1;
 end
 
-% Endurance limit
-S_e = C_load*C_size*C_surf*C_temp*C_reliab*S_e_prime; % MAS236 L4 s5
+% Endurance limit % MAS236 L4 s5
+S_e = C_load*C_size*C_surf*C_temp*C_reliab*S_e_prime;
 
-% Diameter Equation: MAS236 L5 s6
-d_eq =  ( ( (16*n_f) /pi) * ( sqrt(4*(K_f_bend*M_amp)^2 + ...
-                                   3*(K_f_tor*T_amp)^2)/S_e + ...
-                              sqrt(4*(K_f_bend*M_mean)^2 + ...
-                                   3*(K_f_tor*T_mean)^2)/S_ut) )^(1/3);
+% Diameter Equation % MAS236 L5 s6
+d_eq =  ( ( (16*n_f) /pi) * ( sqrt(4*(K_f_bend*M_a)^2 + ...
+                                   3*(K_f_tor*T_a)^2)/S_e + ...
+                              sqrt(4*(K_f_bend*M_m)^2 + ...
+                                   3*(K_f_tor*T_m)^2)/S_ut) )^(1/3);
 fprintf('d_eq = %.2f [mm],  Recomended shaft diameter\n', d_eq)
-% Other formulation in equation (10.8) - Machine Design page 600 & 653
+% Other formulation in equation (10.8) % Machine Design pg 600 & 653
 
 % Quick check: failure againt yield at the first cycle % MAS236 L5 s7
 % sigma_prime_amp = sqrt(((32*K_f_bend*M_amp)/(pi*d_shaft^3)) + 3*((16*K_f_tor*T_amp)/(pi*d_shaft^3)));
@@ -351,10 +353,10 @@ fprintf('d_eq = %.2f [mm],  Recomended shaft diameter\n', d_eq)
 
 %%%%% Safety factors %%%%%
 % Static safety factor: MAS236 L5 s7
-if sigma_vm_mean >= 0
-    n_y = S_y/(sigma_vm_mean + sigma_vm_amp);
+if sigma_e_m >= 0
+    n_y = S_y/(sigma_e_m + sigma_e_a);
 else
-    n_y = S_y/abs(sigma_vm_mean - sigma_vm_amp);
+    n_y = S_y/abs(sigma_e_m - sigma_e_a);
 end
 
 if n_y > 1
@@ -364,17 +366,17 @@ else
 end
 
 % Fatigue safety factor: MAS236 L4 s19
-if ( sigma_vm_mean >= 0 ) && ...
-        ( (sigma_vm_mean + sigma_vm_amp) < S_y )
-    sigma_rev = sigma_vm_amp / ( 1 - (sigma_vm_mean/S_ut) );
-elseif ( sigma_vm_mean >= 0 ) && ...
-        ( (sigma_vm_mean + sigma_vm_amp) > S_y )
+if ( sigma_e_m >= 0 ) && ...
+        ( (sigma_e_m + sigma_e_a) < S_y )
+    sigma_rev = sigma_e_a / ( 1 - (sigma_e_m/S_ut) );
+elseif ( sigma_e_m >= 0 ) && ...
+        ( (sigma_e_m + sigma_e_a) > S_y )
     sigma_rev = S_y;
-elseif ( sigma_vm_mean < 0 ) && ...
-        ( abs(sigma_vm_mean - sigma_vm_amp) < abs(S_yc) )
-    sigma_rev = sigma_vm_amp;
-elseif ( sigma_vm_mean < 0 ) && ...
-        ( abs(sigma_vm_mean - sigma_vm_amp) > abs(S_yc) )
+elseif ( sigma_e_m < 0 ) && ...
+        ( abs(sigma_e_m - sigma_e_a) < abs(S_yc) )
+    sigma_rev = sigma_e_a;
+elseif ( sigma_e_m < 0 ) && ...
+        ( abs(sigma_e_m - sigma_e_a) > abs(S_yc) )
     sigma_rev = abs(S_yc);
 else
     fprintf('\sigma_{rev} error in Modified Goodman Diagram')
