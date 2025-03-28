@@ -102,7 +102,7 @@ for i = 1:size(shaft1_AllCS, 1)
     fprintf('\n------ %s ------\n', shaft1_names{i});
     cs = shaft1_AllCS(i, :);
     run("fatigue.m")
-    shaft1_results(i, :) = [S_e, sigma_vm_mean, sigma_vm_amp, n_y, n_f];
+    shaft1_results(i, :) = [S_e, sigma_e_m, sigma_e_a, n_y, n_f];
 end
 
 modifiedGoodman(S_y, S_yc, S_ut, shaft1_results, 'Shaft 1')
@@ -114,7 +114,7 @@ for i = 1:size(shaft2_AllCS, 1)
     fprintf('\n------ %s ------\n', shaft2_names{i});
     cs = shaft2_AllCS(i, :);
     run("fatigue.m")
-    shaft2_results(i, :) = [S_e, sigma_vm_mean, sigma_vm_amp, n_y, n_f];
+    shaft2_results(i, :) = [S_e, sigma_e_m, sigma_e_a, n_y, n_f];
 end
 
 modifiedGoodman(S_y, S_yc, S_ut, shaft2_results, 'Shaft 2')
@@ -126,7 +126,7 @@ for i = 1:size(shaft3_AllCS, 1)
     fprintf('\n------ %s ------\n', shaft3_names{i});
     cs = shaft3_AllCS(i, :);
     run("fatigue.m")
-    shaft3_results(i, :) = [S_e, sigma_vm_mean, sigma_vm_amp, n_y, n_f];
+    shaft3_results(i, :) = [S_e, sigma_e_m, sigma_e_a, n_y, n_f];
 end
 
 modifiedGoodman(S_y, S_yc, S_ut, shaft3_results, 'Shaft 3')
