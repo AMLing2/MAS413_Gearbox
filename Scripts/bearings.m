@@ -95,19 +95,19 @@ function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R
 % d_min: minimum rod diameter [mm] % add max diameter?
 % F_r: Force in the radial direction [N]
 % F_a: Force in the axial direction [N]
-% cycles: minimum lifetime cycles
+% cycles: minimum lifetime cycles [cycles]
 % K_R: Reliability factor for weibull distribution, tab 11-5 pg 7-1 machine design
 % d_list: list of bearing inner diameter [mm]
-% C_dyn_list: list of bearing dynamic load rating [N]
-% C_st_list: list of bearing static load rating [N]
-% f0_list: list of bearing f0 list
-% desg_list: list of bearing designations, input it 1x1 cell format from csv
+% C_dyn_list: list of bearing dynamic load rating [kN]
+% C_st_list: list of bearing static load rating [kN]
+% f0_list: list of bearing f0 list [-]
+% desg_list: list of bearing designations, input is 1x1 cell format from csv
 
     % values from Fig 11-24 pg 705 machine design:
     % AND from table 9 pg 257 of SKF bearings catalogue
     V = 1.0; % rotation factor, rotating inner ring
     X = 0.56; % radial factor for all deep groove bearings
-    Y_list = [2.3,1.99,1.71,1.55,1.45,1.31,1.15,1.04,1.00];
+    Y_list = [2.3,1.99,1.71,1.55,1.45,1.31,1.15,1.04,1.00]; % table 9 pg 257 skf datasheet
     F0Fa_C0_list = [0.172,0.345,0.689,1.03,1.38,2.07,3.45,5.17,6.89];
     e_list = [0.19, 0.22, 0.26, 0.28, 0.30, 0.34, 0.38, 0.42, 0.44];
     regex_seal = '-RS1|-RS2|-RSH|-RSH2|RSJEM'; % bearings with contact seal on one side, pg 258 skf datasheet
@@ -117,15 +117,15 @@ function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R
     for i = 1:length(d_list)
         name_cell = desg_list(i);
         % check if bearing fits case:
-        % (dosen't check for limiting RPM as much higher than current case)
+        % (dosen't check for limiting RPM as it's much higher than current case)
         if d_list(i) > d_min && ...
            ~isempty(regexp(string(name_cell{1}),regex_seal,"once"))
-            e_check_val = (f0_list(i) * abs(F_a)) / (C_0_list(i)*1e3);
+            e_check_val = (f0_list(i) * abs(F_a)) / (C_0_list(i)*1e3); % tab 9 pg 257 skf datasheet
             [~,Y_index] = closest(F0Fa_C0_list,e_check_val);
             Y = Y_list(Y_index);
             e = e_list(Y_index);
     
-            if (abs(F_a)/(F_r*V)) <= e % axal load is irrelevant
+            if (abs(F_a)/(F_r*V)) <= e % axal load is irrelevant, pg 256 skf datasheet
                 P = F_r; % [N] equivalent load
             else
                 P = X * V * F_r + Y * F_a; % [N] equivalent load, eq 11.22a pg 704 machine design
