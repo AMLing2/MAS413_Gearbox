@@ -274,6 +274,8 @@ cs_1 = [cs_1_P cs_1_T cs_1_M cs_1_Vy cs_1_Vz];
 cs_2_P = xy_P(cs_2_idx);
 cs_2_T = xy_T(cs_2_idx)*1e3; % [Nmm]
 cs_2_M = M(cs_2_idx)*1e3; % [Nmm]
+cs_2_Vy = xy_V(cs_2_idx);
+cs_2_Vz = xz_V(cs_2_idx);
 cs_2 = [cs_2_P cs_2_T cs_2_M cs_2_Vy cs_2_Vz];
 %%%% For Fatigue %%%%
 %%%% For Bearings %%%%
