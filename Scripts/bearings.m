@@ -29,7 +29,7 @@ csvfile = "../Data/combined_ballBearings_manual2.csv";
 b_data = readtable(csvfile,'NumHeaderLines',9,'DecimalSeparator','.','Delimiter',';');
 b_data.Properties.VariableNames = ["num","d","D","B","C","C0","Pu",...
     "ref_speed","max_speed","mass","name_null","designations", ...
-    "capped","capped_one_side","D_null","d1","d2","D1","D2","r1,2","da_min","da_max","Da_max","ra_max","kr","f0"];
+    "capped_one_side","D_null","d1","d2","D1","D2","r1,2","da_min","da_max","Da_max","ra_max","kr","f0"];
 
 % number of cycles through lifetime:
 cycles_lifetime_sh1 = ly * n_1; % number of cycles
@@ -55,12 +55,13 @@ sh1_n = [n_bB,n_bC];
 sh2_i = [b_index_D,b_index_E];
 sh2_n = [n_bD,n_bE];
 % shaft 3 : F G
-[b_index_F,n_bF] = ball_bearing_sizing(d_min_sh3 ,F_Fr,F_Fa,cycles_lifetime_sh3, ...
-    K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side);
 [b_index_G,n_bG] = ball_bearing_sizing(d_min_sh3 ,G_Fr,G_Fa,cycles_lifetime_sh3, ...
+    K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side);
+[b_index_F,n_bF] = ball_bearing_sizing(d_min_sh3 ,F_Fr,F_Fa,cycles_lifetime_sh3, ...
     K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side);
 sh3_i = [b_index_F,b_index_G];
 sh3_n = [n_bF,n_bG];
+
 % select bearing based on largest of two:
 % shaft 1:
 [~,i] = max([b_data.C0(sh1_i(1)),b_data.C0(sh1_i(2))]);
@@ -88,11 +89,6 @@ bearing_tab_sh3 = table(b_data.d(bearing_sh3_i), b_data.capped_one_side(bearing_
 fprintf("Bearing for shaft 3:\n")
 disp(bearing_tab_sh3);
 
-% chosenbearings = table(bearingdata.designations(b_index_B),bearingdata.designations(b_index_2),bearingdata.designations(b_index_3))
-% chosenbearing_d = table(bearingdata.d(b_index_B),bearingdata.d(b_index_2),bearingdata.d(b_index_3))
-% bearings_lifetime_nf = table(n_bB/cycles_lifetime_sh1,n_b2/cycles_lifetime_sh2,n_b3/cycles_lifetime_sh3)
-
-
 %% Ball Bearing Selection
 function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R,d_list,C_dyn_list,C_0_list,f0_list,desg_list)
     % Single Row Deep Groove (Conrad) Ball Bearing
@@ -110,7 +106,7 @@ function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R
     % values from Fig 11-24 pg 705 machine design:
     % AND from table 9 pg 257 of SKF bearings catalogue
     V = 1.0; % rotation factor, rotating inner ring
-    X = 0.56; % radial factor
+    X = 0.56; % radial factor for all deep groove bearings
     Y_list = [2.3,1.99,1.71,1.55,1.45,1.31,1.15,1.04,1.00];
     F0Fa_C0_list = [0.172,0.345,0.689,1.03,1.38,2.07,3.45,5.17,6.89];
     e_list = [0.19, 0.22, 0.26, 0.28, 0.30, 0.34, 0.38, 0.42, 0.44];
@@ -124,12 +120,12 @@ function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R
         % (dosen't check for limiting RPM as much higher than current case)
         if d_list(i) > d_min && ...
            ~isempty(regexp(string(name_cell{1}),regex_seal,"once"))
-            e_check_val = f0_list(i) * F_a / C_0_list(i);
+            e_check_val = (f0_list(i) * abs(F_a)) / (C_0_list(i)*1e3);
             [~,Y_index] = closest(F0Fa_C0_list,e_check_val);
             Y = Y_list(Y_index);
             e = e_list(Y_index);
     
-            if (F_a/(F_r*V)) <= e % axal load is irrelevant
+            if (abs(F_a)/(F_r*V)) <= e % axal load is irrelevant
                 P = F_r; % [N] equivalent load
             else
                 P = X * V * F_r + Y * F_a; % [N] equivalent load, eq 11.22a pg 704 machine design
