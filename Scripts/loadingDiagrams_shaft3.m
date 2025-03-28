@@ -249,34 +249,40 @@ dashLineV(L, 3, 2, 2)
 
 %% Export
 
+%%%% For Fatigue %%%%
 % Cross Section 7
 [~, cs_7_idx] = closest(xy_x, L_F7);
 cs_7_P = xy_P(cs_7_idx);
-cs_7_T = xy_T(cs_7_idx);
-cs_7_M = M(cs_7_idx);
-cs_7 = [cs_7_P cs_7_T*1e3 cs_7_M*1e3]; % [(N) (Nmm) (Nmm)]
-
+cs_7_T = xy_T(cs_7_idx)*1e3; % [Nmm]
+cs_7_M = M(cs_7_idx)*1e3; % [Nmm]
+cs_7_Vy = xy_V(cs_7_idx);
+cs_7_Vz = xz_V(cs_7_idx);
+cs_7 = [cs_7_P cs_7_T cs_7_M cs_7_Vy cs_7_Vz];
 % Cross Section 8
 [~, cs_8_idx] = closest(xy_x, L_F8);
 cs_8_P = xy_P(cs_8_idx);
-cs_8_T = xy_T(cs_8_idx);
-cs_8_M = M(cs_8_idx);
-cs_8 = [cs_8_P cs_8_T*1e3 cs_8_M*1e3]; % [(N) (Nmm) (Nmm)]
-
+cs_8_T = xy_T(cs_8_idx)*1e3; % [Nmm]
+cs_8_M = M(cs_8_idx)*1e3; % [Nmm]
+cs_8_Vy = xy_V(cs_8_idx);
+cs_8_Vz = xz_V(cs_8_idx);
+cs_8 = [cs_8_P cs_8_T cs_8_M cs_8_Vy cs_8_Vz];
 % Cross Section 9
 [~, cs_9_idx] = closest(xy_x, L_F9);
 cs_9_P = xy_P(cs_9_idx);
-cs_9_T = xy_T(cs_9_idx);
-cs_9_M = M(cs_9_idx);
-cs_9 = [cs_9_P cs_9_T*1e3 cs_9_M*1e3]; % [(N) (Nmm) (Nmm)]
-
+cs_9_T = xy_T(cs_9_idx)*1e3; % [Nmm]
+cs_9_M = M(cs_9_idx)*1e3; % [Nmm]
+cs_9_Vy = xy_V(cs_9_idx);
+cs_9_Vz = xz_V(cs_9_idx);
+cs_9 = [cs_9_P cs_9_T cs_9_M cs_9_Vy cs_9_Vz];
 % Cross Section H
 [~, cs_H_idx] = closest(xy_x, L_FH);
 cs_H_P = xy_P(cs_H_idx);
-cs_H_T = xy_T(cs_H_idx);
-cs_H_M = M(cs_H_idx);
-cs_H = [cs_H_P cs_H_T*1e3 cs_H_M*1e3]; % [(N) (Nmm) (Nmm)]
-
+cs_H_T = xy_T(cs_H_idx)*1e3; % [Nmm]
+cs_H_M = M(cs_H_idx)*1e3; % [Nmm]
+cs_H_Vy = xy_V(cs_H_idx);
+cs_H_Vz = xz_V(cs_H_idx);
+cs_H = [cs_H_P cs_H_T cs_H_M cs_H_Vy cs_H_Vz];
+%%%% For Fatigue %%%%
 %%%% For Bearings %%%%
 [~, F_idx] = closest(xy_x, 0);
 F_Fa = xy_P(F_idx); % [N] Axial Force
