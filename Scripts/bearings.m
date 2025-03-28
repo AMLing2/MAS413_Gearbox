@@ -7,23 +7,16 @@ minPerHour = 60; % [min/hour]
 ly = lifetime * daysPerYear * work_cycle * minPerHour; % [min]
 
 % Import from Gear Sizing
-load('gear_sizes.mat', 'z_1','z_2','z_3','z_4','i_tot','i_s1','i_s2', ...
+load('gear_sizes.mat','i_tot','i_s1','i_s2', ...
     'n_1','n_2','n_3','n_4')
+% n_x unit is in [rpm]
 
 % Import from Loading Diagrams: Axial Load Fa & Radial Load Fr
+
 load('loadingDiagram_shaft1.mat', 'B_Fa', 'B_Fr', 'C_Fa', 'C_Fr')
 load('loadingDiagram_shaft2.mat', 'D_Fa', 'D_Fr', 'E_Fa', 'E_Fr')
 load('loadingDiagram_shaft3.mat', 'F_Fa', 'F_Fr', 'G_Fa', 'G_Fr')
 
-%%%%%%%%%%%%%%%%% TEMPORARY
-shaft1_Fa = 50;
-shaft2_Fa = 50;
-shaft3_Fa = 50;
-shaft1_Fr = 50;
-shaft2_Fr = 50;
-shaft3_Fr = 50;
-
-%%%%%%%%%%%%%%%%% TEMPORARY
 % Import from Shaft Design
 %load('shaftDesign.mat', 'd_S11', 'd_C')
 d_min_sh1 = 10; % TEMP [mm]
@@ -31,119 +24,77 @@ d_min_sh2 = 30; % TEMP [mm]
 d_min_sh3 = 6; % TEMP [mm]
 
 % load bearing .CSV file
+% data from: https://www.skf.com/group/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings#cid-493604
 csvfile = "../Data/combined_ballBearings_manual2.csv";
-bearingdata = readtable(csvfile,'NumHeaderLines',9,'DecimalSeparator','.','Delimiter',';');
-bearingdata.Properties.VariableNames = ["num","d","D","B","C","C0","Pu",...
+b_data = readtable(csvfile,'NumHeaderLines',9,'DecimalSeparator','.','Delimiter',';');
+b_data.Properties.VariableNames = ["num","d","D","B","C","C0","Pu",...
     "ref_speed","max_speed","mass","name_null","designations", ...
-    "capped","name_capped","D_null","d1","d2","D1","D2","r1,2","da_min","da_max","Da_max","ra_max","kr","f0"];
+    "capped","capped_one_side","D_null","d1","d2","D1","D2","r1,2","da_min","da_max","Da_max","ra_max","kr","f0"];
 
 % number of cycles through lifetime:
-cycles_lifetime_sh1 = ly * n_1
-cycles_lifetime_sh2 = ly * n_2
-cycles_lifetime_sh3 = ly * n_4
+cycles_lifetime_sh1 = ly * n_1; % number of cycles
+cycles_lifetime_sh2 = ly * n_2;
+cycles_lifetime_sh3 = ly * n_4;
+cycles_tab = table(cycles_lifetime_sh1,cycles_lifetime_sh2,cycles_lifetime_sh3)
 
 % Reliability factor, weibull distribution - tab 11-5 pg 701 machine design
 K_R = 0.62; % R% = 95
 
-% rough calculation of angle since not specified in datasheets
-op = (200-150)/4; 
-h = sqrt(op^2 + 44^2);
-theta = asind(op/h);
-taper_ang_list = 20:5:40;
-[~,ang_index] = min(taper_ang_list-theta);
-taper_ang = taper_ang_list(ang_index);
-% bearing value lists from KRW
-% https://www.krw.de/en/products/product-database/?tx_cskrwproducts_krwproducts%5Baction%5D=filter&tx_cskrwproducts_krwproducts%5Bcontroller%5D=Product&tx_cskrwproducts_krwproducts%5BcurrentPage%5D=15&tx_cskrwproducts_krwproducts%5BfilterRequest%5D%5Bcategories%5D%5B0%5D=31&tx_cskrwproducts_krwproducts%5BfilterRequest%5D%5BmaxInternalDiameter%5D=200&tx_cskrwproducts_krwproducts%5BfilterRequest%5D%5BminInternalDiameter%5D=10&cHash=feb6871c5b5e6249330c3cd6fdd08930
+% shaft 1 bearings B , C
+[b_index_B,n_bB] = ball_bearing_sizing(d_min_sh1 ,B_Fr,B_Fa,cycles_lifetime_sh1, ...
+    K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side); 
+[b_index_C,n_bC] = ball_bearing_sizing(d_min_sh1 ,C_Fr,C_Fa,cycles_lifetime_sh1, ...
+    K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side); 
+sh1_i = [b_index_B,b_index_C];
+sh1_n = [n_bB,n_bC];
+% shaft 2: D E
+[b_index_D,n_bD] = ball_bearing_sizing(d_min_sh2 ,D_Fr,D_Fa,cycles_lifetime_sh2, ...
+    K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side); 
+[b_index_E,n_bE] = ball_bearing_sizing(d_min_sh2 ,E_Fr,E_Fa,cycles_lifetime_sh2, ...
+    K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side); 
+sh2_i = [b_index_D,b_index_E];
+sh2_n = [n_bD,n_bE];
+% shaft 3 : F G
+[b_index_F,n_bF] = ball_bearing_sizing(d_min_sh3 ,F_Fr,F_Fa,cycles_lifetime_sh3, ...
+    K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side);
+[b_index_G,n_bG] = ball_bearing_sizing(d_min_sh3 ,G_Fr,G_Fa,cycles_lifetime_sh3, ...
+    K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side);
+sh3_i = [b_index_F,b_index_G];
+sh3_n = [n_bF,n_bG];
+% select bearing based on largest of two:
+% shaft 1:
+[~,i] = max([b_data.C0(sh1_i(1)),b_data.C0(sh1_i(2))]);
+bearing_sh1_i = sh1_i(i);
+bearing_sh1_n = sh1_n(i);
+% shaft 2:
+[~,i] = max([b_data.C0(sh2_i(1)),b_data.C0(sh2_i(2))]);
+bearing_sh2_i = sh2_i(i);
+bearing_sh2_n = sh2_n(i);
+% shaft 3:
+[~,i] = max([b_data.C0(sh3_i(1)),b_data.C0(sh3_i(2))]);
+bearing_sh3_i = sh3_i(i);
+bearing_sh3_n = sh3_n(i);
+% display as tables:
+bearing_tab_sh1 = table(b_data.d(bearing_sh1_i), b_data.capped_one_side(bearing_sh1_i), bearing_sh1_n, ...
+    'VariableNames', {'Bearing Diameter', 'Bearing Name', 'Bearing Lifetime'});
+fprintf("Bearing for shaft 1:\n")
+disp(bearing_tab_sh1);
+bearing_tab_sh2 = table(b_data.d(bearing_sh2_i), b_data.capped_one_side(bearing_sh2_i), bearing_sh2_n, ...
+    'VariableNames', {'Bearing Diameter', 'Bearing Name', 'Bearing Lifetime'});
+fprintf("Bearing for shaft 2:\n")
+disp(bearing_tab_sh2);
+bearing_tab_sh3 = table(b_data.d(bearing_sh3_i), b_data.capped_one_side(bearing_sh3_i), bearing_sh3_n, ...
+    'VariableNames', {'Bearing Diameter', 'Bearing Name', 'Bearing Lifetime'});
+fprintf("Bearing for shaft 3:\n")
+disp(bearing_tab_sh3);
 
-%d_list = 50:10:150; % [mm]
-%bearing_name = ["32912" "32914" "32916" "32918" "32920" "32922" "32924" "32928" "32930"];
-%c_dyn_list = [49.5 76.8 80.6 105 136 143 185 222 228 305] * 1e3; % [N]
-%c_st_list = [82.3 123 136 178 231 253 326 428 545] * 1e3; % [N]
-% 
-% [b_index_1,n1] = tapered_bearing_sizing(d_min_sh1 ,F_r_sh1,F_a_sh1,cycles_lifetime_sh1, ...
-%     taper_ang, K_R, d_list, c_dyn_list, c_st_list)
-% [b_index_2,n2] = tapered_bearing_sizing(d_min_sh2 ,F_r_sh1,F_a_sh2,cycles_lifetime_sh2, ...
-%     taper_ang, K_R, d_list, c_dyn_list, c_st_list);
-% [b_index_3,n3] = tapered_bearing_sizing(d_min_sh3 ,F_r_sh1,F_a_sh3,cycles_lifetime_sh3, ...
-%     taper_ang, K_R, d_list, c_dyn_list, c_st_list);
-
-% Deep Groove Ball Bearing Selection
-% need to update c_dyn_list and c_st_list with vales from:
-% https://www.skf.com/group/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings#cid-493604
-%d_list_ball = 50:5:150; % [mm]
-[b_index_1,n_b1] = ball_bearing_sizing(d_min_sh1 ,shaft1_Fr,shaft1_Fa,cycles_lifetime_sh1, ...
-    K_R, bearingdata.d, bearingdata.C, bearingdata.C0,bearingdata.f0); 
-[b_index_2,n_b2] = ball_bearing_sizing(d_min_sh2 ,shaft2_Fr,shaft2_Fa,cycles_lifetime_sh2, ...
-    K_R, bearingdata.d, bearingdata.C, bearingdata.C0,bearingdata.f0); 
-[b_index_3,n_b3] = ball_bearing_sizing(d_min_sh3 ,shaft3_Fr,shaft3_Fa,cycles_lifetime_sh3, ...
-    K_R, bearingdata.d, bearingdata.C, bearingdata.C0,bearingdata.f0); 
-chosenbearings = table(bearingdata.designations(b_index_1),bearingdata.designations(b_index_2),bearingdata.designations(b_index_3))
-chosenbearing_d = table(bearingdata.d(b_index_1),bearingdata.d(b_index_2),bearingdata.d(b_index_3))
-bearings_lifetime_nf = table(n_b1/cycles_lifetime_sh1,n_b2/cycles_lifetime_sh2,n_b3/cycles_lifetime_sh3)
-
-
-%% Tapered Roller Bearing Selection
-function [bearing_index,lifetime] = tapered_bearing_sizing(d_min,F_r,F_a,cycles,taper_ang,K_R,d_list,C_dyn_list,C_st_list)
-    % Single Row Tapered Roller Bearing
-% d_min: minimum rod diameter [mm] % add max diameter?
-% F_r: Force in the radial direction [N]
-% F_a: Force in the axial direction [N]
-% cycles: minimum lifetime cycles
-% K_R: Reliability factor for weibull distribution, tab 11-5 pg 7-1 machine design
-% d_list: list of bearing inner diameter [mm]
-% C_dyn_list: list of bearing dynamic load rating [N]
-% C_st_list: list of bearing static load rating [N]
-
-    V = 1.0; % rotation factor, rotating inner ring
-    if taper_ang == 20 % values from Fig 11-24 pg 705 machine design
-        X = 0.43; % radial factor
-        Y = 1; % thrust (axial) factor
-        e = 0.57; % limiting factor
-    elseif taper_ang == 25
-        X = 0.41;
-        Y = 0.87;
-        e = 0.68;
-    elseif taper_ang == 30
-        X = 0.39;
-        Y = 0.76;
-        e = 0.80;
-    elseif taper_ang == 35
-        X = 0.37;
-        Y = 0.66;
-        e = 0.95;
-    elseif taper_ang == 40
-        X = 0.35;
-        Y = 0.57;
-        e = 1.14;
-    else
-        error("taper angle needs to be 20, 25, 30, 35, or 40 deg")
-    end
-    if (F_a/(F_r*V)) <= e
-        %fprintf("ignoring axial factor\n")
-        X = 1; % eq. 11.22b
-        Y = 0;
-    end
-    P = X * V * F_r + Y * F_a; % [N] equivalent load, eq 11.22a pg 704 machine design
-    bearing_index = -1;
-    lifetime = -1;
-    for i = 1:length(d_list)
-        if d_list(i) > d_min
-            L_P = ( K_R*((C_dyn_list(i)*1e3)/P)^(10/3) ) * 1e6; % eq 11.20b pg 701 machine design
-            if (L_P > cycles) && (P < C_st_list(i)*1e3) % is (P < C_st_list(i)) valid?
-                bearing_index = i;
-                lifetime = L_P;
-                break
-            end
-        end
-    end
-    if bearing_index == -1
-        error("No suitable bearing found")
-    end
-end
+% chosenbearings = table(bearingdata.designations(b_index_B),bearingdata.designations(b_index_2),bearingdata.designations(b_index_3))
+% chosenbearing_d = table(bearingdata.d(b_index_B),bearingdata.d(b_index_2),bearingdata.d(b_index_3))
+% bearings_lifetime_nf = table(n_bB/cycles_lifetime_sh1,n_b2/cycles_lifetime_sh2,n_b3/cycles_lifetime_sh3)
 
 
 %% Ball Bearing Selection
-function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R,d_list,C_dyn_list,C_0_list,f0_list)
+function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R,d_list,C_dyn_list,C_0_list,f0_list,desg_list)
     % Single Row Deep Groove (Conrad) Ball Bearing
 % d_min: minimum rod diameter [mm] % add max diameter?
 % F_r: Force in the radial direction [N]
@@ -153,6 +104,8 @@ function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R
 % d_list: list of bearing inner diameter [mm]
 % C_dyn_list: list of bearing dynamic load rating [N]
 % C_st_list: list of bearing static load rating [N]
+% f0_list: list of bearing f0 list
+% desg_list: list of bearing designations, input it 1x1 cell format from csv
 
     % values from Fig 11-24 pg 705 machine design:
     % AND from table 9 pg 257 of SKF bearings catalogue
@@ -161,11 +114,16 @@ function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R
     Y_list = [2.3,1.99,1.71,1.55,1.45,1.31,1.15,1.04,1.00];
     F0Fa_C0_list = [0.172,0.345,0.689,1.03,1.38,2.07,3.45,5.17,6.89];
     e_list = [0.19, 0.22, 0.26, 0.28, 0.30, 0.34, 0.38, 0.42, 0.44];
+    regex_seal = '-RS1|-RS2|-RSH|-RSH2|RSJEM'; % bearings with contact seal on one side, pg 258 skf datasheet
     
     bearing_index = -1;
     lifetime = -1;
     for i = 1:length(d_list)
-        if d_list(i) > d_min
+        name_cell = desg_list(i);
+        % check if bearing fits case:
+        % (dosen't check for limiting RPM as much higher than current case)
+        if d_list(i) > d_min && ...
+           ~isempty(regexp(string(name_cell{1}),regex_seal,"once"))
             e_check_val = f0_list(i) * F_a / C_0_list(i);
             [~,Y_index] = closest(F0Fa_C0_list,e_check_val);
             Y = Y_list(Y_index);
