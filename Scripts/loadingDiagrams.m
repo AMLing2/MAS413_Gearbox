@@ -7,7 +7,11 @@ export_import = fullfile(pwd, 'export_import');
 L_12 = 5e-3; % [m]
 L_45 = 5e-3; % [m]
 L_78 = 5e-3; % [m]
-L_AB  = 0.05; % [m]
+L_AB = 0.05; % [m]
+L_GH = 0.05; % [m]
+    % Stage efficiencies
+% eta = 0.96; % [-] "finely worked teeth & good lubrication"
+eta = 1.00; % [-] Ideal Stages
 
 % Common Plotting Constants
 colFill = [0.7765 0.9176 0.9843];
@@ -31,25 +35,44 @@ g = 9.81; % [m/s^2]
 % Import from Bearings
 if exist(fullfile(export_import,'bearings.mat'), 'file')
     load(fullfile(export_import,'bearings.mat'), ...
-        'b_B', 'b_C', 'd_C', 'd_12', 'd_B', 'd_S1') % [mm]
+        'b_B', 'b_C', 'd_C', 'd_12', 'd_B', 'd_S1', ...
+        'b_E', 'b_D', 'b_F', 'b_G') % [mm]
+    b_F = b_F / 1000; % [m]
+    b_G = b_G / 1000; % [m]
+    b_E = b_E / 1000; % [m]
+    b_D = b_D / 1000; % [m]
     b_B = b_B / 1000; % [m]
     b_C = b_C / 1000; % [m]
 else
     % Bearing Widths
     b_B = 30e-3; % [m]
     b_C = b_B;   % [m]
+    b_E = 30e-3; % [m]
+    b_D = b_E;   % [m]
+    b_F = 30e-3; % [m]
+    b_G = b_F;   % [m]
     % Shaft Diameters
     d_C   = 0.010; % [m]
     d_12  = 0.015; % [m]
     d_B   = 0.011; % [m]
     d_S1  = 0.013; % [m]
+    d_D = 0.01;    % [m]
+    d_E = 0.015;   % [m]
+    d_S21 = 0.02;  % [m]
+    d_S22 = 0.02;  % [m]
+    d_45 = 0.02;   % [m]
+    d_F   = 0.020; % [m]
+    d_78  = 0.030; % [m]
+    d_G = 0.027;   % [m]
+    d_S3 = 0.025;  % [m]
 end
 
 % Import from Gear Sizing
 if exist(fullfile(export_import, 'gear_sizes.mat'), 'file')
     load(fullfile(export_import,'gear_sizes.mat'), ...
         'd_g1', 'd_g2', 'd_g3', 'd_g4', ...
-        'b_s1', 'b_s2', 'i_tot', 'E_mat', 'mass_g1') % [mm], [MPa], [kg]
+        'b_s1', 'b_s2', 'i_tot', 'i_s1','i_s2','E_mat', ...
+        'mass_g1', 'mass_g2', 'mass_g3', 'mass_g4') % [mm], [MPa], [kg]
     r_G1 = d_g1/2 * 1e-3; % [m]
     r_G2 = d_g2/2 * 1e-3; % [m]
     r_G3 = d_g3/2 * 1e-3; % [m]
@@ -63,19 +86,43 @@ end
 
 %% Common Calculations
 
+% General
 omega_1 = n_1 * 2*pi / 60; % [rad/sec]
-T_M = P_1 / omega_1; % [Nm]
+n_out = (n_1/i_tot); % [RPM]
+omega_out = n_out * 2*pi / 60; % [rad/sec]
+eta_tot = eta^2; % [-] Squared because there are two stages
+P_out = P_1*eta_tot; % [W]
+T_M   = P_1/omega_1; % [Nm]
+T_out = P_out/omega_out; %[Nm]
+
 % Gear 1
 F_t1 = T_M / r_G1; % [N]
 F_a1 = F_t1 * tand(beta); % [N]
 F_r1 = F_t1 * tand(alpha)/cosd(beta); % [N]
+F_G1 = mass_g1*g; % [N]
+% Gear 2
+F_t2 = T_M/r_G1; % [N]
+F_a2 = F_t2 * tand(beta); % [N]
+F_r2 = F_t2 * tand(alpha)/cosd(beta); % [N]
+F_G2 = mass_g2*g;  % [N]
+% Gear 3
+F_t3 = T_out / r_G4; % [N]
+F_a3 = F_t3 * tand(beta); % [N]
+F_r3 = F_t3 * tand(alpha)/cosd(beta); % [N]
+F_G3 = mass_g3*g; % [N]
+% Gear 4
+F_t4 = T_out / r_G4; % [N]
+F_a4 = F_t4 * tand(beta); % [N]
+F_r4 = F_t4 * tand(alpha)/cosd(beta); % [N]
+F_G4 = mass_g4*g;  %[N]
+
+%% Export Common for all Shafts
+save(fullfile(export_import, "loadingDiagram_common.mat"))
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% MAS413 Project: Loading Diagrams - Shaft 1 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Calculated values
-F_G1 = mass_g1*g;
 % Lengths
 L_BC  = b_B/2 + L_78 + b_s2 + L_45 + b_s1 + L_12; % [m]
 L_BG1 = b_B/2 + L_78 + b_s2 + L_45 + b_s1/2; % [m]
@@ -91,7 +138,7 @@ F_Bz = (F_r1*L_G1C - F_a1*r_G1)/L_BC; % [N]
 F_Bg1 = (F_G1*L_G1C)/L_BC;
 
 
-%% XY Plane - Shaft 1
+%% XY - Plane
 
 % Figure setup
 figHandle = 1;
@@ -99,11 +146,11 @@ xPos = 10;
 yPos = 3;
 
 % Initialize XY Plots
-s1_xy_x = [];
-s1_xy_P = [];
-s1_xy_V = [];
-s1_xy_M = [];
-s1_xy_T = [];
+xy_x = [];
+xy_P = [];
+xy_V = [];
+xy_M = [];
+xy_T = [];
 
 figure(figHandle);
 set(figHandle,'Units','Centimeter')
@@ -129,51 +176,51 @@ title('Torque $T(x)$', 'Interpreter','latex')
 % 0 < x < L_AB
 x = linspace(0, L_AB, resolution);
 x(size(x))
-s1_xy_x = [s1_xy_x, x]; % [m]
-s1_xy_P = [s1_xy_P, zeros(size(x))]; % [N]
-s1_xy_V = [s1_xy_V, zeros(size(x))]; % [N]
-s1_xy_M = [s1_xy_M, zeros(size(x))]; % [Nm]
-s1_xy_T = [s1_xy_T, ones(size(x)) * T_M ]; % [Nm]
+xy_x = [xy_x, x]; % [m]
+xy_P = [xy_P, zeros(size(x))]; % [N]
+xy_V = [xy_V, zeros(size(x))]; % [N]
+xy_M = [xy_M, zeros(size(x))]; % [Nm]
+xy_T = [xy_T, ones(size(x)) * T_M ]; % [Nm]
 
 % L_AB < x < L_AG1
 x = linspace(L_AB, L_AG1, resolution);
-s1_xy_x = [s1_xy_x, x]; % [m]
-s1_xy_P = [s1_xy_P, zeros(size(x))]; % [N]
-s1_xy_V = [s1_xy_V, ones(size(x)) * F_By]; % [N]
-s1_xy_M = [s1_xy_M, ( F_By*(x - L_AB) )]; % [Nm]
-s1_xy_T = [s1_xy_T, ones(size(x)) * T_M]; % [Nm]
+xy_x = [xy_x, x]; % [m]
+xy_P = [xy_P, zeros(size(x))]; % [N]
+xy_V = [xy_V, ones(size(x)) * F_By]; % [N]
+xy_M = [xy_M, ( F_By*(x - L_AB) )]; % [Nm]
+xy_T = [xy_T, ones(size(x)) * T_M]; % [Nm]
 
 % L_AG1 < x < L_AC
 x = linspace(L_AG1, L_AC, resolution);
-s1_xy_x = [s1_xy_x, x]; % [m]
-s1_xy_P = [s1_xy_P, ones(size(x)) * (-F_a1)]; % [N]
-s1_xy_V = [s1_xy_V, ones(size(x)) * (F_By - F_t1)]; % [N]
-s1_xy_M = [s1_xy_M, ( F_By*(x - L_AB) - F_t1*(x - L_AG1) )]; % [Nm]
-s1_xy_T = [s1_xy_T, ones(size(x)) * (T_M - F_t1*r_G1)]; % [Nm]
+xy_x = [xy_x, x]; % [m]
+xy_P = [xy_P, ones(size(x)) * (-F_a1)]; % [N]
+xy_V = [xy_V, ones(size(x)) * (F_By - F_t1)]; % [N]
+xy_M = [xy_M, ( F_By*(x - L_AB) - F_t1*(x - L_AG1) )]; % [Nm]
+xy_T = [xy_T, ones(size(x)) * (T_M - F_t1*r_G1)]; % [Nm]
 
 subplot(2,2,1)
-plotLD(s1_xy_x,s1_xy_P, colFill)
+plotLD(xy_x,xy_P, colFill)
 subplot(2,2,2)
-plotLD(s1_xy_x,s1_xy_V, colFill)
+plotLD(xy_x,xy_V, colFill)
 subplot(2,2,3)
-plotLD(s1_xy_x,s1_xy_M, colFill)
+plotLD(xy_x,xy_M, colFill)
 subplot(2,2,4)
-plotLD(s1_xy_x,s1_xy_T, colFill)
+plotLD(xy_x,xy_T, colFill)
 
 %% XZ - Plane
 
 % Figure setup
-figHandle = figHandle + 1;
+figHandle = 2;
 xPos = 10;
 yPos = 3;
 
 % Initialize XZ Plots
-s1_xz_x = [];
-s1_xz_P = [];
-s1_xz_V = [];
-s1_xz_M = [];
-s1_xz_T = [];
-s1_xz_Mg = [];
+xz_x = [];
+xz_P = [];
+xz_V = [];
+xz_M = [];
+xz_T = [];
+xz_Mg = [];
 
 figure(figHandle);
 set(figHandle,'Units','Centimeter')
@@ -198,113 +245,120 @@ title('Torque $T(x)$', 'Interpreter','latex')
 
 % 0 < x < L_AB
 x = linspace(0, L_AB, resolution); % L_AB blir duplikert i xz_[n] listene
-s1_xz_x = [s1_xz_x, x]; % [m]
-s1_xz_P = [s1_xz_P, zeros(size(x))]; % [N]
-s1_xz_V = [s1_xz_V, zeros(size(x))]; % [N]
-s1_xz_M = [s1_xz_M, zeros(size(x))]; % [Nm]
-s1_xz_T = [s1_xz_T, ones(size(x)) * T_M]; % [Nm]
-s1_xz_Mg =[s1_xz_Mg, zeros(size(x))]; % [Nm]
+xz_x = [xz_x, x]; % [m]
+xz_P = [xz_P, zeros(size(x))]; % [N]
+xz_V = [xz_V, zeros(size(x))]; % [N]
+xz_M = [xz_M, zeros(size(x))]; % [Nm]
+xz_T = [xz_T, ones(size(x)) * T_M]; % [Nm]
+xz_Mg =[xz_Mg, zeros(size(x))]; % [Nm]
 
 % L_AB < x < L_AG1
 x = linspace(L_AB, L_AG1, resolution);
-s1_xz_x = [s1_xz_x, x]; % [m]
-s1_xz_P = [s1_xz_P, zeros(size(x))]; % [N]
-s1_xz_V = [s1_xz_V, ones(size(x)) * (-F_Bz)]; % [N]
-s1_xz_M = [s1_xz_M, ( - F_Bz*(x - L_AB) )]; % [Nm]
-s1_xz_T = [s1_xz_T, ones(size(x)) * T_M]; % [Nm]
-s1_xz_Mg =[s1_xz_Mg, +( F_Bg1 * (x-L_AB)) ]; % [Nm]
+xz_x = [xz_x, x]; % [m]
+xz_P = [xz_P, zeros(size(x))]; % [N]
+xz_V = [xz_V, ones(size(x)) * (-F_Bz)]; % [N]
+xz_M = [xz_M, ( - F_Bz*(x - L_AB) )]; % [Nm]
+xz_T = [xz_T, ones(size(x)) * T_M]; % [Nm]
+xz_Mg =[xz_Mg, +( F_Bg1 * (x-L_AB)) ]; % [Nm]
 
 % L_AG1 < x < L_AC
 x = linspace(L_AG1, L_AC, resolution);
-s1_xz_x = [s1_xz_x, x]; % [m]
-s1_xz_P = [s1_xz_P, ones(size(x)) * (-F_a1)]; % [N]
-s1_xz_V = [s1_xz_V, ones(size(x)) * (F_r1 - F_Bz)]; % [N]
-s1_xz_M = [s1_xz_M, ( F_r1*(x - L_AG1) - F_Bz*(x - L_AB) - F_a1*(r_G1) )]; % [Nm]
-s1_xz_T = [s1_xz_T, ones(size(x)) * (T_M - F_t1*r_G1)]; % [Nm]
-s1_xz_Mg =[s1_xz_Mg, +( F_Bg1 * (x - L_AB) ) - ( F_G1 * (x - L_AG1) ) ]; % [Nm]
+xz_x = [xz_x, x]; % [m]
+xz_P = [xz_P, ones(size(x)) * (-F_a1)]; % [N]
+xz_V = [xz_V, ones(size(x)) * (F_r1 - F_Bz)]; % [N]
+xz_M = [xz_M, ( F_r1*(x - L_AG1) - F_Bz*(x - L_AB) - F_a1*(r_G1) )]; % [Nm]
+xz_T = [xz_T, ones(size(x)) * (T_M - F_t1*r_G1)]; % [Nm]
+xz_Mg =[xz_Mg, +( F_Bg1 * (x - L_AB) ) - ( F_G1 * (x - L_AG1) ) ]; % [Nm]
 
 subplot(2,2,1)
-plotLD(s1_xz_x,s1_xz_P,colFill)
+plotLD(xz_x,xz_P,colFill)
 subplot(2,2,2)
-plotLD(s1_xz_x,s1_xz_V,colFill)
+plotLD(xz_x,xz_V,colFill)
 subplot(2,2,3)
-plotLD(s1_xz_x,s1_xz_M,colFill)
+plotLD(xz_x,xz_M,colFill)
 subplot(2,2,4)
-plotLD(s1_xz_x,s1_xz_T,colFill)
+plotLD(xz_x,xz_T,colFill)
 
 
 %% Loading Diagram: Combined Bending Moment
 
-s1_M = sqrt(s1_xz_M.^2 + s1_xy_M.^2); % [Nm]
+M = sqrt(xz_M.^2 + xy_M.^2); % [Nm]
 
 % Figure setup
-figHandle = figHandle + 1;
+figHandle = 3;
 wPlotM = wPlot;
 hPlotM = hPlot/2;
 
 figure(figHandle);
 set(figHandle,'Units','Centimeter')
 set(figHandle,'Position',[xPos yPos+hPlotM/2 wPlotM hPlotM]);
-plotLD(s1_xy_x, s1_M, colFill)
+plotLD(xy_x, M, colFill)
 title('Combined Moment', 'interpreter', 'latex', 'FontSize',fSize)
 xlabel('[m]', 'interpreter', 'latex')
 ylabel('[Nm]', 'interpreter', 'latex')
 xlim([0 L_AC])
 
-[s1_M_max, s1_M_max_idx] = max(s1_M);
-s1_L = s1_xy_x(s1_M_max_idx);
-dashLineV(s1_L, figHandle, 2, 2)
+[M_max, M_max_idx] = max(M);
+L = xy_x(M_max_idx);
+dashLineV(L, figHandle, 2, 2)
 
 
 %% Export
 
 %%%% For Fatigue %%%%
 % Cross Section A
-[~, cs_A_idx] = closest(s1_xy_x, 0);
-cs_A_P = s1_xy_P(cs_A_idx); % [N]
-cs_A_T = s1_xy_T(cs_A_idx)*1e3; % [Nmm]
-cs_A_M = s1_M(cs_A_idx)*1e3; % [Nmm]
-cs_A_Vy = s1_xy_V(cs_A_idx); % [N]
-cs_A_Vz = s1_xz_V(cs_A_idx); % [N]
+[~, cs_A_idx] = closest(xy_x, 0);
+cs_A_P = xy_P(cs_A_idx); % [N]
+cs_A_T = xy_T(cs_A_idx)*1e3; % [Nmm]
+cs_A_M = M(cs_A_idx)*1e3; % [Nmm]
+cs_A_Vy = xy_V(cs_A_idx); % [N]
+cs_A_Vz = xz_V(cs_A_idx); % [N]
 cs_A = [cs_A_P cs_A_T cs_A_M cs_A_Vy cs_A_Vz];
 % Cross Section 0
-[~, cs_0_idx] = closest(s1_xy_x, L_A0);
-cs_0_P = s1_xy_P(cs_0_idx); % [N]
-cs_0_T = s1_xy_T(cs_0_idx)*1e3; % [Nmm]
-cs_0_M = s1_M(cs_0_idx)*1e3; % [Nmm]
-cs_0_Vy = s1_xy_V(cs_0_idx); % [N]
-cs_0_Vz = s1_xz_V(cs_0_idx); % [N]
+[~, cs_0_idx] = closest(xy_x, L_A0);
+cs_0_P = xy_P(cs_0_idx); % [N]
+cs_0_T = xy_T(cs_0_idx)*1e3; % [Nmm]
+cs_0_M = M(cs_0_idx)*1e3; % [Nmm]
+cs_0_Vy = xy_V(cs_0_idx); % [N]
+cs_0_Vz = xz_V(cs_0_idx); % [N]
 cs_0 = [cs_0_P cs_0_T cs_0_M cs_0_Vy cs_0_Vz];
 % Cross Section 1
-[~, cs_1_idx] = closest(s1_xy_x, L_A1);
-cs_1_P = s1_xy_P(cs_1_idx); % [N]
-cs_1_T = s1_xy_T(cs_1_idx)*1e3; % [Nmm]
-cs_1_M = s1_M(cs_1_idx)*1e3; % [Nmm]
-cs_1_Vy = s1_xy_V(cs_1_idx); % [N]
-cs_1_Vz = s1_xz_V(cs_1_idx); % [N]
+[~, cs_1_idx] = closest(xy_x, L_A1);
+cs_1_P = xy_P(cs_1_idx); % [N]
+cs_1_T = xy_T(cs_1_idx)*1e3; % [Nmm]
+cs_1_M = M(cs_1_idx)*1e3; % [Nmm]
+cs_1_Vy = xy_V(cs_1_idx); % [N]
+cs_1_Vz = xz_V(cs_1_idx); % [N]
 cs_1 = [cs_1_P cs_1_T cs_1_M cs_1_Vy cs_1_Vz];
 % Cross Section 2
-[~, cs_2_idx] = closest(s1_xy_x, L_A2);
-cs_2_P = s1_xy_P(cs_2_idx); % [N]
-cs_2_T = s1_xy_T(cs_2_idx)*1e3; % [Nmm]
-cs_2_M = s1_M(cs_2_idx)*1e3; % [Nmm]
-cs_2_Vy = s1_xy_V(cs_2_idx); % [N]
-cs_2_Vz = s1_xz_V(cs_2_idx); % [N]
+[~, cs_2_idx] = closest(xy_x, L_A2);
+cs_2_P = xy_P(cs_2_idx); % [N]
+cs_2_T = xy_T(cs_2_idx)*1e3; % [Nmm]
+cs_2_M = M(cs_2_idx)*1e3; % [Nmm]
+cs_2_Vy = xy_V(cs_2_idx); % [N]
+cs_2_Vz = xz_V(cs_2_idx); % [N]
 cs_2 = [cs_2_P cs_2_T cs_2_M cs_2_Vy cs_2_Vz];
 %%%% For Fatigue %%%%
 %%%% For Bearings %%%%
-[~, B_idx] = closest(s1_xy_x, L_AB);
-B_Fa = s1_xy_P(B_idx); % [N] Axial Force
-B_Fr = sqrt( s1_xy_V(B_idx)^2 + s1_xz_V(B_idx)^2 ); % [N] Radial Force
-[~, C_idx] = closest(s1_xy_x, L_AC);
-C_Fa = s1_xy_P(C_idx); % [N] Axial Force
-C_Fr = sqrt( s1_xy_V(C_idx)^2 + s1_xz_V(C_idx)^2 ); % [N] Radial Force
+[~, B_idx] = closest(xy_x, L_AB);
+B_Fa = xy_P(B_idx); % [N] Axial Force
+B_Fr = sqrt( xy_V(B_idx)^2 + xz_V(B_idx)^2 ); % [N] Radial Force
+[~, C_idx] = closest(xy_x, L_AC);
+C_Fa = xy_P(C_idx); % [N] Axial Force
+C_Fr = sqrt( xy_V(C_idx)^2 + xz_V(C_idx)^2 ); % [N] Radial Force
 %%%% For Bearings %%%%
+
+% Export data w/o figures (https://stackoverflow.com/questions/
+                            % 45560181/avoid-saving-of-graphics-in-matlab)
+varData = whos;
+saveIndex = cellfun(@isempty, regexp({varData.class}, 'matlab.(graphics|ui)'));
+saveVars = {varData(saveIndex).name};
+save(fullfile(export_import, "loadingDiagram_shaft1.mat"), saveVars{:})
 
 %% Length sanity check
 lW = 3;
 
-figHandle = figHandle + 1;
+figHandle = 11;
 figure(figHandle)
 hold on
 plot( [0 L_AC],  [0  0], 'k', 'LineWidth', lW)
@@ -322,77 +376,10 @@ title('One Directional Length', 'interpreter', 'latex')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% MAS413 Project: Loading Diagrams - Shaft 2 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+clc; clearvars -except export_import;
+load(fullfile(export_import, "loadingDiagram_common.mat"))
 
-%%% Constants %%%
-
-% Chosen Parameters
-L_12 = 5e-3; % [m]
-L_45 = 5e-3; % [m]
-L_78 = 5e-3; % [m]
-    % Stage efficiencies
-% eta = 0.96; % [-] "finely worked teeth & good lubrication"
-eta = 1.00; % [-] Ideal Stages
-
-% Diameters of shaft
-d_D = 0.01; % [m]
-d_E = 0.015; % [m]
-d_S21 = 0.02; % [m]
-d_S22 = 0.02; %[m]
-d_45 = 0.02; %[m]
-
-% Gravity Constant
-g = 9.81; % [m/s^2]
-
-% Import from Bearings
-if exist(fullfile(export_import,'bearings.mat'), 'file')
-    load(fullfile(export_import,'bearings.mat'), 'b_E', 'b_D') % [mm]
-    b_E = b_E / 1000; % [m]
-    b_D = b_D / 1000; % [m]
-else
-    b_E = 30e-3; % [m]
-    b_D = b_E; % [m]
-end
-
-% Common Plotting Constants
-colFill = [0.7765 0.9176 0.9843];
-resolution = 100;
-wPlot = 22;
-hPlot = 16;
-fSize = 16;
-
-% Given information
-n_1 = 1450; % [RPM]
-P_1 = 12.5e3; % [W]
-i_tot_og = 17.3;
-alpha = 20; % [degrees] Helix Angle
-beta = 15;  % [degrees] Pressure Angle
- 
-% Import from Gear Sizing
-if exist(fullfile(export_import, 'gear_sizes.mat'), 'file')
-    load(fullfile(export_import,'gear_sizes.mat'), ...
-    'd_g1', 'd_g2', 'd_g3', 'd_g4', ...
-    'b_s1', 'b_s2', 'i_tot', 'i_s1', 'E_mat', ...
-    'mass_g2', 'mass_g3') % [mm], [MPa], [kg]
-    r_G1 = d_g1/2 * 1e-3; % [m]
-    r_G2 = d_g2/2 * 1e-3; % [m]
-    r_G3 = d_g3/2 * 1e-3; % [m]
-    r_G4 = d_g4/2 * 1e-3; % [m]
-    b_s1 = b_s1 * 1e-3; % [m]
-    b_s2 = b_s2 * 1e-3; % [m]
-    E = E_mat*1e6; % [Pa]
-else
-    error('Start by running gear_sizing.m')
-end
-
-% Calculated Values
-omega_1 = n_1 * 2*pi / 60; % [rad/sec]
-n_out = (n_1/i_tot); % [RPM]
-omega_out = n_out * 2*pi / 60; % [rad/sec]
-eta_tot = eta^2; % [-] Squared because there are two stages
-P_out = P_1*eta_tot; % [W]
-T_M   = P_1/omega_1; % [Nm]
-T_out = P_out/omega_out; %[Nm] 
-    % Lengths
+% Lengths
 L_ED = b_E/2 + L_78 + b_s2 + L_45 + b_s1 + L_12 + b_D/2; % [m]
 L_EG3 = b_E/2 + L_78 + b_s2/2; % [m]
 L_EG2 = L_EG3 + b_s2/2 + L_45 + b_s1/2; % [m]
@@ -403,19 +390,8 @@ L_E3 = L_ED - b_E/2; % [m]
 L_E4 = L_EG2 - b_s1/2; % [m]
 L_E5 = L_EG3 + b_s2/2; % [m]
 L_E6 = b_E/2; % [m]
-    % Gear 2 forces
-F_t2 = T_M/r_G1; % [N]
-F_a2 = F_t2 * tand(beta); % [N]
-F_r2 = F_t2 * tand(alpha)/cosd(beta); % [N]
-F_G2 = (mass_g2*g);  % [N]
 
-    % Gear 3 forces
-F_t3 = T_out / r_G4; % [N]
-F_a3 = F_t3 * tand(beta); % [N]
-F_r3 = F_t3 * tand(alpha)/cosd(beta); % [N]
-F_G3 = (mass_g3*g); % [N]
-
-    % Reaction forces @ bearings
+% Reaction forces @ bearings
 F_Ex = F_a2 - F_a3;
 F_Ez = (F_r3*L_G3D - F_r2*L_G2D - F_a3*r_G3 - F_a2*r_G2)/L_ED;
 F_Ey = (F_t3*L_G3D + F_t2*L_G2D)/L_ED;
@@ -426,7 +402,7 @@ F_EG = ( (F_G3*L_G3D) + ( F_G2*L_G2D) ) / (L_ED);
 %% XY - Plane
  
 % Figure setup
-figHandle = figHandle + 1;
+figHandle = 4;
 xPos = 10;
 yPos = 3;
 
@@ -495,7 +471,7 @@ plotLD(xy_x,xy_T, colFill)
 %% XZ - Plane
 
 % Figure setup
-figHandle = figHandle + 1;
+figHandle = 5;
 xPos = 10;
 yPos = 3;
 
@@ -571,7 +547,7 @@ plotLD(xz_x,xz_T,colFill)
 M = sqrt(xz_M.^2 + xy_M.^2); % [Nm]
 
 % Figure setup
-figHandle = figHandle + 1;
+figHandle = 6;
 wPlotM = wPlot;
 hPlotM = hPlot/2;
 
@@ -643,7 +619,7 @@ save(fullfile(export_import, "loadingDiagram_shaft2.mat"), saveVars{:})
 %% Length sanity check
 lW = 3;
 
-figHandle = figHandle + 1;
+figHandle = 12;
 figure(figHandle)
 hold on
 plot( [0 L_ED],  [0  0], 'k', 'LineWidth', lW)
@@ -664,76 +640,10 @@ title('One Directional Length', 'interpreter', 'latex')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% MAS413 Project: Loading Diagrams - Shaft 3 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-clc; clear;
-export_import = fullfile(pwd, 'export_import');
+clc; clearvars -except export_import;
+load(fullfile(export_import, "loadingDiagram_common.mat"))
 
-% Chosen Parameters
-L_12 = 5e-3; % [m]
-L_45 = 5e-3; % [m]
-L_78 = 5e-3; % [m]
-L_GH = 0.05; % [m]
-    % Stage efficiency 
-% eta = 0.96; % [-] "finely worked teeth & good lubrication"
-eta = 1.00; % [-] Ideal Stages
-
-% Gravity Constant
-g = 9.81; %[m/s^2]
-
-% Diameters of shaft
-d_F   = 0.020; % [m]
-d_78  = 0.030; % [m]
-d_G = 0.027; % [m]
-d_S3 = 0.025; % [m]
-
-% Common Plotting Constants
-colFill = [0.7765 0.9176 0.9843];
-resolution = 100;
-wPlot = 22;
-hPlot = 16;
-fSize = 16;
-
-% Given information
-n_1 = 1450; % [RPM]
-P_1 = 12.5e3; % [W]
-i_tot_og = 17.3;
-alpha = 20; % [degrees] Helix Angle
-beta = 15;  % [degrees] Pressure Angle
-
-% Import from Bearings
-if exist(fullfile(export_import,'bearings.mat'), 'file')
-    load(fullfile(export_import,'bearings.mat'), 'b_F', 'b_G') % [mm]
-    b_F = b_F / 1000; % [m]
-    b_G = b_G / 1000; % [m]
-else
-    b_F = 30e-3; % [m]
-    b_G = b_F; % [m]
-end
-
-% Import from Gear Sizing
-if exist(fullfile(export_import, 'gear_sizes.mat'), 'file')
-    load(fullfile(export_import,'gear_sizes.mat'), ...
-    'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2', ...
-    'i_tot', 'i_s2', 'E_mat', 'mass_g4') % [mm], [MPa], [kg]
-    r_G1 = d_g1/2 * 1e-3; % [m]
-    r_G2 = d_g2/2 * 1e-3; % [m]
-    r_G3 = d_g3/2 * 1e-3; % [m]
-    r_G4 = d_g4/2 * 1e-3; % [m]
-    b_s1 = b_s1 * 1e-3; % [m]
-    b_s2 = b_s2 * 1e-3; % [m]
-    E = E_mat*1e6; % [Pa]
-else
-    error('Start by running gear_sizing.m')
-end
-
-% Calculated Values
-omega_1 = n_1 * 2*pi / 60; % [rad/sec]
-n_out = (n_1/i_tot); % [RPM]
-omega_out = n_out * 2*pi / 60; % [rad/sec]
-eta_tot = eta^2; % [-] Squared because there are two stages
-P_out = P_1*eta_tot; % [W]
-T_M   = P_1/omega_1; % [Nm]
-T_out = P_out/omega_out; %[Nm] 
-    % Lengths
+% Lengths
 L_FG = b_F/2 + L_78 + b_s2 + L_45 + b_s1 + L_12 + b_G/2; % [m]
 L_FG4 = b_F/2 + L_78 + b_s2/2; % [m]
 L_G4G = L_FG - L_FG4; % [m]
@@ -741,12 +651,8 @@ L_FH = L_FG + L_GH; % [m]
 L_F7 = b_F/2; % [m]
 L_F8 = b_F/2 + L_78; % [m]
 L_F9 = L_FG - b_G/2; % [m]
-    % Gear 4 forces
-F_t4 = T_out / r_G4; % [N]
-F_a4 = F_t4 * tand(beta); % [N]
-F_r4 = F_t4 * tand(alpha)/cosd(beta); % [N]
-F_G4 = (mass_g4*g);  %[N]
-    % Reaction forces @ bearings
+
+% Reaction forces @ bearings
 F_Fz = (F_a4*r_G4 + F_r4*L_G4G) / L_FG; % [N]
 F_Fy = (F_t4*L_G4G) / L_FG; % [N]
 F_Fx = F_a4; % [N]
@@ -760,7 +666,7 @@ F_GG = F_G4 - F_FG; %[N]
 %% XY - Plane
 
 % Figure setup
-figHandle = figHandle + 1;
+figHandle = 7;
 xPos = 10;
 yPos = 3;
 
@@ -828,7 +734,7 @@ plotLD(xy_x,xy_T, colFill)
 %% XZ - Plane
 
 % Figure setup
-figHandle = figHandle + 1;
+figHandle = 8;
 xPos = 10;
 yPos = 3;
 
@@ -904,7 +810,7 @@ plotLD(xz_x,xz_T,colFill)
 M = sqrt(xz_M.^2 + xy_M.^2); % [Nm]
 
 % Figure setup
-figHandle = figHandle + 1;
+figHandle = 9;
 wPlotM = wPlot;
 hPlotM = hPlot/2;
 
@@ -977,7 +883,7 @@ save(fullfile(export_import, "loadingDiagram_shaft3.mat"), saveVars{:})
 %% Length sanity check
 lW = 3;
 
-figHandle = figHandle + 1;
+figHandle = 10;
 figure(figHandle)
 hold on
 plot( [0 L_FH],  [0  0], 'k', 'LineWidth', lW)
@@ -991,12 +897,3 @@ legend('$L_{FH}$', '$L_{FG}$', '$L_{FG4}$', '$L_{G4G}$', '$L_{GH}$', ...
 xlim( [ (-L_FH*0.1), (L_FH + L_FH*0.1) ] )
 ylim( [-5 5] )
 title('One Directional Length', 'interpreter', 'latex')
-
-%% Export all Loading Diagram Data
-
-% Export data w/o figures (https://stackoverflow.com/questions/
-                            % 45560181/avoid-saving-of-graphics-in-matlab)
-varData = whos;
-saveIndex = cellfun(@isempty, regexp({varData.class}, 'matlab.(graphics|ui)'));
-saveVars = {varData(saveIndex).name};
-save(fullfile(export_import, "loadingDiagrams.mat"), saveVars{:})
