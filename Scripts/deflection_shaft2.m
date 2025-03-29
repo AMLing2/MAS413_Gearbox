@@ -33,13 +33,13 @@ x_values = linspace(0, L_ED, res);
 for i = 1:res
     x = x_values(i);
 
-    if x < (L_BE)
+    if x < (b_E)
         d = d_E;
-    elseif x < (L_BE + L_EG3 - L_BE/2 + (b_s2 / 2))
+    elseif x < (b_E + L_EG3 - b_E/2 + (b_s2 / 2))
         d = d_S22;
-    elseif x<(L_BE + L_EG3 - L_BE/2 + (b_s2 / 2) + L_45)
+    elseif x<(b_E + L_EG3 - b_E/2 + (b_s2 / 2) + L_45)
         d= d_45;
-    elseif x < (L_BE + L_EG3 - L_BE/2 + (b_s2 / 2) + L_45 + b_s1 + L_G2D-(b_s1/2) - L_BD/2 )
+    elseif x < (b_E + L_EG3 - b_E/2 + (b_s2 / 2) + L_45 + b_s1 + L_G2D-(b_s1/2) - b_D/2 )
         d=d_S21;
     else
         d = d_D;
@@ -145,8 +145,8 @@ delta_g_G2 = abs(theta_corrected_G(index_L_EG2));
 delta_g_G3 = abs(theta_corrected_G(index_L_EG3));
 
 % Machine Design - Equation (10.25c) page 636
-omega_c = sqrt(g * (  ( ( (m_G2*delta_g_G2) + (m_G3*delta_g_G3) ) / ...
-                      ( (m_G2*delta_g_G2^2) + (m_G3*delta_g_G3^2) ) )));
+omega_c = sqrt(g * (  ( ( (mass_g2*delta_g_G2) + (mass_g3*delta_g_G3) ) / ...
+                      ( (mass_g2*delta_g_G2^2) + (mass_g3*delta_g_G3^2) ) )));
 n_c = (60/(2*pi))* omega_c; % [RPM]
 
 n_shaft2 = n_1/i_s1;

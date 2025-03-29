@@ -1,6 +1,6 @@
 function dashLineV(L, figNr, spRow, spCol)
     % Add dashed line to all figures
-    for i = 1 : figNr
+    for i = (figNr-2) : figNr
         if i < figNr
             figure(i)
             for row = 1 : spRow

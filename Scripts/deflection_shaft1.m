@@ -140,7 +140,7 @@ index_L_AG1 = find(x_values >= L_AG1, 1, 'first');
 delta_g_G1 = abs(delta_G_corrected(index_L_AG1));
 
 % Machine Design - Equation (10.25c) page 636
-omega_c = sqrt(g * (   ( (m_G1*delta_g_G1) / (m_G1*delta_g_G1^2))   ));
+omega_c = sqrt(g * (   ( (mass_g1*delta_g_G1) / (mass_g1*delta_g_G1^2))   ));
 n_c = (60/(2*pi))* omega_c; % [RPM]
 
 disp('===== Lateral Deflection =====')
