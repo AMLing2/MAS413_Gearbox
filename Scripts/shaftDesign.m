@@ -13,23 +13,21 @@ load_type = "Complex axial"; % ("Pure bending" "Pure axial" "Pure torsion" "Comp
 surface_finish = "Machined"; % ("Ground" "Machined" "Hot-rolled" "As-forged") Other types: Machine Design pg 368, fig 6-26
 reliability = 95; % [%] reliability factor (50 90 95 99 99.9 99.99 99.999 99.9999)
 operating_temperature = 70; % [celsius] defined by Kjell (only significant if > 450)
-first_iteration = "n";  % ("y" / "n") First iteration for diameter equation (limited geometry data)
+first_iteration = false;  % (true / false) First iteration for diameter equation (limited geometry data)
 
 %%%%%%%%%%%% Shaft 1 %%%%%%%%%%%%
 r_keyseat1 = 0.25; % [mm] Keyseat fillet radius
 K_t_keyseat1 = 3.75; % Keyseat stress concentration factor % Machine Design fig 10-16 pg 615
 r_fillet1 = 2; % [mm] Shoulder fillet radius
-D_d_1 = 1.2; % [-] Larger diameter / Smaler diameter
 
 % Diameters
 d_B  = 22;        % [mm] 
-d_S1 = d_B;       % [mm]
+d_S1 = d_B + 10;  % [mm]
 d_12 = d_S1 + 10; % [mm]
 d_C  = d_B;       % [mm]
 
 %%%%%%%%%%%% Shaft 2 %%%%%%%%%%%%
 r_fillet2 = 2; % [mm] Shoulder fillet radius
-D_d_2 = 1.2; % [-] Larger diameter / Smaler diameter
 
 % Diameters
 d_S22 = 50; % [mm]
@@ -42,34 +40,34 @@ d_D   = d_S21-10; % [mm]
 r_keyseat3 = 0.4; % [mm] Keyseat fillet radius
 K_t_keyseat3 = 4; % Keyseat stress concentration factor % Machine Design fig 10-16 pg 615
 r_fillet3 = 2; % [mm] Shoulder fillet radius
-D_d_3 = 1.2; % [-] Larger diameter / Smaler diameter
 
 % Diameters
 d_S3 = 75;      % [mm]
 d_G  = d_S3-10; % [mm]
-d_78 = d_G+10;  % [mm]
+d_78 = d_S3+10;  % [mm]
 d_F  = d_G;     % [mm] 
 
 
 % Import
 % Cross sections lists
-% cs_ = [diameter (mm), notch fillet radius (mm), D_d, P_x (N), M_z(Nmm), M_y (Nmm), T (Nmm),...
-%        1|0 (1 for keyseat 0 for shoulder-fillet), K_t_keyseat]
+% cs_ = [P (N), T (Nmm), M (Nmm), V_y (N), V_z (N), shaft diameter,...
+%        boolean (true -> keyseat, false -> shoulder-fillet),...
+%        notch radius, (keyseat stress concentration | D/d)];
 load('loadingDiagram_shaft1.mat', 'cs_A', 'cs_0', 'cs_1', 'cs_2')
 load('loadingDiagram_shaft2.mat', 'cs_3', 'cs_4', 'cs_5', 'cs_6')
 load('loadingDiagram_shaft3.mat', 'cs_7', 'cs_8', 'cs_9', 'cs_H')
-cs_A = [cs_A d_B   r_keyseat1 D_d_1 1 K_t_keyseat1];
-cs_0 = [cs_0 d_B   r_fillet1  D_d_1 0 0];
-cs_1 = [cs_1 d_S1  r_fillet1  D_d_1 0 0];
-cs_2 = [cs_2 d_C   r_fillet1  D_d_1 0 0];
-cs_6 = [cs_6 d_E   r_fillet2  D_d_2 0 0];
-cs_5 = [cs_5 d_S22 r_fillet2  D_d_2 0 0];
-cs_4 = [cs_4 d_S21 r_fillet2  D_d_2 0 0];
-cs_3 = [cs_3 d_D   r_fillet2  D_d_2 0 0];
-cs_7 = [cs_7 d_F   r_fillet3  D_d_3 0 0];
-cs_8 = [cs_8 d_78  r_fillet3  D_d_3 0 0];
-cs_9 = [cs_9 d_S3  r_fillet3  D_d_3 0 0];
-cs_H = [cs_H d_G   r_keyseat3 D_d_3 1 K_t_keyseat3];
+cs_A = [cs_A d_B   true  r_keyseat1 K_t_keyseat1];
+cs_0 = [cs_0 d_B   false r_fillet1  d_S1/d_B];
+cs_1 = [cs_1 d_S1  false r_fillet1  d_12/d_S1];
+cs_2 = [cs_2 d_C   false r_fillet1  d_12/d_C];
+cs_6 = [cs_6 d_E   false r_fillet2  d_S22/d_E];
+cs_5 = [cs_5 d_S22 false r_fillet2  d_45/d_S22];
+cs_4 = [cs_4 d_S21 false r_fillet2  d_45/d_S21];
+cs_3 = [cs_3 d_D   false r_fillet2  d_S21/d_D];
+cs_7 = [cs_7 d_F   false r_fillet3  d_78/d_F];
+cs_8 = [cs_8 d_78  false r_fillet3  d_78/d_S3];
+cs_9 = [cs_9 d_S3  false r_fillet3  d_S3/d_G];
+cs_H = [cs_H d_G   true  r_keyseat3 K_t_keyseat3];
 
 % Lists for for loop
 shaft1_AllCS = [cs_A; cs_0; cs_1; cs_2];

@@ -11,17 +11,14 @@ V_z = cs(5); % [N] % Shear
 
 % Geometry for stress concentration
 d_shaft  = cs(6); % [mm] Shaft diameter
-r_fillet = cs(7); % [mm] Notch fillet radius
-D_d      = cs(8); % [-]
-keyseat  = cs(9); % Is 1 for keyseat, 0 for shoulder-fillet
-K_t_keyseat = cs(10); % Stress concentration for keyseat
+%keyseat  = cs(7); % true -> keyseat, false -> shoulder-fillet
+r_fillet = cs(8); % [mm] Notch fillet radius
 
 % Calculated values
 R = (d_shaft/2);  % [mm] Shaft radius
 A = pi*R^2;       % [mm^2] Shaft area
 I = (pi/4)*R^4;   % [mm^4] Moment of inertia (I_x = I_y)
 I_p = (pi/2)*R^4; % [mm^4] Polar moment of inertia
-
 
 %%%%% Material data %%%%% Machine Design, Table A8 & A9 pg 1039-1040
 % "Key-value pair" not physical/mechanical key
@@ -52,52 +49,59 @@ q = 1/(1 + (a_sqrt_mm/sqrt(r_fillet)));
 
 %%%%% Stress concentration factors %%%%% MAS236 L3 s12
 
-% Geometrical (theoretical) stress concentration factors:
-    % Tables/values: Machine Design Appendix C (page 1048-1049)
-
-% "Key-value pair" not physical/mechanical key
-D_d_bend_key = [6.00, 3.00, 2.00, 1.50, 1.20, 1.10, 1.07, 1.05, ...
-                1.03, 1.02, 1.01];
-D_d_bend_values = struct('A', num2cell([0.87868, 0.89334, 0.90879, ...
-                        0.93836, 0.97098, 0.95120, 0.97527, 0.98137, ...
-                        0.98061, 0.96048, 0.91938]),...
-                        'b', num2cell([-0.33243, -0.30860, -0.28598, ...
-                        -0.25759, -0.21796, -0.23757, -0.20958, ...
-                        -0.19653, -0.18381, -0.17711, -0.17032]));
-D_d_bend_table = dictionary(D_d_bend_key, D_d_bend_values);
-
-A_bend = D_d_bend_table(D_d).A;
-b_bend = D_d_bend_table(D_d).b;
-
-% "Key-value pair" not physical/mechanical key
-D_d_tor_key = [2.00, 1.33, 1.20, 1.09];
-D_d_tor_values = struct('A', num2cell([0.86331, 0.84897, 0.83425, 0.90337]),...
-                        'b', num2cell([-0.23865, -0.23161, -0.21649, -0.12692]));
-D_d_tor_table = dictionary(D_d_tor_key, D_d_tor_values);
-
-A_tor = D_d_tor_table(D_d).A;
-b_tor = D_d_tor_table(D_d).b;
-
-% "Key-value pair" not physical/mechanical key
-D_d_axial_key = [2.00, 1.50, 1.30, 1.20, 1.15, 1.10, 1.07, 1.05, 1.02, 1.01];
-D_d_axial_values = struct('A', num2cell([1.01470, 0.99957, 0.99682, ...
-                            0.96272, 0.98084, 0.98450, 0.98498, ...
-                            1.00480, 1.01220, 0.98413]), ...
-                          'b', num2cell([-0.30035, -0.28221, -0.25751, ...
-                          -0.25527, -0.22485, -0.20818, -0.19548, ...
-                          -0.17076, -0.12474, -0.10474]));
-D_d_axial_table = dictionary(D_d_axial_key, D_d_axial_values);
-
-A_axial = D_d_axial_table(D_d).A;
-b_axial = D_d_axial_table(D_d).b;
-
-K_t_bend  = A_bend *(r_fillet/d_shaft)^b_bend;  % Normal Stress - fig C-2
-K_t_tor   = A_tor  *(r_fillet/d_shaft)^b_tor;   % Shear  Stress - fig C-3
-K_t_axial = A_axial*(r_fillet/d_shaft)^b_axial; % Normal Stress - fig C-1
-
 % For end-milled keyseat % Machine Design, fig 10-16, pg 615
-if keyseat == 1
-    K_t_tor = K_t_keyseat;
+if cs(7)
+    K_t_tor = cs(9); % Stress concentration for keyseat
+    K_t_axial = 1; % For redundancy, does not apply
+    K_t_bend  = 1; % For redundancy, does not apply
+    
+    if cs(7) && any([P, M, V_y, V_z] ~= 0)
+    fprintf(['Error: Check stress concentration factors K_t_axial & K_t_bend \n'...
+             'P = %2f\nM = %2f\nV_y = %2f\nV_z = %2f\n'], P, M, V_y, V_z);
+    end
+else
+    % Geometrical (theoretical) stress concentration factors for shoulder-fillet:
+        % Tables/values: Machine Design Appendix C (page 1048-1049)
+    
+    % "Key-value pair" not physical/mechanical key
+    D_d_bend_key = [6.00, 3.00, 2.00, 1.50, 1.20, 1.10, 1.07, 1.05, ...
+                    1.03, 1.02, 1.01];
+    D_d_bend_values = struct('A', num2cell([0.87868, 0.89334, 0.90879, ...
+                            0.93836, 0.97098, 0.95120, 0.97527, 0.98137, ...
+                            0.98061, 0.96048, 0.91938]),...
+                            'b', num2cell([-0.33243, -0.30860, -0.28598, ...
+                            -0.25759, -0.21796, -0.23757, -0.20958, ...
+                            -0.19653, -0.18381, -0.17711, -0.17032]));
+    D_d_bend_table = dictionary(D_d_bend_key, D_d_bend_values);
+    D_d_bend = find_closest_value(cs(9), D_d_bend_key);
+    A_bend = D_d_bend_table(D_d_bend).A;
+    b_bend = D_d_bend_table(D_d_bend).b;
+    
+    % "Key-value pair" not physical/mechanical key
+    D_d_tor_key = [2.00, 1.33, 1.20, 1.09];
+    D_d_tor_values = struct('A', num2cell([0.86331, 0.84897, 0.83425, 0.90337]),...
+                            'b', num2cell([-0.23865, -0.23161, -0.21649, -0.12692]));
+    D_d_tor_table = dictionary(D_d_tor_key, D_d_tor_values);
+    D_d_tor = find_closest_value(cs(9), D_d_tor_key);
+    A_tor = D_d_tor_table(D_d_tor).A;
+    b_tor = D_d_tor_table(D_d_tor).b;
+    
+    % "Key-value pair" not physical/mechanical key
+    D_d_axial_key = [2.00, 1.50, 1.30, 1.20, 1.15, 1.10, 1.07, 1.05, 1.02, 1.01];
+    D_d_axial_values = struct('A', num2cell([1.01470, 0.99957, 0.99682, ...
+                                0.96272, 0.98084, 0.98450, 0.98498, ...
+                                1.00480, 1.01220, 0.98413]), ...
+                              'b', num2cell([-0.30035, -0.28221, -0.25751, ...
+                              -0.25527, -0.22485, -0.20818, -0.19548, ...
+                              -0.17076, -0.12474, -0.10474]));
+    D_d_axial_table = dictionary(D_d_axial_key, D_d_axial_values);
+    D_d_axial = find_closest_value(cs(9), D_d_axial_key);
+    A_axial = D_d_axial_table(D_d_axial).A;
+    b_axial = D_d_axial_table(D_d_axial).b;
+    
+    K_t_axial = A_axial*(r_fillet/d_shaft)^b_axial; % Normal Stress - fig C-1
+    K_t_bend  = A_bend *(r_fillet/d_shaft)^b_bend;  % Normal Stress - fig C-2
+    K_t_tor   = A_tor  *(r_fillet/d_shaft)^b_tor;   % Shear  Stress - fig C-3
 end
 
 % Fatigue (dynamic) stress concentration foactors:
@@ -208,6 +212,8 @@ tau_z_shear_max_nom = (4/3)*(V_z_max/A); % [MPa]
 tau_z_shear_min_nom = (4/3)*(V_z_min/A); % [MPa]
 tau_z_shear_m_nom   = (tau_z_shear_max_nom + tau_z_shear_min_nom)/2; % [MPa]
 tau_z_shear_a_nom   = (tau_z_shear_max_nom - tau_z_shear_min_nom)/2; % [MPa]
+fprintf('tau_y_shear_max_nom = %2f\n', tau_y_shear_max_nom)
+fprintf('tau_z_shear_max_nom = %2f\n', tau_z_shear_max_nom)
 
 % Bending
 sigma_x_bend_max_nom = (M_max*R)/I; % [MPa]
@@ -220,7 +226,8 @@ tau_tor_max_nom = (T_max*R)/I_p; % [MPa]
 tau_tor_min_nom = (T_min*R)/I_p; % [MPa]
 tau_tor_m_nom   = (tau_tor_max_nom + tau_tor_min_nom)/2; % [MPa]
 tau_tor_a_nom   = (tau_tor_max_nom - tau_tor_min_nom)/2; % [MPa]
-
+fprintf('tau_tor_max_nom = %2f\n', tau_tor_max_nom)
+fprintf('sigma_x_bend_max_nom = %2f\n', sigma_x_bend_max_nom)
 
 %%%%% Mean & Amplitude stress w/stress concentration (Ductile materials) %%%%%
 % MAS236 L3 s19 & s21
@@ -263,7 +270,7 @@ fprintf('Included shear  -->  sigma_e = %2f\n', sigma_e_max)
 
 
 %%%%% Diameter Equation %%%%%
-if first_iteration == "y"
+if first_iteration
     
     % Estimating stress geometric concentration factors 
                                 % for preliminary stage % MAS236 L5 s10
