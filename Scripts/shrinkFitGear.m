@@ -24,7 +24,7 @@
 % sigma_r_h = radial stress in hub / gear [MPa]
 % min_r_o = Minimum hub outer diamter [mm]
 
-function [p,T_max,d_c,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_h,sigma_r_s,sigma_r_h] ...
+function [p,T_max,d_h_i,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_h,sigma_r_s,sigma_r_h] ...
     = shrinkFitGear(d_h_o,d_s,l,mu,E_o,E_i,V_o,V_i)
 
     r_i = 0; % [mm] solid shaft, no hollow inner diameter
@@ -42,21 +42,21 @@ function [p,T_max,d_c,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_h,sigma_r_s
         % "078-Engineering-Drawings-Lecture-Linear-Fits-Tolerances.pdf")
     
     delta_r = i_8/2;
-    % resize:
-    d_c = (r - delta_r)*2; % [mm] diameter of gear / hub inner hole
-    h = C_h * d_c^(1/3); % hub inner hole diameter tolerence 
+    % resize:a
+    d_h_i = d_s - i_8; % [mm] diameter of gear / hub inner hole
+    h = C_h * d_h_i^(1/3); % hub inner hole diameter tolerence 
     s = C_s * d_s^(1/3); % shaft diameter tolerence 
 
     % temperature calculations: pg 577 university physics book
     temp_room = 22; % room temperature [deg C]
     temp_shaft = temp_room;
-    L_0 = 2*pi*(d_c/2); % initial length (radius of outer - radius of inner) [mm]
+    L_0 = 2*pi*(d_h_i/2); % initial length (radius of outer - radius of inner) [mm]
     fit_tol = s+h; % extra radius for easier fit [mm]
-    L_heated = 2*pi*((d_s + fit_tol)/2); % finishing length for fit [mm]
+    L_heated = 2*pi*((d_h_i + i_8 + fit_tol)/2); % finishing length for fit [mm]
     alpha = 1.2e-5; % Coefficient of linear expansion [1/deg C], tab 17.1 pg 578
     heat_temp_hub = ((L_heated - L_0) / (alpha * L_0)) + temp_room; % [deg C] eq 17.6 pg 576
 
-    max_heating = 110; % [deg C] bad for bearings to be above 125 deg C
+    max_heating = 120; % [deg C] bad for bearings to be above 125 deg C
     if heat_temp_hub > max_heating
         %warning("Shaft d = %dmm has to be cooled for interference fit",d_s)
         temp_shaft = temp_room - (heat_temp_hub - max_heating); % cool down shaft instead
@@ -77,7 +77,7 @@ function [p,T_max,d_c,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_h,sigma_r_s
 
     sigma_r_s = -p;
     sigma_r_h = -p;
-    if (d_c > d_h_o)
+    if (d_h_i > d_h_o)
         warning("Shaft larger than gear")
         sigma_t_s = inf; % probably removing
         sigma_t_h = inf;
