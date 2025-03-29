@@ -5,10 +5,13 @@ clc; clear; close all;
 
 %% Constants
 
-% Masses of gears
-g = 9.81; %[m/s^2]
-m_G2 = 0.52675; %[kg]
-m_G3 = 1; %[kg]
+% Chosen Parameters
+L_12 = 5e-3; % [m]
+L_45 = 5e-3; % [m]
+L_78 = 5e-3; % [m]
+    % Stage efficiencies
+% eta = 0.96; % [-] "finely worked teeth & good lubrication"
+eta = 1.00; % [-] Ideal Stages
 
 % Diameters of shaft
 d_D = 0.01; % [m]
@@ -17,13 +20,11 @@ d_S21 = 0.02; % [m]
 d_S22 = 0.02; %[m]
 d_45 = 0.02; %[m]
 
-% Lengths of gears
-b_s1 = 0.005; % [m]
-b_s2 = 0.005; % [m]
+% Gravity Constant
+g = 9.81; % [m/s^2]
 
-%Lengths of bearings
-L_BE = 0.005; %[m]
-L_BD = 0.005; %[m]
+% Import from Bearings
+load('bearings.mat', 'b_E', 'b_D') % [mm]
 
 % Common Plotting Constants
 colFill = [0.7765 0.9176 0.9843];
@@ -38,16 +39,6 @@ P_1 = 12.5e3; % [W]
 i_tot_og = 17.3;
 alpha = 20; % [degrees] Helix Angle
 beta = 15;  % [degrees] Pressure Angle
-
-% Chosen Parameters
-L_12 = 5e-3; % [m]
-L_45 = 5e-3; % [m]
-L_78 = 5e-3; % [m]
-    % Bearing widths
-b_D = 30e-3; % [m] catalogue circa 16 - 47 [mm] <-- WIP
-b_E = b_D; % [m]
-% eta = 0.96; % [-] Stage efficiency "finely worked teeth & good lubrication"
-eta = 1.00; % [-] Ideal Stages
  
 % Import from Gear Sizing
 load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', ...
@@ -84,13 +75,13 @@ L_E6 = b_E/2; % [m]
 F_t2 = T_M/r_G1; % [N]
 F_a2 = F_t2 * tand(beta); % [N]
 F_r2 = F_t2 * tand(alpha)/cosd(beta); % [N]
-F_G2 = (m_G2*g);  %[N]
+F_G2 = (mass_g2*g);  %[N]
 
     % Gear 3 forces
 F_t3 = T_out / r_G4; % [N]
 F_a3 = F_t3 * tand(beta); % [N]
 F_r3 = F_t3 * tand(alpha)/cosd(beta); % [N]
-F_G3 = (m_G3*g); %[N]
+F_G3 = (mass_g3*g); %[N]
 
     % Reaction forces @ bearings
 F_Ex = F_a2 - F_a3;

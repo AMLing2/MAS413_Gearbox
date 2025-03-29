@@ -227,14 +227,14 @@ if true%exist("shaftDesign.mat","file")
         % g1
         [p_g1,T_max_g1,d_i_g1,h_tol_g1,s_tol_g1,heat_temp_hub_g1,cool_temp_shaft_g1 ...
             ,sigma_t_s_g1,sigma_t_o_g1,sigma_r_s_g1,sigma_r_o_g1] = ... % stresses
-            pressFitsShaft(df_g1,d_shaft_g1,b_s1,mu,E_mat*1e-3,E_mat*1e-3,V_mat,V_mat);
+            shrinkFitGear(df_g1,d_shaft_g1,b_s1,mu,E_mat*1e-3,E_mat*1e-3,V_mat,V_mat);
         sigma_t_o_g1
         sigma_r_o_g1
         
         % g2
         [p_g2,T_max_g2,d_i_g2,h_tol_g2,s_tol_g2,heat_temp_hub_g2,cool_temp_shaft_g2 ...
             ,sigma_t_s_g2,sigma_t_o_g2,sigma_r_s_g2,sigma_r_o_g2] = ... % stresses
-            pressFitsShaft(df_g2,d_shaft_g2,b_s1,mu,E_mat*1e-3,E_mat*1e-3,V_mat,V_mat);
+            shrinkFitGear(df_g2,d_shaft_g2,b_s1,mu,E_mat*1e-3,E_mat*1e-3,V_mat,V_mat);
         sigma_t_o_g2
         sigma_r_o_g2
     
@@ -252,11 +252,11 @@ if true%exist("shaftDesign.mat","file")
     % g3
     [p_g3,T_max_g3,d_i_g3,h_tol_g3,s_tol_g3,heat_temp_hub_g3,cool_temp_shaft_g3 ...
         ,sigma_t_s_g3,sigma_t_o_g3,sigma_r_s_g3,sigma_r_o_g3] = ... % stresses
-        pressFitsShaft(df_g3,d_shaft_g3,b_s2,mu,E_mat*1e-3,E_mat*1e-3,V_mat,V_mat);
+        shrinkFitGear(df_g3,d_shaft_g3,b_s2,mu,E_mat*1e-3,E_mat*1e-3,V_mat,V_mat);
     % g4
     [p_g4,T_max_g4,d_i_g4,h_tol_g4,s_tol_g4,heat_temp_hub_g4,cool_temp_shaft_g4 ...
         ,sigma_t_s_g4,sigma_t_o_g4,sigma_r_s_g4,sigma_r_o_g4] = ... % stresses
-        pressFitsShaft(df_g4,d_shaft_g4,b_s2,mu,E_mat*1e-3,E_mat*1e-3,V_mat,V_mat);
+        shrinkFitGear(df_g4,d_shaft_g4,b_s2,mu,E_mat*1e-3,E_mat*1e-3,V_mat,V_mat);
 
     % check
     if (abs(sigma_t_s_g3) > (Sy_mat / n_f) &&  abs(sigma_r_o_g3) > (Sy_mat / n_f)) || ...

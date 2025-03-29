@@ -25,14 +25,23 @@ i_tot_og = 17.3;
 alpha = 20; % [degrees] Helix Angle
 beta = 15;  % [degrees] Pressure Angle
 
+% Gravity Constant
 g = 9.81; % [m/s^2]
 
 % Import from Bearings
-load('bearings.m', 'b_B', 'b_C')
+load('bearings.mat', 'b_B', 'b_C') % [mm]
+b_B = b_B / 1000; % [m]
+b_C = b_C / 1000; % [m]
+
+% Diameters of shaft
+d_C   = 0.010; % [m]
+d_12  = 0.015; % [m]
+d_B   = 0.011; % [m]
+d_S1  = 0.013; % [m]
 
 % Import from Gear Sizing
 load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', ...
-    'b_s1', 'b_s2', 'i_tot', 'E_mat', 'mass_g1')
+    'b_s1', 'b_s2', 'i_tot', 'E_mat', 'mass_g1') % [mm], [MPa], [kg]
     
 % Convert from Gear Sizing
 r_G1 = d_g1/2 * 1e-3; % [m]
