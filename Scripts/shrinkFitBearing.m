@@ -2,28 +2,16 @@
 % case: known hub inner diameter (bearing selected), increase shaft outer diamter to fit the hub
 % (for bearings)
 %%%INPUTS:
-% d_h_o : outer diameter of hub / gear [mm]
-% d_s : inner diameter of hub [mm]
-% l : length of hub/gear engagement [mm]
-% mu : coefficient of friction, static
-% E_o : Young's modulus of gear / hub material [GPa]
-% E_i : Young's modulus of shaft material [GPa]
-% V_o : poisson's ratio of gear / hub material
-% V_i : poisson's ratio of shaft material
-% d_h_i : inner diameter of hub / bearing [mm]
+% d_h_o : outer diameter of hub / gear (D for bearings) [mm]
+% d_h_i : inner diameter of hub / bearing (d for bearings) [mm]
 
 %%%OUTPUTS:
-% p : pressure in the interference [Mpa]
-% T_max : maximum torque the joint can withstand [Nm]
-% d_c : changed radius of outer shaft radius [mm]
+% d_s_c : changed diameter of shaft [mm]
 % h : gear hole diameter tolerence
 % s : shaft diameter tolerence
 % heat_temp_hub : temperature of hub / bearing needed for the fit [deg C]
 % temp_shaft : temperature of shaft needed for the fit [deg C]
-% sigma_t_s = tangenial stress in shaft [Mpa]
-% sigma_t_o = radial stress in shaft [Mpa]
-% sigma_r_s = tangenial stress in hub / bearing [Mpa]
-% sigma_r_o = radial stress in hub / bearing [Mpa]
+% bearing_clearance : radial clearance in the bearing (likely incorrect) [um]
 
 function [d_s_c,h,s,heat_temp_bearing,temp_shaft,bearing_clearance] ...
     = shrinkFitBearing(d_h_o,d_h_i)

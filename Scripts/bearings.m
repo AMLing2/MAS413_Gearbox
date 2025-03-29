@@ -26,9 +26,9 @@ end
 
 % Import diameters from Shaft Design
 if exist(fullfile("export_import","shaft_design.mat"),'file')
-    load(fullfile("export_import","shaft_design.mat"), "B_Fa", "B_Fr", "C_Fa", "C_Fr")
+    load(fullfile("export_import","shaft_design.mat"), "aaaa")
 else
-    error("Run shaftDesign.m first")
+    %error("Run shaftDesign.m first")
 end
 
 
@@ -156,6 +156,25 @@ b_G = b_F;
 
 clear b_data % remove table before saving
 save(fullfile("export_import","bearings.mat"))
+
+% calculate shrink fits
+dic_sh1 = dictionary(data_names,data_sh1);
+[d_B,h_sh1,s_sh1,temp_sh1_bearing,temp_sh1] = ...
+    shrinkFitBearing(str2double(dic_sh1( "Outer diameter [mm]")),...
+    str2double(dic_sh1("Bore diameter [mm]")));
+dic_sh2 = dictionary(data_names,data_sh2);
+[d_E,h_sh2,s_sh2,temp_sh2_bearing,temp_sh2] = ...
+    shrinkFitBearing(str2double(dic_sh2( "Outer diameter [mm]")),...
+    str2double(dic_sh2("Bore diameter [mm]")));
+dic_sh3 = dictionary(data_names,data_sh3);
+[d_F,h_sh3,s_sh3,temp_sh3_bearing,temp_sh3] = ...
+    shrinkFitBearing(str2double(dic_sh3( "Outer diameter [mm]")),...
+    str2double(dic_sh3("Bore diameter [mm]")));
+d_C = d_B; % set other bearings equal
+d_D = d_E;
+d_G = d_F;
+save(fullfile("export_import","diameter_shaft_bearings.mat"),"d_B","d_C", ...
+    "d_E", "d_D", "d_F", "d_G");
 
 %% Ball Bearing Selection
 function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R,d_list,C_dyn_list,C_0_list,f0_list,desg_list)
