@@ -1,11 +1,7 @@
 clc; clear; close all;
 export_import = fullfile(pwd, 'export_import');
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% MAS413 Project: Loading Diagrams - Shaft 1 %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%% Constants %%%
+%% Constants
 
 % Chosen Parameters
 L_12 = 5e-3; % [m]
@@ -29,6 +25,8 @@ beta = 15;  % [degrees] Pressure Angle
 
 % Gravity Constant
 g = 9.81; % [m/s^2]
+
+%% Import
 
 % Import from Bearings
 if exist(fullfile(export_import,'bearings.mat'), 'file')
@@ -63,14 +61,21 @@ else
     error('Start by running gear_sizing.m')
 end
 
-% Calculated values
+%% Common Calculations
+
 omega_1 = n_1 * 2*pi / 60; % [rad/sec]
 T_M = P_1 / omega_1; % [Nm]
-F_G1 = mass_g1*g;
-% Gear Forces
+% Gear 1
 F_t1 = T_M / r_G1; % [N]
 F_a1 = F_t1 * tand(beta); % [N]
 F_r1 = F_t1 * tand(alpha)/cosd(beta); % [N]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% MAS413 Project: Loading Diagrams - Shaft 1 %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Calculated values
+F_G1 = mass_g1*g;
 % Lengths
 L_BC  = b_B/2 + L_78 + b_s2 + L_45 + b_s1 + L_12; % [m]
 L_BG1 = b_B/2 + L_78 + b_s2 + L_45 + b_s1/2; % [m]
@@ -86,7 +91,7 @@ F_Bz = (F_r1*L_G1C - F_a1*r_G1)/L_BC; % [N]
 F_Bg1 = (F_G1*L_G1C)/L_BC;
 
 
-%% XY - Plane
+%% XY Plane - Shaft 1
 
 % Figure setup
 figHandle = 1;
@@ -94,13 +99,13 @@ xPos = 10;
 yPos = 3;
 
 % Initialize XY Plots
-xy_x = [];
-xy_P = [];
-xy_V = [];
-xy_M = [];
-xy_T = [];
+s1_xy_x = [];
+s1_xy_P = [];
+s1_xy_V = [];
+s1_xy_M = [];
+s1_xy_T = [];
 
-XYplaneFig = figure(figHandle);
+figure(figHandle);
 set(figHandle,'Units','Centimeter')
 set(figHandle,'Position',[xPos yPos wPlot hPlot]);
 sgtitle('\textbf{Shaft 1: XY - Plane}', 'interpreter', 'latex')
@@ -124,53 +129,53 @@ title('Torque $T(x)$', 'Interpreter','latex')
 % 0 < x < L_AB
 x = linspace(0, L_AB, resolution);
 x(size(x))
-xy_x = [xy_x, x]; % [m]
-xy_P = [xy_P, zeros(size(x))]; % [N]
-xy_V = [xy_V, zeros(size(x))]; % [N]
-xy_M = [xy_M, zeros(size(x))]; % [Nm]
-xy_T = [xy_T, ones(size(x)) * T_M ]; % [Nm]
+s1_xy_x = [s1_xy_x, x]; % [m]
+s1_xy_P = [s1_xy_P, zeros(size(x))]; % [N]
+s1_xy_V = [s1_xy_V, zeros(size(x))]; % [N]
+s1_xy_M = [s1_xy_M, zeros(size(x))]; % [Nm]
+s1_xy_T = [s1_xy_T, ones(size(x)) * T_M ]; % [Nm]
 
 % L_AB < x < L_AG1
 x = linspace(L_AB, L_AG1, resolution);
-xy_x = [xy_x, x]; % [m]
-xy_P = [xy_P, zeros(size(x))]; % [N]
-xy_V = [xy_V, ones(size(x)) * F_By]; % [N]
-xy_M = [xy_M, ( F_By*(x - L_AB) )]; % [Nm]
-xy_T = [xy_T, ones(size(x)) * T_M]; % [Nm]
+s1_xy_x = [s1_xy_x, x]; % [m]
+s1_xy_P = [s1_xy_P, zeros(size(x))]; % [N]
+s1_xy_V = [s1_xy_V, ones(size(x)) * F_By]; % [N]
+s1_xy_M = [s1_xy_M, ( F_By*(x - L_AB) )]; % [Nm]
+s1_xy_T = [s1_xy_T, ones(size(x)) * T_M]; % [Nm]
 
 % L_AG1 < x < L_AC
 x = linspace(L_AG1, L_AC, resolution);
-xy_x = [xy_x, x]; % [m]
-xy_P = [xy_P, ones(size(x)) * (-F_a1)]; % [N]
-xy_V = [xy_V, ones(size(x)) * (F_By - F_t1)]; % [N]
-xy_M = [xy_M, ( F_By*(x - L_AB) - F_t1*(x - L_AG1) )]; % [Nm]
-xy_T = [xy_T, ones(size(x)) * (T_M - F_t1*r_G1)]; % [Nm]
+s1_xy_x = [s1_xy_x, x]; % [m]
+s1_xy_P = [s1_xy_P, ones(size(x)) * (-F_a1)]; % [N]
+s1_xy_V = [s1_xy_V, ones(size(x)) * (F_By - F_t1)]; % [N]
+s1_xy_M = [s1_xy_M, ( F_By*(x - L_AB) - F_t1*(x - L_AG1) )]; % [Nm]
+s1_xy_T = [s1_xy_T, ones(size(x)) * (T_M - F_t1*r_G1)]; % [Nm]
 
 subplot(2,2,1)
-plotLD(xy_x,xy_P, colFill)
+plotLD(s1_xy_x,s1_xy_P, colFill)
 subplot(2,2,2)
-plotLD(xy_x,xy_V, colFill)
+plotLD(s1_xy_x,s1_xy_V, colFill)
 subplot(2,2,3)
-plotLD(xy_x,xy_M, colFill)
+plotLD(s1_xy_x,s1_xy_M, colFill)
 subplot(2,2,4)
-plotLD(xy_x,xy_T, colFill)
+plotLD(s1_xy_x,s1_xy_T, colFill)
 
 %% XZ - Plane
 
 % Figure setup
-figHandle = 2;
+figHandle = figHandle + 1;
 xPos = 10;
 yPos = 3;
 
 % Initialize XZ Plots
-xz_x = [];
-xz_P = [];
-xz_V = [];
-xz_M = [];
-xz_T = [];
-xz_Mg = [];
+s1_xz_x = [];
+s1_xz_P = [];
+s1_xz_V = [];
+s1_xz_M = [];
+s1_xz_T = [];
+s1_xz_Mg = [];
 
-XZplaneFig = figure(figHandle);
+figure(figHandle);
 set(figHandle,'Units','Centimeter')
 set(figHandle,'Position',[xPos yPos wPlot hPlot]);
 sgtitle('\textbf{Shaft 1: XZ - Plane}', 'interpreter', 'latex')
@@ -193,120 +198,113 @@ title('Torque $T(x)$', 'Interpreter','latex')
 
 % 0 < x < L_AB
 x = linspace(0, L_AB, resolution); % L_AB blir duplikert i xz_[n] listene
-xz_x = [xz_x, x]; % [m]
-xz_P = [xz_P, zeros(size(x))]; % [N]
-xz_V = [xz_V, zeros(size(x))]; % [N]
-xz_M = [xz_M, zeros(size(x))]; % [Nm]
-xz_T = [xz_T, ones(size(x)) * T_M]; % [Nm]
-xz_Mg =[xz_Mg, zeros(size(x))]; % [Nm]
+s1_xz_x = [s1_xz_x, x]; % [m]
+s1_xz_P = [s1_xz_P, zeros(size(x))]; % [N]
+s1_xz_V = [s1_xz_V, zeros(size(x))]; % [N]
+s1_xz_M = [s1_xz_M, zeros(size(x))]; % [Nm]
+s1_xz_T = [s1_xz_T, ones(size(x)) * T_M]; % [Nm]
+s1_xz_Mg =[s1_xz_Mg, zeros(size(x))]; % [Nm]
 
 % L_AB < x < L_AG1
 x = linspace(L_AB, L_AG1, resolution);
-xz_x = [xz_x, x]; % [m]
-xz_P = [xz_P, zeros(size(x))]; % [N]
-xz_V = [xz_V, ones(size(x)) * (-F_Bz)]; % [N]
-xz_M = [xz_M, ( - F_Bz*(x - L_AB) )]; % [Nm]
-xz_T = [xz_T, ones(size(x)) * T_M]; % [Nm]
-xz_Mg =[xz_Mg, +( F_Bg1 * (x-L_AB)) ]; % [Nm]
+s1_xz_x = [s1_xz_x, x]; % [m]
+s1_xz_P = [s1_xz_P, zeros(size(x))]; % [N]
+s1_xz_V = [s1_xz_V, ones(size(x)) * (-F_Bz)]; % [N]
+s1_xz_M = [s1_xz_M, ( - F_Bz*(x - L_AB) )]; % [Nm]
+s1_xz_T = [s1_xz_T, ones(size(x)) * T_M]; % [Nm]
+s1_xz_Mg =[s1_xz_Mg, +( F_Bg1 * (x-L_AB)) ]; % [Nm]
 
 % L_AG1 < x < L_AC
 x = linspace(L_AG1, L_AC, resolution);
-xz_x = [xz_x, x]; % [m]
-xz_P = [xz_P, ones(size(x)) * (-F_a1)]; % [N]
-xz_V = [xz_V, ones(size(x)) * (F_r1 - F_Bz)]; % [N]
-xz_M = [xz_M, ( F_r1*(x - L_AG1) - F_Bz*(x - L_AB) - F_a1*(r_G1) )]; % [Nm]
-xz_T = [xz_T, ones(size(x)) * (T_M - F_t1*r_G1)]; % [Nm]
-xz_Mg =[xz_Mg, +( F_Bg1 * (x - L_AB) ) - ( F_G1 * (x - L_AG1) ) ]; % [Nm]
+s1_xz_x = [s1_xz_x, x]; % [m]
+s1_xz_P = [s1_xz_P, ones(size(x)) * (-F_a1)]; % [N]
+s1_xz_V = [s1_xz_V, ones(size(x)) * (F_r1 - F_Bz)]; % [N]
+s1_xz_M = [s1_xz_M, ( F_r1*(x - L_AG1) - F_Bz*(x - L_AB) - F_a1*(r_G1) )]; % [Nm]
+s1_xz_T = [s1_xz_T, ones(size(x)) * (T_M - F_t1*r_G1)]; % [Nm]
+s1_xz_Mg =[s1_xz_Mg, +( F_Bg1 * (x - L_AB) ) - ( F_G1 * (x - L_AG1) ) ]; % [Nm]
 
 subplot(2,2,1)
-plotLD(xz_x,xz_P,colFill)
+plotLD(s1_xz_x,s1_xz_P,colFill)
 subplot(2,2,2)
-plotLD(xz_x,xz_V,colFill)
+plotLD(s1_xz_x,s1_xz_V,colFill)
 subplot(2,2,3)
-plotLD(xz_x,xz_M,colFill)
+plotLD(s1_xz_x,s1_xz_M,colFill)
 subplot(2,2,4)
-plotLD(xz_x,xz_T,colFill)
+plotLD(s1_xz_x,s1_xz_T,colFill)
 
 
 %% Loading Diagram: Combined Bending Moment
 
-M = sqrt(xz_M.^2 + xy_M.^2); % [Nm]
+s1_M = sqrt(s1_xz_M.^2 + s1_xy_M.^2); % [Nm]
 
 % Figure setup
-figHandle = 3;
+figHandle = figHandle + 1;
 wPlotM = wPlot;
 hPlotM = hPlot/2;
 
 figure(figHandle);
 set(figHandle,'Units','Centimeter')
 set(figHandle,'Position',[xPos yPos+hPlotM/2 wPlotM hPlotM]);
-plotLD(xy_x, M, colFill)
+plotLD(s1_xy_x, s1_M, colFill)
 title('Combined Moment', 'interpreter', 'latex', 'FontSize',fSize)
 xlabel('[m]', 'interpreter', 'latex')
 ylabel('[Nm]', 'interpreter', 'latex')
 xlim([0 L_AC])
 
-[M_max, M_max_idx] = max(M);
-L = xy_x(M_max_idx);
-dashLineV(L, figHandle, 2, 2)
+[s1_M_max, s1_M_max_idx] = max(s1_M);
+s1_L = s1_xy_x(s1_M_max_idx);
+dashLineV(s1_L, figHandle, 2, 2)
 
 
 %% Export
 
 %%%% For Fatigue %%%%
 % Cross Section A
-[~, cs_A_idx] = closest(xy_x, 0);
-cs_A_P = xy_P(cs_A_idx); % [N]
-cs_A_T = xy_T(cs_A_idx)*1e3; % [Nmm]
-cs_A_M = M(cs_A_idx)*1e3; % [Nmm]
-cs_A_Vy = xy_V(cs_A_idx); % [N]
-cs_A_Vz = xz_V(cs_A_idx); % [N]
+[~, cs_A_idx] = closest(s1_xy_x, 0);
+cs_A_P = s1_xy_P(cs_A_idx); % [N]
+cs_A_T = s1_xy_T(cs_A_idx)*1e3; % [Nmm]
+cs_A_M = s1_M(cs_A_idx)*1e3; % [Nmm]
+cs_A_Vy = s1_xy_V(cs_A_idx); % [N]
+cs_A_Vz = s1_xz_V(cs_A_idx); % [N]
 cs_A = [cs_A_P cs_A_T cs_A_M cs_A_Vy cs_A_Vz];
 % Cross Section 0
-[~, cs_0_idx] = closest(xy_x, L_A0);
-cs_0_P = xy_P(cs_0_idx); % [N]
-cs_0_T = xy_T(cs_0_idx)*1e3; % [Nmm]
-cs_0_M = M(cs_0_idx)*1e3; % [Nmm]
-cs_0_Vy = xy_V(cs_0_idx); % [N]
-cs_0_Vz = xz_V(cs_0_idx); % [N]
+[~, cs_0_idx] = closest(s1_xy_x, L_A0);
+cs_0_P = s1_xy_P(cs_0_idx); % [N]
+cs_0_T = s1_xy_T(cs_0_idx)*1e3; % [Nmm]
+cs_0_M = s1_M(cs_0_idx)*1e3; % [Nmm]
+cs_0_Vy = s1_xy_V(cs_0_idx); % [N]
+cs_0_Vz = s1_xz_V(cs_0_idx); % [N]
 cs_0 = [cs_0_P cs_0_T cs_0_M cs_0_Vy cs_0_Vz];
 % Cross Section 1
-[~, cs_1_idx] = closest(xy_x, L_A1);
-cs_1_P = xy_P(cs_1_idx); % [N]
-cs_1_T = xy_T(cs_1_idx)*1e3; % [Nmm]
-cs_1_M = M(cs_1_idx)*1e3; % [Nmm]
-cs_1_Vy = xy_V(cs_1_idx); % [N]
-cs_1_Vz = xz_V(cs_1_idx); % [N]
+[~, cs_1_idx] = closest(s1_xy_x, L_A1);
+cs_1_P = s1_xy_P(cs_1_idx); % [N]
+cs_1_T = s1_xy_T(cs_1_idx)*1e3; % [Nmm]
+cs_1_M = s1_M(cs_1_idx)*1e3; % [Nmm]
+cs_1_Vy = s1_xy_V(cs_1_idx); % [N]
+cs_1_Vz = s1_xz_V(cs_1_idx); % [N]
 cs_1 = [cs_1_P cs_1_T cs_1_M cs_1_Vy cs_1_Vz];
 % Cross Section 2
-[~, cs_2_idx] = closest(xy_x, L_A2);
-cs_2_P = xy_P(cs_2_idx); % [N]
-cs_2_T = xy_T(cs_2_idx)*1e3; % [Nmm]
-cs_2_M = M(cs_2_idx)*1e3; % [Nmm]
-cs_2_Vy = xy_V(cs_2_idx); % [N]
-cs_2_Vz = xz_V(cs_2_idx); % [N]
+[~, cs_2_idx] = closest(s1_xy_x, L_A2);
+cs_2_P = s1_xy_P(cs_2_idx); % [N]
+cs_2_T = s1_xy_T(cs_2_idx)*1e3; % [Nmm]
+cs_2_M = s1_M(cs_2_idx)*1e3; % [Nmm]
+cs_2_Vy = s1_xy_V(cs_2_idx); % [N]
+cs_2_Vz = s1_xz_V(cs_2_idx); % [N]
 cs_2 = [cs_2_P cs_2_T cs_2_M cs_2_Vy cs_2_Vz];
 %%%% For Fatigue %%%%
 %%%% For Bearings %%%%
-[~, B_idx] = closest(xy_x, L_AB);
-B_Fa = xy_P(B_idx); % [N] Axial Force
-B_Fr = sqrt( xy_V(B_idx)^2 + xz_V(B_idx)^2 ); % [N] Radial Force
-[~, C_idx] = closest(xy_x, L_AC);
-C_Fa = xy_P(C_idx); % [N] Axial Force
-C_Fr = sqrt( xy_V(C_idx)^2 + xz_V(C_idx)^2 ); % [N] Radial Force
+[~, B_idx] = closest(s1_xy_x, L_AB);
+B_Fa = s1_xy_P(B_idx); % [N] Axial Force
+B_Fr = sqrt( s1_xy_V(B_idx)^2 + s1_xz_V(B_idx)^2 ); % [N] Radial Force
+[~, C_idx] = closest(s1_xy_x, L_AC);
+C_Fa = s1_xy_P(C_idx); % [N] Axial Force
+C_Fr = sqrt( s1_xy_V(C_idx)^2 + s1_xz_V(C_idx)^2 ); % [N] Radial Force
 %%%% For Bearings %%%%
-
-% Export data w/o figures (https://stackoverflow.com/questions/
-                            % 45560181/avoid-saving-of-graphics-in-matlab)
-varData = whos;
-saveIndex = cellfun(@isempty, regexp({varData.class}, 'matlab.(graphics|ui)'));
-saveVars = {varData(saveIndex).name};
-save(fullfile(export_import, "loadingDiagram_shaft1.mat"), saveVars{:})
 
 %% Length sanity check
 lW = 3;
 
-figHandle = 11;
+figHandle = figHandle + 1;
 figure(figHandle)
 hold on
 plot( [0 L_AC],  [0  0], 'k', 'LineWidth', lW)
@@ -324,8 +322,6 @@ title('One Directional Length', 'interpreter', 'latex')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% MAS413 Project: Loading Diagrams - Shaft 2 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-clc; clear;
-export_import = fullfile(pwd, 'export_import');
 
 %%% Constants %%%
 
@@ -430,7 +426,7 @@ F_EG = ( (F_G3*L_G3D) + ( F_G2*L_G2D) ) / (L_ED);
 %% XY - Plane
  
 % Figure setup
-figHandle = 4;
+figHandle = figHandle + 1;
 xPos = 10;
 yPos = 3;
 
@@ -499,7 +495,7 @@ plotLD(xy_x,xy_T, colFill)
 %% XZ - Plane
 
 % Figure setup
-figHandle = 5;
+figHandle = figHandle + 1;
 xPos = 10;
 yPos = 3;
 
@@ -575,7 +571,7 @@ plotLD(xz_x,xz_T,colFill)
 M = sqrt(xz_M.^2 + xy_M.^2); % [Nm]
 
 % Figure setup
-figHandle = 6;
+figHandle = figHandle + 1;
 wPlotM = wPlot;
 hPlotM = hPlot/2;
 
@@ -647,7 +643,7 @@ save(fullfile(export_import, "loadingDiagram_shaft2.mat"), saveVars{:})
 %% Length sanity check
 lW = 3;
 
-figHandle = 12;
+figHandle = figHandle + 1;
 figure(figHandle)
 hold on
 plot( [0 L_ED],  [0  0], 'k', 'LineWidth', lW)
@@ -764,7 +760,7 @@ F_GG = F_G4 - F_FG; %[N]
 %% XY - Plane
 
 % Figure setup
-figHandle = 7;
+figHandle = figHandle + 1;
 xPos = 10;
 yPos = 3;
 
@@ -832,7 +828,7 @@ plotLD(xy_x,xy_T, colFill)
 %% XZ - Plane
 
 % Figure setup
-figHandle = 8;
+figHandle = figHandle + 1;
 xPos = 10;
 yPos = 3;
 
@@ -908,7 +904,7 @@ plotLD(xz_x,xz_T,colFill)
 M = sqrt(xz_M.^2 + xy_M.^2); % [Nm]
 
 % Figure setup
-figHandle = 9;
+figHandle = figHandle + 1;
 wPlotM = wPlot;
 hPlotM = hPlot/2;
 
@@ -981,7 +977,7 @@ save(fullfile(export_import, "loadingDiagram_shaft3.mat"), saveVars{:})
 %% Length sanity check
 lW = 3;
 
-figHandle = 10;
+figHandle = figHandle + 1;
 figure(figHandle)
 hold on
 plot( [0 L_FH],  [0  0], 'k', 'LineWidth', lW)
@@ -995,3 +991,12 @@ legend('$L_{FH}$', '$L_{FG}$', '$L_{FG4}$', '$L_{G4G}$', '$L_{GH}$', ...
 xlim( [ (-L_FH*0.1), (L_FH + L_FH*0.1) ] )
 ylim( [-5 5] )
 title('One Directional Length', 'interpreter', 'latex')
+
+%% Export all Loading Diagram Data
+
+% Export data w/o figures (https://stackoverflow.com/questions/
+                            % 45560181/avoid-saving-of-graphics-in-matlab)
+varData = whos;
+saveIndex = cellfun(@isempty, regexp({varData.class}, 'matlab.(graphics|ui)'));
+saveVars = {varData(saveIndex).name};
+save(fullfile(export_import, "loadingDiagrams.mat"), saveVars{:})

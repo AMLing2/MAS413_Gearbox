@@ -183,7 +183,8 @@ ylabel('Deflection [m]')
 varData = whos;
 saveIndex = cellfun(@isempty, regexp({varData.class}, 'matlab.(graphics|ui)'));
 saveVars = {varData(saveIndex).name};
-save("deflection_shaft1.mat","d_C","d_12","d_S1","d_B", saveVars{:})
+save(fullfile(export_import, "deflection_shaft1.mat"), ...
+    "d_C","d_12","d_S1","d_B", saveVars{:})
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Formula for calculating new diameter based on critical speed
@@ -376,7 +377,8 @@ end
 varData = whos;
 saveIndex = cellfun(@isempty, regexp({varData.class}, 'matlab.(graphics|ui)'));
 saveVars = {varData(saveIndex).name};
-save("deflection_shaft2.mat","d_D","d_S21","d_45","d_S22","d_E", saveVars{:})
+save(fullfile(export_import, "deflection_shaft2.mat"), ...
+    "d_D","d_S21","d_45","d_S22","d_E", saveVars{:})
 
 figure
 hold on; grid on
@@ -575,7 +577,8 @@ end
 varData = whos;
 saveIndex = cellfun(@isempty, regexp({varData.class}, 'matlab.(graphics|ui)'));
 saveVars = {varData(saveIndex).name}; 
-save("deflection_shaft3.mat","d_F","d_78","d_G","d_S3", saveVars{:})
+save(fullfile(export_import, "deflection_shaft3.mat"), ...
+    "d_F","d_78","d_G","d_S3", saveVars{:})
 
 figure
 hold on; grid on
