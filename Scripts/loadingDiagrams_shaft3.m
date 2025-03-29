@@ -4,9 +4,18 @@ clc; clear; close all;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Constants
-% Masses of gears
+
+% Chosen Parameters
+L_12 = 5e-3; % [m]
+L_45 = 5e-3; % [m]
+L_78 = 5e-3; % [m]
+L_GH = 0.05; % [m]
+    % Stage efficiency 
+% eta = 0.96; % [-] "finely worked teeth & good lubrication"
+eta = 1.00; % [-] Ideal Stages
+
+% Gravity Constant
 g = 9.81; %[m/s^2]
-m_G4 = 2; %[kg]
 
 % Diameters of shaft
 d_F   = 0.020; % [m]
@@ -28,19 +37,14 @@ i_tot_og = 17.3;
 alpha = 20; % [degrees] Helix Angle
 beta = 15;  % [degrees] Pressure Angle
 
-% Chosen Parameters
-L_12 = 5e-3; % [m]
-L_45 = 5e-3; % [m]
-L_78 = 5e-3; % [m]
-L_GH = 0.05; % [m]
-    % Bearing widths
-b_F = 30e-3; % [m] catalogue circa 16 - 47 [mm] <-- WIP
-b_G = b_F; % [m]
-% eta = 0.96; % [-] Stage efficiency "finely worked teeth & good lubrication"
-eta = 1.00; % [-] Ideal Stages
+% Import from Bearings
+load('bearings.mat', 'b_F', 'b_G') % [mm]
+b_F = b_F / 1000; % [m]
+b_G = b_G / 1000; % [m]
 
 % Import from Gear Sizing
-load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2', 'i_tot', 'i_s2', 'E_mat')
+load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2', ...
+    'i_tot', 'i_s2', 'E_mat', 'mass_g4') % [mm], [MPa], [kg]
     % Convert from Gear Sizing
 r_G1 = d_g1/2 * 1e-3; % [m]
 r_G2 = d_g2/2 * 1e-3; % [m]
@@ -48,7 +52,7 @@ r_G3 = d_g3/2 * 1e-3; % [m]
 r_G4 = d_g4/2 * 1e-3; % [m]
 b_s1 = b_s1 * 1e-3; % [m]
 b_s2 = b_s2 * 1e-3; % [m]
-E = E_mat*1e6;
+E = E_mat*1e6; % [Pa]
 
 % Calculated Values
 omega_1 = n_1 * 2*pi / 60; % [rad/sec]
@@ -70,7 +74,7 @@ L_F9 = L_FG - b_G/2; % [m]
 F_t4 = T_out / r_G4; % [N]
 F_a4 = F_t4 * tand(beta); % [N]
 F_r4 = F_t4 * tand(alpha)/cosd(beta); % [N]
-F_G4 = (m_G4*g);  %[N]
+F_G4 = (mass_g4*g);  %[N]
     % Reaction forces @ bearings
 F_Fz = (F_a4*r_G4 + F_r4*L_G4G) / L_FG; % [N]
 F_Fy = (F_t4*L_G4G) / L_FG; % [N]

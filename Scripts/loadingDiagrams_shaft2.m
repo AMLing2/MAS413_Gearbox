@@ -25,6 +25,8 @@ g = 9.81; % [m/s^2]
 
 % Import from Bearings
 load('bearings.mat', 'b_E', 'b_D') % [mm]
+b_E = b_E / 1000; % [m]
+b_D = b_D / 1000; % [m]
 
 % Common Plotting Constants
 colFill = [0.7765 0.9176 0.9843];
@@ -42,7 +44,8 @@ beta = 15;  % [degrees] Pressure Angle
  
 % Import from Gear Sizing
 load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', ...
-    'b_s1', 'b_s2', 'i_tot', 'i_s1', 'E_mat', 'mass_g2', 'mass_g3')
+    'b_s1', 'b_s2', 'i_tot', 'i_s1', 'E_mat', ...
+    'mass_g2', 'mass_g3') % [mm], [MPa], [kg]
     % Convert from Gear Sizing
 r_G1 = d_g1/2 * 1e-3; % [m]
 r_G2 = d_g2/2 * 1e-3; % [m]
@@ -50,7 +53,7 @@ r_G3 = d_g3/2 * 1e-3; % [m]
 r_G4 = d_g4/2 * 1e-3; % [m]
 b_s1 = b_s1 * 1e-3; % [m]
 b_s2 = b_s2 * 1e-3; % [m]
-E = E_mat*1e6;%[Pa]
+E = E_mat*1e6; % [Pa]
 
 % Calculated Values
 omega_1 = n_1 * 2*pi / 60; % [rad/sec]

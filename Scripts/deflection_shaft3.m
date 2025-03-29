@@ -144,7 +144,7 @@ index_L_EG4 = find(x_values >= L_FG4, 1, 'first');
 delta_g_G4 = abs(theta_corrected_G(index_L_EG4));
 
 % Machine Design - Equation (10.25c) page 636
-omega_c = sqrt( g * (  (m_G4 * delta_g_G4) / (m_G4*delta_g_G4^2)  ) );
+omega_c = sqrt( g * (  (mass_g4 * delta_g_G4) / (mass_g4*delta_g_G4^2)  ) );
 n_c = (60/(2*pi))* omega_c; %[rpm]
 
 n_shaft3 = n_1/i_tot;
