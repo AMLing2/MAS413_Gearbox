@@ -19,26 +19,26 @@
 % heat_temp_hub : hub temperature needed for the fit [deg C]
 % temp_shaft : shaft temperature needed (room temp if standard) [deg C]
 % sigma_t_s = tangenial stress in shaft [Mpa]
-% sigma_t_o = radial stress in shaft [Mpa]
+% sigma_t_h = radial stress in shaft [Mpa]
 % sigma_r_s = tangenial stress in hub / gear [Mpa]
-% sigma_r_o = radial stress in hub / gear [Mpa]
+% sigma_r_h = radial stress in hub / gear [Mpa]
 % min_r_o = Minimum hub outer diamter [mm]
 
-function [p,T_max,d_c,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_o,sigma_r_s,sigma_r_o] ...
+function [p,T_max,d_c,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_h,sigma_r_s,sigma_r_h] ...
     = pressFitsShaft(d_h_o,d_s,l,mu ,E_o,E_i,V_o,V_i)
 
     r_i = 0; % [mm] solid shaft, no hollow inner diameter
     r_o = d_h_o/2; % [mm] hub / gear outer radius
     r = d_s/2; % [mm] shaft radius
 
-    % class 8 fit (h8), Appendix E-1 fundamentals of machine component design pg 854
+    % class 8 fit (h7s6), Appendix E-1 fundamentals of machine component design pg 854
     C_h = 0.0052;
     C_s = 0.0052;
     C_i_8 = 0.0010;
     C_i_7 = 0.0005;
-    i_7 = C_i_7 * d_s; % [mm] average interference h7p6
-    i_8 = C_i_8 * d_s; % [mm] average interference h7s6
-    % h7s6 from table 4.1a lecture 0.78
+    i_7 = C_i_7 * d_s; % [mm] average interference class 7, h7p6
+    i_8 = C_i_8 * d_s; % [mm] average interference class 8, h7s6
+    % h7s6 from table 4.1a lecture pdf 78
     
     delta_r = i_8/2;
     % resize:
@@ -63,8 +63,8 @@ function [p,T_max,d_c,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_o,sigma_r_s
     end
 
     % stress calculations
-    sigma = 2 * delta_r;
-    p = (0.5 * sigma)/ ((r/(E_o*1e3))*((r_o^2 + r^2)/(r_o^2 - r^2) + V_o) + ((r/(E_i*1e3)) * ((r^2)/(r^2) -V_i)))
+    delta = 2 * delta_r;
+    p = (0.5 * delta)/ ((r/(E_o*1e3))*((r_o^2 + r^2)/(r_o^2 - r^2) + V_o) + ((r/(E_i*1e3)) * ((r^2)/(r^2) -V_i)));
     % p = (0.5*sigma) / ...
     %     ( ((r/(E_o*1e3)) * ( ((r_o^2 + r^2)/(r_o^2 - r^2) ) + V_o)) + ...
     %       ((r/(E_i*1e3)) * ( ((r^2 + r_i^2)/(r^2 - r_i^2) ) - V_i))); % [Mpa] pressure in interface, eq 10.14a, pg 620 machine design
@@ -72,16 +72,16 @@ function [p,T_max,d_c,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_o,sigma_r_s
 
     % tangential and radial stresses for shaft and hub, eq 10.15a to 10.16b pg 621 machine design
     sigma_t_s = -p * ((r^2 + r_i^2) / (r^2 - r_i^2));
-    sigma_t_o =  p * ((r_o^2 + r^2) / (r_o^2 - r^2));
+    sigma_t_h =  p * ((r_o^2 + r^2) / (r_o^2 - r^2));
 
     sigma_r_s = -p;
-    sigma_r_o = -p;
+    sigma_r_h = -p;
     if (d_c > d_h_o)
         warning("Shaft larger than gear")
         sigma_t_s = inf; % probably removing
-        sigma_t_o = inf;
+        sigma_t_h = inf;
         sigma_r_s = inf;
-        sigma_r_o = inf;
+        sigma_r_h = inf;
     end
 
     % n_f = 1.5; % saftey factor for minimum hub size calc;

@@ -24,7 +24,7 @@ d_min_B = 24; % TEMP [mm]
 d_min_C = 24; % TEMP [mm]
 d_min_D = 40; % TEMP [mm]
 d_min_E = 40; % TEMP [mm]
-d_min_sh3 = 20; % TEMP [mm]
+d_min_sh3 = 65; % TEMP [mm]
 
 % load bearing .CSV file
 % data from: https://www.skf.com/group/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings#cid-493604
