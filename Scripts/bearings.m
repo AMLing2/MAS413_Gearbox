@@ -7,24 +7,38 @@ minPerHour = 60; % [min/hour]
 hours = lifetime * daysPerYear * work_cycle % [hours]
 ly = lifetime * daysPerYear * work_cycle * minPerHour; % [min]
 
-% Import from Gear Sizing
-load("gear_sizes.mat","i_tot","i_s1","i_s2", ...
-    "n_1","n_2","n_3","n_4")
-% n_x unit is in [rpm]
+% Import shaft speeds from Gear Sizing
+if exist(fullfile("export_import","gear_sizes.mat"),'file')
+    load(fullfile("export_import","gear_sizes.mat"),"i_tot","i_s1","i_s2", ...
+        "n_1","n_2","n_3","n_4") % [rpm]
+else
+    error("Run gear_sizing.m first")
+end
 
 % Import from Loading Diagrams: Axial Load Fa & Radial Load Fr
+if exist(fullfile("export_import","loadingDiagram_shaft1.mat"),'file')
+    load(fullfile("export_import","loadingDiagram_shaft1.mat"), "B_Fa", "B_Fr", "C_Fa", "C_Fr")
+    load(fullfile("export_import","loadingDiagram_shaft2.mat"), "D_Fa", "D_Fr", "E_Fa", "E_Fr")
+    load(fullfile("export_import","loadingDiagram_shaft3.mat"), "F_Fa", "F_Fr", "G_Fa", "G_Fr")
+else
+    error("Run loadingDiagrams.m first")
+end
 
-load("loadingDiagram_shaft1.mat", "B_Fa", "B_Fr", "C_Fa", "C_Fr")
-load("loadingDiagram_shaft2.mat", "D_Fa", "D_Fr", "E_Fa", "E_Fr")
-load("loadingDiagram_shaft3.mat", "F_Fa", "F_Fr", "G_Fa", "G_Fr")
+% Import diameters from Shaft Design
+if exist(fullfile("export_import","shaft_design.mat"),'file')
+    load(fullfile("export_import","shaft_design.mat"), "B_Fa", "B_Fr", "C_Fa", "C_Fr")
+else
+    error("Run shaftDesign.m first")
+end
 
-% Import from Shaft Design
+
 %load("shaftDesign.mat", "d_S11", "d_C")
 d_min_B = 24; % TEMP [mm]
 d_min_C = 24; % TEMP [mm]
 d_min_D = 40; % TEMP [mm]
 d_min_E = 40; % TEMP [mm]
-d_min_sh3 = 65; % TEMP [mm]
+d_min_F = 65; % TEMP [mm]
+d_min_G = 65; % TEMP [mm]
 
 % load bearing .CSV file
 % data from: https://www.skf.com/group/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings#cid-493604
@@ -32,7 +46,7 @@ csvfile = "../Data/combined_ballBearings_manual2.csv";
 b_data = readtable(csvfile,"NumHeaderLines",9,"DecimalSeparator",".","Delimiter",";");
 b_data.Properties.VariableNames = ["num","d","D","B","C","C0","Pu",...
     "ref_speed","max_speed","mass","name_null","designations", ...
-    "capped_one_side","D_null","d1","d2","D1","D2","r1,2","da_min","da_max","Da_max","ra_max","kr","f0"];
+    "capped_one_side","D_null","d1","d2","D1","D2","r1,2","da_min", "da_max","Da_max","ra_max","kr","f0"];
 
 % number of cycles through lifetime:
 cycles_lifetime_sh1 = ly * n_1; % number of cycles
@@ -58,9 +72,9 @@ sh1_n = [n_bB,n_bC];
 sh2_i = [b_index_D,b_index_E];
 sh2_n = [n_bD,n_bE];
 % shaft 3 : F G
-[b_index_G,n_bG] = ball_bearing_sizing(d_min_sh3 ,G_Fr,G_Fa,cycles_lifetime_sh3, ...
+[b_index_G,n_bG] = ball_bearing_sizing(d_min_G ,G_Fr,G_Fa,cycles_lifetime_sh3, ...
     K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side);
-[b_index_F,n_bF] = ball_bearing_sizing(d_min_sh3 ,F_Fr,F_Fa,cycles_lifetime_sh3, ...
+[b_index_F,n_bF] = ball_bearing_sizing(d_min_F ,F_Fr,F_Fa,cycles_lifetime_sh3, ...
     K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side);
 sh3_i = [b_index_F,b_index_G];
 sh3_n = [n_bF,n_bG];
@@ -140,7 +154,8 @@ disp(bearing_tab_sh3);
 b_F = b_data.B(bearing_sh3_i);
 b_G = b_F;
 
-save('bearings.mat')
+clear b_data % remove table before saving
+save(fullfile("export_import","bearings.mat"))
 
 %% Ball Bearing Selection
 function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R,d_list,C_dyn_list,C_0_list,f0_list,desg_list)
