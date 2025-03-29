@@ -149,8 +149,19 @@ disp('===== Lateral Deflection =====')
 if (n_1 < 0.8 * n_c) || (n_1 > 1.25 * n_c)
     disp("Lateral vibration good");
 else
-    disp("Lateral vibration not good");
+    disp("Lateral vibration not good, adjusted diameter values");
+    k = sqrt(  n_1*4   /    n_c     );
+
+
+    d_B = d_B       *k;
+    d_S1 = d_S1     *k;
+    d_12 = d_12     *k;
+    d_C = d_C       *k;
+    
+
 end
+
+
 
 figure
 hold on; grid on
@@ -160,6 +171,9 @@ plot(x_values(index_L_AC), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
 title('Lateral Deflection of Shaft 1')
 xlabel('Length [m]')
 ylabel('Deflection [m]')
+
+
+save("deflection_shaft1.mat","d_C","d_12","d_S1","d_B")
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Formula for calculating new diameter based on ciritcal speed%

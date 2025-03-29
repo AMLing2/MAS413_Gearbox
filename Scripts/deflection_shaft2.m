@@ -157,8 +157,20 @@ disp('===== Lateral Deflection =====')
 if (n_shaft2 < 0.8 * n_c) || (n_shaft2 > 1.25 * n_c)
     disp("Lateral vibration good");
 else
-    disp("Lateral vibration not good");
+    disp("Lateral vibration not good, values adjusted");
+    
+    k =  sqrt(  n_shaft2*4   /    n_c     );
+
+    d_E = d_E*k;
+    d_S22= d_S22*k;
+    d_45= d_45*k;
+    d_S21 = d_S21*k;
+    d_D = d_D*k;
+    
 end
+
+save("deflection_shaft2.mat","d_D","d_S21","d_45","d_S22","d_E")
+
 
 figure
 hold on; grid on
