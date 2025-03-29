@@ -1,4 +1,6 @@
 clc; clear; close all;
+% Set working directory for import_export
+cd export_import
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% MAS413 Project: Loading Diagrams - Shaft 1 %%
@@ -30,28 +32,35 @@ beta = 15;  % [degrees] Pressure Angle
 g = 9.81; % [m/s^2]
 
 % Import from Bearings
-load('bearings.mat', 'b_B', 'b_C', 'd_C', 'd_12', 'd_B', 'd_S1') % [mm]
-b_B = b_B / 1000; % [m]
-b_C = b_C / 1000; % [m]
-
-% % Diameters of shaft
-% d_C   = 0.010; % [m]
-% d_12  = 0.015; % [m]
-% d_B   = 0.011; % [m]
-% d_S1  = 0.013; % [m]
+if exist('bearings.mat', 'file')
+    load('bearings.mat', 'b_B', 'b_C', 'd_C', 'd_12', 'd_B', 'd_S1') % [mm]
+    b_B = b_B / 1000; % [m]
+    b_C = b_C / 1000; % [m]
+else
+    % Bearing Widths
+    b_B = 30e-3; % [m]
+    b_C = b_B;   % [m]
+    % Shaft Diameters
+    d_C   = 0.010; % [m]
+    d_12  = 0.015; % [m]
+    d_B   = 0.011; % [m]
+    d_S1  = 0.013; % [m]
+end
 
 % Import from Gear Sizing
-load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', ...
-    'b_s1', 'b_s2', 'i_tot', 'E_mat', 'mass_g1') % [mm], [MPa], [kg]
-    
-% Convert from Gear Sizing
-r_G1 = d_g1/2 * 1e-3; % [m]
-r_G2 = d_g2/2 * 1e-3; % [m]
-r_G3 = d_g3/2 * 1e-3; % [m]
-r_G4 = d_g4/2 * 1e-3; % [m]
-b_s1 = b_s1 * 1e-3; % [m]
-b_s2 = b_s2 * 1e-3; % [m]
-E = E_mat*1e6; % [Pa]
+if exist('gear_sizes.mat', 'file')
+    load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', ...
+        'b_s1', 'b_s2', 'i_tot', 'E_mat', 'mass_g1') % [mm], [MPa], [kg]
+    r_G1 = d_g1/2 * 1e-3; % [m]
+    r_G2 = d_g2/2 * 1e-3; % [m]
+    r_G3 = d_g3/2 * 1e-3; % [m]
+    r_G4 = d_g4/2 * 1e-3; % [m]
+    b_s1 = b_s1 * 1e-3; % [m]
+    b_s2 = b_s2 * 1e-3; % [m]
+    E = E_mat*1e6; % [Pa]
+else
+    error('Start by running gear_sizing.m')
+end
 
 % Calculated values
 omega_1 = n_1 * 2*pi / 60; % [rad/sec]
