@@ -11,21 +11,21 @@
 % V_i : poisson's ratio of shaft material
 
 %%%OUTPUTS:
-% p : pressure in the interference [Mpa]
+% p : pressure in the interference [MPa]
 % T_max : maximum torque the joint can withstand [Nm]
 % d_c : changed diameter of inner radius of hub [mm]
 % h : hub inner hole diameter tolerence
 % s : shaft diameter tolerence
 % heat_temp_hub : hub temperature needed for the fit [deg C]
 % temp_shaft : shaft temperature needed (room temp if standard) [deg C]
-% sigma_t_s = tangenial stress in shaft [Mpa]
-% sigma_t_h = radial stress in shaft [Mpa]
-% sigma_r_s = tangenial stress in hub / gear [Mpa]
-% sigma_r_h = radial stress in hub / gear [Mpa]
+% sigma_t_s = tangenial stress in shaft [MPa]
+% sigma_t_h = radial stress in shaft [MPa]
+% sigma_r_s = tangenial stress in hub / gear [MPa]
+% sigma_r_h = radial stress in hub / gear [MPa]
 % min_r_o = Minimum hub outer diamter [mm]
 
 function [p,T_max,d_c,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_h,sigma_r_s,sigma_r_h] ...
-    = pressFitsShaft(d_h_o,d_s,l,mu ,E_o,E_i,V_o,V_i)
+    = shrinkFitGear(d_h_o,d_s,l,mu,E_o,E_i,V_o,V_i)
 
     r_i = 0; % [mm] solid shaft, no hollow inner diameter
     r_o = d_h_o/2; % [mm] hub / gear outer radius
@@ -38,7 +38,8 @@ function [p,T_max,d_c,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_h,sigma_r_s
     C_i_7 = 0.0005;
     i_7 = C_i_7 * d_s; % [mm] average interference class 7, h7p6
     i_8 = C_i_8 * d_s; % [mm] average interference class 8, h7s6
-    % h7s6 from table 4.1a lecture pdf 78
+    % h7s6 from table 4.1a (Steinschaden Lecture 6 slide 12 of
+        % "078-Engineering-Drawings-Lecture-Linear-Fits-Tolerances.pdf")
     
     delta_r = i_8/2;
     % resize:
@@ -55,7 +56,7 @@ function [p,T_max,d_c,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_h,sigma_r_s
     alpha = 1.2e-5; % Coefficient of linear expansion [1/deg C], tab 17.1 pg 578
     heat_temp_hub = ((L_heated - L_0) / (alpha * L_0)) + temp_room; % [deg C] eq 17.6 pg 576
 
-    max_heating = 120; % [deg C] bad for bearings to be above 125 deg C
+    max_heating = 110; % [deg C] bad for bearings to be above 125 deg C
     if heat_temp_hub > max_heating
         %warning("Shaft d = %dmm has to be cooled for interference fit",d_s)
         temp_shaft = temp_room - (heat_temp_hub - max_heating); % cool down shaft instead
@@ -67,7 +68,7 @@ function [p,T_max,d_c,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_h,sigma_r_s
     p = (0.5 * delta)/ ((r/(E_o*1e3))*((r_o^2 + r^2)/(r_o^2 - r^2) + V_o) + ((r/(E_i*1e3)) * ((r^2)/(r^2) -V_i)));
     % p = (0.5*sigma) / ...
     %     ( ((r/(E_o*1e3)) * ( ((r_o^2 + r^2)/(r_o^2 - r^2) ) + V_o)) + ...
-    %       ((r/(E_i*1e3)) * ( ((r^2 + r_i^2)/(r^2 - r_i^2) ) - V_i))); % [Mpa] pressure in interface, eq 10.14a, pg 620 machine design
+    %       ((r/(E_i*1e3)) * ( ((r^2 + r_i^2)/(r^2 - r_i^2) ) - V_i))); % [MPa] pressure in interface, eq 10.14a, pg 620 machine design
     T_max = (2*pi*r^2 * mu * p * l) * 1e-3; % [Nm] eq 10.14b pg 621 machine design
 
     % tangential and radial stresses for shaft and hub, eq 10.15a to 10.16b pg 621 machine design
@@ -85,7 +86,7 @@ function [p,T_max,d_c,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_h,sigma_r_s
     end
 
     % n_f = 1.5; % saftey factor for minimum hub size calc;
-    % sigma_y = 417; % [Mpa]
+    % sigma_y = 417; % [MPa]
     % min_r_o =  r*((E_o*n_f*r - E_i*n_f*r + 500*E_i*E_o*sigma*sigma_y + E_i*V_o*n_f*r - E_o*V_i*n_f*r)/(E_i*n_f*r + E_o*n_f*r - 500*E_i*E_o*sigma*sigma_y + E_i*V_o*n_f*r - E_o*V_i*n_f*r))^(1/2);
 
     % stress concentrations: Figure 10-20 pg 622, no equation for it
