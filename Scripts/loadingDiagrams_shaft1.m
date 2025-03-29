@@ -5,14 +5,11 @@ clc; clear; close all;
 
 %% Constants
 
-g = 9.81; % [m/s^2]
-m_G1 = 0.52675; % [kg]
-
-% Diameters of shaft
-d_C   = 0.010; % [m]
-d_12  = 0.015; % [m]
-d_B   = 0.011; % [m]
-d_S1  = 0.013; % [m]
+% Chosen Parameters
+L_12 = 5e-3; % [m]
+L_45 = 5e-3; % [m]
+L_78 = 5e-3; % [m]
+L_AB  = 0.05; % [m]
 
 % Common Plotting Constants
 colFill = [0.7765 0.9176 0.9843];
@@ -28,19 +25,14 @@ i_tot_og = 17.3;
 alpha = 20; % [degrees] Helix Angle
 beta = 15;  % [degrees] Pressure Angle
 
-% Chosen Parameters
-L_12 = 5e-3; % [m]
-L_45 = 5e-3; % [m]
-L_78 = 5e-3; % [m]
-L_AB  = 0.05; % [m]
+g = 9.81; % [m/s^2]
 
-% Bearing widths
-b_B = 30e-3; % [m] catalogue circa 16 - 47 [mm] <-- WIP
-b_C = b_B; % [m]
+% Import from Bearings
+load('bearings.m', 'b_B', 'b_C')
 
 % Import from Gear Sizing
 load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', ...
-    'b_s1', 'b_s2', 'i_tot','E_mat')
+    'b_s1', 'b_s2', 'i_tot', 'E_mat', 'mass_g1')
     
 % Convert from Gear Sizing
 r_G1 = d_g1/2 * 1e-3; % [m]
@@ -49,12 +41,12 @@ r_G3 = d_g3/2 * 1e-3; % [m]
 r_G4 = d_g4/2 * 1e-3; % [m]
 b_s1 = b_s1 * 1e-3; % [m]
 b_s2 = b_s2 * 1e-3; % [m]
-E = E_mat*1e6;%[Pa]
+E = E_mat*1e6; % [Pa]
 
 % Calculated values
 omega_1 = n_1 * 2*pi / 60; % [rad/sec]
 T_M = P_1 / omega_1; % [Nm]
-F_G1 = m_G1*g;
+F_G1 = mass_g1*g;
 % Gear Forces
 F_t1 = T_M / r_G1; % [N]
 F_a1 = F_t1 * tand(beta); % [N]

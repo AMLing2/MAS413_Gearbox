@@ -105,6 +105,9 @@ data_names = ["Bore diameter [mm]";
     "lifetime hours [h]"];
 bearing_tab_sh1 = table(data_sh1,data_names,'VariableNames',["Bearing 1 data","variables"]');
 disp(bearing_tab_sh1);
+b_B = b_data.B(bearing_sh1_i);
+b_C = b_B;
+
 % shaft 2
 data_sh2 = [b_data.d(bearing_sh2_i);
     b_data.D(bearing_sh2_i);
@@ -117,8 +120,10 @@ data_sh2 = [b_data.d(bearing_sh2_i);
     bearing_sh2_n*1e-6;
     bearing2_hours;];
 bearing_tab_sh2 = table(data_sh2,data_names,'VariableNames',["Bearing 2 data","variables"]');
-
 disp(bearing_tab_sh2);
+b_D = b_data.B(bearing_sh2_i);
+b_E = b_D;
+
 % shaft 3
 data_sh3 = [b_data.d(bearing_sh3_i);
     b_data.D(bearing_sh3_i);
@@ -132,6 +137,10 @@ data_sh3 = [b_data.d(bearing_sh3_i);
     bearing3_hours;];
 bearing_tab_sh3 = table(data_sh3,data_names,'VariableNames',["Bearing 3 data","variables"]');
 disp(bearing_tab_sh3);
+b_F = b_data.B(bearing_sh3_i);
+b_G = b_F;
+
+save('bearings.mat')
 
 %% Ball Bearing Selection
 function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R,d_list,C_dyn_list,C_0_list,f0_list,desg_list)

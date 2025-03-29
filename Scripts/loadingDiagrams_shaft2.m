@@ -50,7 +50,8 @@ b_E = b_D; % [m]
 eta = 1.00; % [-] Ideal Stages
  
 % Import from Gear Sizing
-load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2', 'i_tot', 'i_s1', 'E_mat')
+load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', ...
+    'b_s1', 'b_s2', 'i_tot', 'i_s1', 'E_mat', 'mass_g2', 'mass_g3')
     % Convert from Gear Sizing
 r_G1 = d_g1/2 * 1e-3; % [m]
 r_G2 = d_g2/2 * 1e-3; % [m]
