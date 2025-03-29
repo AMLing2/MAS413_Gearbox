@@ -1,10 +1,5 @@
-close all; clc;
-% TO DO:
-% - Complete check if stress due to shear can be necglected
-% - Interpolation for D/d other than 1.2
-
-% Copy paste to command window to update data:
-% run('gear_sizing.m'); run('loadingDiagrams_shaft1.m'); run('loadingDiagrams_shaft2.m'); run('loadingDiagrams_shaft3.m'); close all;
+clc; clear; close all;
+export_import = fullfile(pwd, 'export_import');
 
 % Common input parameters (for all shafts)
 n_f = 2; % Safety factor
@@ -14,6 +9,21 @@ surface_finish = "Machined"; % ("Ground" "Machined" "Hot-rolled" "As-forged") Ot
 reliability = 95; % [%] reliability factor (50 90 95 99 99.9 99.99 99.999 99.9999)
 operating_temperature = 70; % [celsius] defined by Kjell (only significant if > 450)
 first_iteration = false;  % (true / false) First iteration for diameter equation (limited geometry data)
+
+% % Shaft Diameters
+% d_C   = 0.010; % [m]
+% d_12  = 0.015; % [m]
+% d_B   = 0.011; % [m]
+% d_S1  = 0.013; % [m]
+% d_D = 0.01;    % [m]
+% d_E = 0.015;   % [m]
+% d_S21 = 0.02;  % [m]
+% d_S22 = 0.02;  % [m]
+% d_45 = 0.02;   % [m]
+% d_F   = 0.020; % [m]
+% d_78  = 0.030; % [m]
+% d_G = 0.027;   % [m]
+% d_S3 = 0.025;  % [m]
 
 %%%%%%%%%%%% Shaft 1 %%%%%%%%%%%%
 r_keyseat1 = 0.25; % [mm] Keyseat fillet radius
@@ -44,9 +54,14 @@ r_fillet3 = 2; % [mm] Shoulder fillet radius
 % Diameters
 d_S3 = 75;      % [mm]
 d_G  = d_S3-10; % [mm]
-d_78 = d_S3+10;  % [mm]
-d_F  = d_G;     % [mm] 
+d_78 = d_S3+10; % [mm]
+d_F  = d_G;     % [mm]
 
+if exist(fullfile(export_import, "shrinkFit_diameters.mat"), 'file')
+    load(fullfile(export_import, 'shrinkFit_diameters.mat'), ...
+        'd_S1', 'd_B', 'd_C', 'd_12', 'd_S22', 'd_E', 'd_D', ...
+        'd_S21', 'd_45', 'd_78', 'd_F', 'd_G', 'd_S3')
+end
 
 % Import
 % Cross sections lists

@@ -35,8 +35,7 @@ g = 9.81; % [m/s^2]
 % Import from Bearings
 if exist(fullfile(export_import,'bearings.mat'), 'file')
     load(fullfile(export_import,'bearings.mat'), ...
-        'b_B', 'b_C', 'd_C', 'd_12', 'd_B', 'd_S1', ...
-        'b_E', 'b_D', 'b_F', 'b_G') % [mm]
+        'b_B', 'b_C', 'b_E', 'b_D', 'b_F', 'b_G') % [mm]
     b_F = b_F / 1000; % [m]
     b_G = b_G / 1000; % [m]
     b_E = b_E / 1000; % [m]
@@ -51,20 +50,6 @@ else
     b_D = b_E;   % [m]
     b_F = 30e-3; % [m]
     b_G = b_F;   % [m]
-    % Shaft Diameters
-    d_C   = 0.010; % [m]
-    d_12  = 0.015; % [m]
-    d_B   = 0.011; % [m]
-    d_S1  = 0.013; % [m]
-    d_D = 0.01;    % [m]
-    d_E = 0.015;   % [m]
-    d_S21 = 0.02;  % [m]
-    d_S22 = 0.02;  % [m]
-    d_45 = 0.02;   % [m]
-    d_F   = 0.020; % [m]
-    d_78  = 0.030; % [m]
-    d_G = 0.027;   % [m]
-    d_S3 = 0.025;  % [m]
 end
 
 % Import from Gear Sizing
