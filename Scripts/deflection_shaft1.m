@@ -160,3 +160,14 @@ plot(x_values(index_L_AC), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
 title('Lateral Deflection of Shaft 1')
 xlabel('Length [m]')
 ylabel('Deflection [m]')
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Formula for calculating new diameter based on ciritcal speed%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Needs to be done for every diameter of the shaft
+
+%n_c_new = n_1*4;
+
+%n_c_old = n_c
+
+%d_new = d_old * sqrt(  n_c_new   /    n_c_old     );
