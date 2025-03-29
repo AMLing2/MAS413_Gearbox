@@ -1,11 +1,16 @@
 clc; clear; close all;
+export_import = fullfile(pwd, 'export_import');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Shaft 1 Deflection - Forced and Free %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Import from Shaft 1
-load('loadingDiagram_shaft1.mat')
+if exist(fullfile(export_import, "loadingDiagram_shaft1.mat"), 'file')
+    load(fullfile(export_import, 'loadingDiagram_shaft1.mat'))
+else
+    error('Run loadingDiagrams.m first')
+end
 
 % Visuals
 lwDeflection = 2;
@@ -193,9 +198,14 @@ save("deflection_shaft1.mat","d_C","d_12","d_S1","d_B", saveVars{:})
 %% Shaft 2 Deflection - Forced and Free %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear;
+export_import = fullfile(pwd, 'export_import');
 
 % Import from Shaft 2
-load('loadingDiagram_shaft2.mat')
+if exist(fullfile(export_import, "loadingDiagram_shaft2.mat"), 'file')
+    load(fullfile(export_import, 'loadingDiagram_shaft2.mat'))
+else
+    error('Run loadingDiagrams.m first')
+end
 
 % Visuals
 lwDeflection = 2;
@@ -390,9 +400,14 @@ ylabel('Deflection [m]')
 %% Shaft 3 Deflection - Forced and Free %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear;
+export_import = fullfile(pwd, 'export_import');
 
 % Import from Shaft 3
-load('loadingDiagram_shaft3.mat')
+if exist(fullfile(export_import, "loadingDiagram_shaft3.mat"), 'file')
+    load(fullfile(export_import, 'loadingDiagram_shaft3.mat'))
+else
+    error('Run loadingDiagrams.m first')
+end
 
 % Visuals
 lwDeflection = 2;
