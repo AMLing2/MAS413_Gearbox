@@ -1,9 +1,9 @@
 clc; clear; close all;
 
-% Import from Shaft 1
-load('loadingDiagram_shaft1.mat')
+% Import from Shaft 2
+load('loadingDiagram_shaft2.mat')
 
-%% Shaft Deflection - Forced and free
+%% Shaft deflection calculations - free and forced
 
 % Visuals
 lwDeflection = 2;
@@ -12,26 +12,37 @@ ok = 10;
 
 res = 300;
 
-% Initialization
+%Initialize arrays:
+I_shaft = [];
+
 theta = zeros(1, res);
 theta_G = zeros(1, res);
+
+theta_corrected = [];
+theta_corrected_G = [];
+
 delta = zeros(1, res);
 delta_G = zeros(1, res);
-I_shaft = zeros(1, res);
+
+delta_corrected = [];
+delta_corrected_G = [];
 
 % Calculate I for the different intervals
-x_values = linspace(0, L_AC, res);
+x_values = linspace(0, L_ED, res);
 
 for i = 1:res
     x = x_values(i);
-    if     x < (L_AB + (b_B/2) )
-        d = d_B;
-    elseif x < ( L_AG1 + (b_s1/2) )
-        d = d_S1;
-    elseif x < ( L_AG1 + (b_s1/2) + L_12 )
-        d = d_12;
+
+    if x < (L_BE)
+        d = d_E;
+    elseif x < (L_BE + L_EG3 - L_BE/2 + (b_s2 / 2))
+        d = d_S22;
+    elseif x<(L_BE + L_EG3 - L_BE/2 + (b_s2 / 2) + L_45)
+        d= d_45;
+    elseif x < (L_BE + L_EG3 - L_BE/2 + (b_s2 / 2) + L_45 + b_s1 + L_G2D-(b_s1/2) - L_BD/2 )
+        d=d_S21;
     else
-        d = d_C;
+        d = d_D;
     end
 
     I_shaft(i) = (pi * d^4) / 64;
@@ -40,7 +51,7 @@ end
 EI = I_shaft * E;
 
 
-% Integration between L_AB and L_AC
+% Integration between L_E and L_ED
 for i = 2:res
     dx = x_values(i) - x_values(i-1);
 
@@ -51,29 +62,23 @@ for i = 2:res
     % Integrate to find deflection
     delta(i) = delta(i-1) + theta(i) * dx;
     delta_G(i) = delta_G(i-1) + theta_G(i) * dx;
-    
 end
 
-% Apply boundary conditions (deflection at bearings is zero), deflection is 0 at L_AB and L_AC
-index_L_AB = find(x_values >= L_AB, 1, 'first');
-index_L_AC = res;
+% Apply boundary conditions (deflection at bearings is zero), deflection is 0 at bearing E and D
+index_L_ED = res;
 
-% Correction Factor K_4: no deflection @ first bearing
-K_4 = 0;
-K_4_G = 0;
+% Calculate the correction factor K_3
+K_3 = delta(index_L_ED) / L_ED;
+K_3_G = delta_G(index_L_ED) / L_ED;
 
-% Correction Factor K_3: non deflection @ second bearing
-K_3 = delta(index_L_AC) / L_BC;
-K_3_G = delta_G(index_L_AC) / L_BC; 
-
-% Correct the Deflection and Beam Slope
-delta_corrected = delta - K_3 * (x_values - x_values(index_L_AB)) - K_4;
-delta_G_corrected = delta_G - K_3_G * (x_values - x_values(index_L_AB)) - K_4;
+% Correct the deflection
+delta_corrected = delta - K_3 * x_values;
+delta_corrected_G = delta_G - K_3_G * x_values; 
 theta_corrected = theta - K_3;
-theta_G_corrected = theta_G -K_3_G;
+theta_corrected_G = theta_G - K_3_G;
 
 maxDeflection = max( abs(delta_corrected) );
-checkEmpiricalRequirement = maxDeflection / L_AC;
+checkEmpiricalRequirement = maxDeflection / L_ED;
 
 disp('===== Forced Deflection =====')
 
@@ -98,15 +103,14 @@ subplot(1,2,1)
 hold on; grid on
 delta1 = plot(x_values, delta, '--r', 'LineWidth', lwDeflection);
 delta2 = plot(x_values, delta_corrected, 'r', 'LineWidth', lwDeflection);
-plot(x_values(index_L_AB), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
-plot(x_values(index_L_AC), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
+plot(x_values(1), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
+plot(x_values(res), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
 xlabel('Length [m]')
 ylabel('Deflection [m]')
-title('\textbf{Deflection $\delta$ of shaft 1}', 'interpreter', ...
+title('\textbf{Deflection $\delta$ of shaft 2}', 'interpreter', ...
         'latex', 'FontSize', sizeDeflectionText)
 legend([delta1, delta2], 'No Correction', 'Corrected', ...
             'location', 'northwest')
-
 
 % Convert to degrees
 theta = theta * 180/pi; % [degrees]
@@ -121,11 +125,11 @@ plot(x_values, theta_corrected, 'k', 'DisplayName', 'Corrected', ...
     'LineWidth', lwDeflection)
 xlabel('Length [m]')
 ylabel('Angle [degrees]')
-title('\textbf{Beam Slope $\theta$ of shaft 1}', 'interpreter', ...
+title('\textbf{Beam Slope $\theta$ of shaft 2}', 'interpreter', ...
         'latex', 'FontSize', sizeDeflectionText)
 legend('location', 'northwest')
 
-sgtitle('Forced Deflection of Shaft 1')
+sgtitle('Forced Deflection of Shaft 2')
 
 pos = get(fig, 'Position'); % [xPos yPos w h]
 pos(3) = pos(3)*2;
@@ -134,19 +138,23 @@ set(fig, 'Position', pos); % set double width of default
 
 %% Critical speed calculations
 
-index_L_AG1 = find(x_values >= L_AG1, 1, 'first');
+index_L_EG2 = find(x_values >= L_EG2, 1, 'first');
+index_L_EG3 = find(x_values >= L_EG3, 1, 'first');
 
-%abs to make sure that imaginary numbers dont get calculated in omega_c
-delta_g_G1 = abs(delta_G_corrected(index_L_AG1));
+delta_g_G2 = abs(theta_corrected_G(index_L_EG2));
+delta_g_G3 = abs(theta_corrected_G(index_L_EG3));
 
 % Machine Design - Equation (10.25c) page 636
-omega_c = sqrt(g * (   ( (m_G1*delta_g_G1) / (m_G1*delta_g_G1^2))   ));
+omega_c = sqrt(g * (  ( ( (m_G2*delta_g_G2) + (m_G3*delta_g_G3) ) / ...
+                      ( (m_G2*delta_g_G2^2) + (m_G3*delta_g_G3^2) ) )));
 n_c = (60/(2*pi))* omega_c; % [RPM]
+
+n_shaft2 = n_1/i_s1;
 
 disp('===== Lateral Deflection =====')
 
-% Test if n_shaft1 is outside [0.8*n_c, 1.25*n_c]
-if (n_1 < 0.8 * n_c) || (n_1 > 1.25 * n_c)
+% Test if n_shaft2 is outside [0.8*n_c, 1.25*n_c]
+if (n_shaft2 < 0.8 * n_c) || (n_shaft2 > 1.25 * n_c)
     disp("Lateral vibration good");
 else
     disp("Lateral vibration not good");
@@ -154,9 +162,9 @@ end
 
 figure
 hold on; grid on
-plot(x_values, delta_G_corrected, 'r', 'LineWidth', lwDeflection);
-plot(x_values(index_L_AB), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
-plot(x_values(index_L_AC), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
+plot(x_values, delta_corrected_G, 'r', 'LineWidth', lwDeflection);
+plot(x_values(1), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
+plot(x_values(res), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
 title('Lateral Deflection of Shaft 1')
 xlabel('Length [m]')
 ylabel('Deflection [m]')
