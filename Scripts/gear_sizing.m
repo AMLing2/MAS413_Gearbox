@@ -1,4 +1,8 @@
 clc;close all;clear;
+export_import = fullfile(pwd, 'export_import');
+if ~exist(export_import, 'dir')
+    mkdir(export_import);
+end
 
 %TODO: 
 % contact stress, usually sigma_o > sigma_b - done
@@ -381,7 +385,7 @@ T = table([d_g1; d_g2; d_g3; d_g4], [b_s1; b_s1; b_s2; b_s2], [mass_g1; mass_g2;
 
 disp(T)
 
-save("gear_sizes.mat")
+save(fullfile(export_import, "gear_sizes.mat"))
 
 
 function m_t = module_from_fit()

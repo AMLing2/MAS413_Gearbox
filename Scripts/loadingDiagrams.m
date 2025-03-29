@@ -1,6 +1,5 @@
 clc; clear; close all;
-% Set working directory for import_export
-cd export_import
+export_import = fullfile(pwd, 'export_import');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% MAS413 Project: Loading Diagrams - Shaft 1 %%
@@ -32,8 +31,9 @@ beta = 15;  % [degrees] Pressure Angle
 g = 9.81; % [m/s^2]
 
 % Import from Bearings
-if exist('bearings.mat', 'file')
-    load('bearings.mat', 'b_B', 'b_C', 'd_C', 'd_12', 'd_B', 'd_S1') % [mm]
+if exist(fullfile(export_import,'bearings.mat'), 'file')
+    load(fullfile(export_import,'bearings.mat'), ...
+        'b_B', 'b_C', 'd_C', 'd_12', 'd_B', 'd_S1') % [mm]
     b_B = b_B / 1000; % [m]
     b_C = b_C / 1000; % [m]
 else
@@ -48,8 +48,9 @@ else
 end
 
 % Import from Gear Sizing
-if exist('gear_sizes.mat', 'file')
-    load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', ...
+if exist(fullfile(export_import, 'gear_sizes.mat'), 'file')
+    load(fullfile(export_import,'gear_sizes.mat'), ...
+        'd_g1', 'd_g2', 'd_g3', 'd_g4', ...
         'b_s1', 'b_s2', 'i_tot', 'E_mat', 'mass_g1') % [mm], [MPa], [kg]
     r_G1 = d_g1/2 * 1e-3; % [m]
     r_G2 = d_g2/2 * 1e-3; % [m]
@@ -300,7 +301,7 @@ C_Fr = sqrt( xy_V(C_idx)^2 + xz_V(C_idx)^2 ); % [N] Radial Force
 varData = whos;
 saveIndex = cellfun(@isempty, regexp({varData.class}, 'matlab.(graphics|ui)'));
 saveVars = {varData(saveIndex).name};
-save("loadingDiagram_shaft1.mat", saveVars{:})
+save(fullfile(export_import, "loadingDiagram_shaft1.mat"), saveVars{:})
 
 %% Length sanity check
 lW = 3;
@@ -324,6 +325,7 @@ title('One Directional Length', 'interpreter', 'latex')
 %% MAS413 Project: Loading Diagrams - Shaft 2 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear;
+export_import = fullfile(pwd, 'export_import');
 
 %%% Constants %%%
 
@@ -346,9 +348,14 @@ d_45 = 0.02; %[m]
 g = 9.81; % [m/s^2]
 
 % Import from Bearings
-load('bearings.mat', 'b_E', 'b_D') % [mm]
-b_E = b_E / 1000; % [m]
-b_D = b_D / 1000; % [m]
+if exist(fullfile(export_import,'bearings.mat'), 'file')
+    load(fullfile(export_import,'bearings.mat'), 'b_E', 'b_D') % [mm]
+    b_E = b_E / 1000; % [m]
+    b_D = b_D / 1000; % [m]
+else
+    b_E = 30e-3; % [m]
+    b_D = b_E; % [m]
+end
 
 % Common Plotting Constants
 colFill = [0.7765 0.9176 0.9843];
@@ -365,17 +372,21 @@ alpha = 20; % [degrees] Helix Angle
 beta = 15;  % [degrees] Pressure Angle
  
 % Import from Gear Sizing
-load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', ...
+if exist(fullfile(export_import, 'gear_sizes.mat'), 'file')
+    load(fullfile(export_import,'gear_sizes.mat'), ...
+    'd_g1', 'd_g2', 'd_g3', 'd_g4', ...
     'b_s1', 'b_s2', 'i_tot', 'i_s1', 'E_mat', ...
     'mass_g2', 'mass_g3') % [mm], [MPa], [kg]
-    % Convert from Gear Sizing
-r_G1 = d_g1/2 * 1e-3; % [m]
-r_G2 = d_g2/2 * 1e-3; % [m]
-r_G3 = d_g3/2 * 1e-3; % [m]
-r_G4 = d_g4/2 * 1e-3; % [m]
-b_s1 = b_s1 * 1e-3; % [m]
-b_s2 = b_s2 * 1e-3; % [m]
-E = E_mat*1e6; % [Pa]
+    r_G1 = d_g1/2 * 1e-3; % [m]
+    r_G2 = d_g2/2 * 1e-3; % [m]
+    r_G3 = d_g3/2 * 1e-3; % [m]
+    r_G4 = d_g4/2 * 1e-3; % [m]
+    b_s1 = b_s1 * 1e-3; % [m]
+    b_s2 = b_s2 * 1e-3; % [m]
+    E = E_mat*1e6; % [Pa]
+else
+    error('Start by running gear_sizing.m')
+end
 
 % Calculated Values
 omega_1 = n_1 * 2*pi / 60; % [rad/sec]
@@ -631,7 +642,7 @@ D_Fr = sqrt( xy_V(D_idx)^2 + xz_V(D_idx)^2 ); % [N] Radial Force
 varData = whos;
 saveIndex = cellfun(@isempty, regexp({varData.class}, 'matlab.(graphics|ui)'));
 saveVars = {varData(saveIndex).name};
-save("loadingDiagram_shaft2.mat", saveVars{:})
+save(fullfile(export_import, "loadingDiagram_shaft2.mat"), saveVars{:})
 
 %% Length sanity check
 lW = 3;
@@ -658,6 +669,7 @@ title('One Directional Length', 'interpreter', 'latex')
 %% MAS413 Project: Loading Diagrams - Shaft 3 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear;
+export_import = fullfile(pwd, 'export_import');
 
 % Chosen Parameters
 L_12 = 5e-3; % [m]
@@ -692,21 +704,30 @@ alpha = 20; % [degrees] Helix Angle
 beta = 15;  % [degrees] Pressure Angle
 
 % Import from Bearings
-load('bearings.mat', 'b_F', 'b_G') % [mm]
-b_F = b_F / 1000; % [m]
-b_G = b_G / 1000; % [m]
+if exist(fullfile(export_import,'bearings.mat'), 'file')
+    load(fullfile(export_import,'bearings.mat'), 'b_F', 'b_G') % [mm]
+    b_F = b_F / 1000; % [m]
+    b_G = b_G / 1000; % [m]
+else
+    b_F = 30e-3; % [m]
+    b_G = b_F; % [m]
+end
 
 % Import from Gear Sizing
-load('gear_sizes.mat', 'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2', ...
+if exist(fullfile(export_import, 'gear_sizes.mat'), 'file')
+    load(fullfile(export_import,'gear_sizes.mat'), ...
+    'd_g1', 'd_g2', 'd_g3', 'd_g4', 'b_s1', 'b_s2', ...
     'i_tot', 'i_s2', 'E_mat', 'mass_g4') % [mm], [MPa], [kg]
-    % Convert from Gear Sizing
-r_G1 = d_g1/2 * 1e-3; % [m]
-r_G2 = d_g2/2 * 1e-3; % [m]
-r_G3 = d_g3/2 * 1e-3; % [m]
-r_G4 = d_g4/2 * 1e-3; % [m]
-b_s1 = b_s1 * 1e-3; % [m]
-b_s2 = b_s2 * 1e-3; % [m]
-E = E_mat*1e6; % [Pa]
+    r_G1 = d_g1/2 * 1e-3; % [m]
+    r_G2 = d_g2/2 * 1e-3; % [m]
+    r_G3 = d_g3/2 * 1e-3; % [m]
+    r_G4 = d_g4/2 * 1e-3; % [m]
+    b_s1 = b_s1 * 1e-3; % [m]
+    b_s2 = b_s2 * 1e-3; % [m]
+    E = E_mat*1e6; % [Pa]
+else
+    error('Start by running gear_sizing.m')
+end
 
 % Calculated Values
 omega_1 = n_1 * 2*pi / 60; % [rad/sec]
@@ -955,7 +976,7 @@ G_Fr = sqrt( xy_V(G_idx)^2 + xz_V(G_idx)^2 ); % [N] Radial Force
 varData = whos;
 saveIndex = cellfun(@isempty, regexp({varData.class}, 'matlab.(graphics|ui)'));
 saveVars = {varData(saveIndex).name};
-save("loadingDiagram_shaft3.mat", saveVars{:})
+save(fullfile(export_import, "loadingDiagram_shaft3.mat"), saveVars{:})
 
 %% Length sanity check
 lW = 3;
