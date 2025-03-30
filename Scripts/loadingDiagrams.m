@@ -56,7 +56,7 @@ end
 if exist(fullfile(export_import, 'gear_sizes.mat'), 'file')
     load(fullfile(export_import,'gear_sizes.mat'), ...
         'd_g1', 'd_g2', 'd_g3', 'd_g4', ...
-        'b_s1', 'b_s2', 'i_tot', 'i_s1','i_s2','E_mat', ...
+        'b_s1', 'b_s2', 'i_tot', 'i_s1','i_s2', ...
         'mass_g1', 'mass_g2', 'mass_g3', 'mass_g4') % [mm], [MPa], [kg]
     r_G1 = d_g1/2 * 1e-3; % [m]
     r_G2 = d_g2/2 * 1e-3; % [m]
@@ -64,7 +64,6 @@ if exist(fullfile(export_import, 'gear_sizes.mat'), 'file')
     r_G4 = d_g4/2 * 1e-3; % [m]
     b_s1 = b_s1 * 1e-3; % [m]
     b_s2 = b_s2 * 1e-3; % [m]
-    E = E_mat*1e6; % [Pa]
 else
     error('Start by running gear_sizing.m')
 end
@@ -327,7 +326,7 @@ cs_2 = [cs_2_P cs_2_T cs_2_M cs_2_Vy cs_2_Vz];
 %%%% For Bearings %%%%
 [~, B_idx] = closest(xy_x, L_AB);
 B_Fa = xy_P(B_idx); % [N] Axial Force
-B_Fr = sqrt( xy_V(B_idx)^2 + xz_V(B_idx)^2 ); % [N] Radial Force
+B_Fr = sqrt( xy_V(B_idx+2)^2 + xz_V(B_idx+2)^2 ); % [N] Radial Force
 [~, C_idx] = closest(xy_x, L_AC);
 C_Fa = xy_P(C_idx); % [N] Axial Force
 C_Fr = sqrt( xy_V(C_idx)^2 + xz_V(C_idx)^2 ); % [N] Radial Force
