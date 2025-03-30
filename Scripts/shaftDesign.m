@@ -75,7 +75,7 @@ end
 
 if exist(fullfile("export_import","loadingDiagram_shaft1.mat"),'file')
     load(fullfile("export_import", 'loadingDiagram_shaft1.mat'), 'cs_A', 'cs_0', 'cs_1', 'cs_2')
-    load(fullfile("export_import", 'loadingDiagram_shaft2.mat'), 'cs_3', 'cs_4', 'cs_5', 'cs_6')
+    load(fullfile("export_import", 'loadingDiagram_shaft2.mat'), 'cs_3', 'cs_4', 'cs_5', 'cs_6','E_Fa','D_Fa','L_45')
     load(fullfile("export_import", 'loadingDiagram_shaft3.mat'), 'cs_7', 'cs_8', 'cs_9', 'cs_H')
 else
     error("Run loadingDiagrams.m first")
@@ -138,6 +138,15 @@ for i = 1:size(shaft3_AllCS, 1)
 end
 
 modifiedGoodman(S_y, S_ut, shaft3_results, 'Shaft 3')
+load(fullfile(export_import, "loadingDiagram_common.mat"),'F_a_remaining')
+
+n_f = 2; % reset n_f
+shoulder_length_min = shoulder_length(F_a_remaining,min(d_S22,d_S21),d_45,n_f,S_y);
+if shoulder_length_min < L_45*1e3
+    fprintf("\nL_45 shoulder length good\n")
+else
+    fprintf("\nL_45 shoulder length needs to be increased to above %f [mm]\n",shoulder_length_min)
+end
 
 % Export diameters
 save(fullfile("export_import","shaftDesign.mat"), 'd_S1', 'd_B',...
