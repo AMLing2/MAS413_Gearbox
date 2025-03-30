@@ -25,18 +25,16 @@ else
     error('Load loadingDiagrams.m first')
 end
 
-
-
 %% Parameters
 
 d_shaft_1 = d_B; % [m] % Diameter at key placement
 d_shaft_3 = d_G; % [m] % Diameter at key placement
 
-T_shaft1 = T_M; %[Nm]
-T_shaft3 = T_out; %[Nm]
+T_shaft1 = T_M; % [Nm]
+T_shaft3 = T_out; % [Nm]
 
 S_yield = 190 * 10^6;  % [Pa] medium carbon steel typical e-modulus found online
-S_yield_comp = 190 * 10^6;
+S_yield_comp = 190 * 10^6; % [Pa]
 
 %% Calculated values
 
@@ -90,25 +88,25 @@ n_compression_3_2 = (S_yield_comp)      /    sigma_key_3_2; % [-]
 
 %% Print results
 fprintf('\n--- Shear Failure Check (One Key) ---\n');
-fprintf('Shear stress key 1 (tau_key_1): %.2f MPa\n', tau_key_1/ 1e6);
+fprintf('Shear stress key 1 (tau_key_1): %.6f [Pa]\n', tau_key_1);
 fprintf('Shear safety factor key 1 (n_shear_1): %.2f\n', n_shear_1);
-fprintf('Shear stress key 3 (tau_key_3): %.2f MPa\n', tau_key_3/ 1e6);
+fprintf('Shear stress key 3 (tau_key_3): %.2f [MPa]\n', tau_key_3/ 1e6);
 fprintf('Shear safety factor key 3 (n_shear_3): %.2f\n', n_shear_3);
 
 fprintf('\n--- Shear Failure Check (Two Keys) ---\n');
-fprintf('Shear stress key 1 (tau_key_1_2): %.2f MPa\n', tau_key_1_2/ 1e6);
+fprintf('Shear stress key 1 (tau_key_1_2): %.6f [Pa]\n', tau_key_1_2);
 fprintf('Shear safety factor key 1 (n_shear_1_2): %.2f\n', n_shear_1_2);
-fprintf('Shear stress key 3 (tau_key_3_2): %.2f MPa\n', tau_key_3_2/ 1e6);
+fprintf('Shear stress key 3 (tau_key_3_2): %.2f [MPa]\n', tau_key_3_2/1e6);
 fprintf('Shear safety factor key 3 (n_shear_3_2): %.2f\n', n_shear_3_2);
 
 fprintf('\n--- Compression Failure Check (One Key) ---\n');
-fprintf('Compression stress key 1 (sigma_key_1): %.2f MPa\n', sigma_key_1/ 1e6);
+fprintf('Compression stress key 1 (sigma_key_1): %.6f [Pa]\n', sigma_key_1);
 fprintf('Compression safety factor key 1 (n_compression_1): %.2f\n', n_compression_1);
-fprintf('Compression stress key 3 (sigma_key_3): %.2f MPa\n', sigma_key_3/ 1e6);
+fprintf('Compression stress key 3 (sigma_key_3): %.2f [MPa]\n', sigma_key_3/1e6);
 fprintf('Compression safety factor key 3 (n_compression_3): %.2f\n', n_compression_3);
 
 fprintf('\n--- Compression Failure Check (Two Keys) ---\n');
-fprintf('Compression stress key 1 (sigma_key_1_2): %.2f MPa\n', sigma_key_1_2/ 1e6);
+fprintf('Compression stress key 1 (sigma_key_1_2): %.6f [Pa]\n', sigma_key_1_2);
 fprintf('Compression safety factor key 1 (n_compression_1_2): %.2f\n', n_compression_1_2);
-fprintf('Compression stress key 3 (sigma_key_3_2): %.2f MPa\n', sigma_key_3_2/ 1e6);
+fprintf('Compression stress key 3 (sigma_key_3_2): %.2f [MPa]\n', sigma_key_3_2/1e6);
 fprintf('Compression safety factor key 3 (n_compression_3_2): %.2f\n', n_compression_3_2);
