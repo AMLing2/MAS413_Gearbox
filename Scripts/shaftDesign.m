@@ -10,7 +10,8 @@ reliability = 95; % [%] reliability factor (50 90 95 99 99.9 99.99 99.999 99.999
 operating_temperature = 70; % [celsius] defined by Kjell (only significant if > 450)
 first_iteration = false;  % (true / false) First iteration for diameter equation (limited geometry data)
 
-E = 210*1e9; % [GPa] to [Pa]
+E = 210*1e9; % [GPa] to [Pa] E-module for S355J2
+V_shaft = 0.3; % Poisson´s ratio for S355J2
 
 % % Shaft Diameters
 % d_C   = 0.010; % [m]
