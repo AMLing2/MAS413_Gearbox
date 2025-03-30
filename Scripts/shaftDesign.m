@@ -10,6 +10,8 @@ reliability = 95; % [%] reliability factor (50 90 95 99 99.9 99.99 99.999 99.999
 operating_temperature = 70; % [celsius] defined by Kjell (only significant if > 450)
 first_iteration = false;  % (true / false) First iteration for diameter equation (limited geometry data)
 
+E = 210*1e9; % [GPa] to [Pa]
+
 % % Shaft Diameters
 % d_C   = 0.010; % [m]
 % d_12  = 0.015; % [m]
@@ -25,42 +27,48 @@ first_iteration = false;  % (true / false) First iteration for diameter equation
 % d_G = 0.027;   % [m]
 % d_S3 = 0.025;  % [m]
 
+% run('bearings.m')
+% load(fullfile("export_import","diameter_shaft_bearings.mat"),"d_B","d_C", ...
+%     "d_E", "d_D", "d_F", "d_G")
+
 %%%%%%%%%%%% Shaft 1 %%%%%%%%%%%%
 r_keyseat1 = 0.25; % [mm] Keyseat fillet radius
 K_t_keyseat1 = 3.75; % Keyseat stress concentration factor % Machine Design fig 10-16 pg 615
-r_fillet1 = 2; % [mm] Shoulder fillet radius
+r_fillet1 = 0.4; % [mm] Shoulder fillet radius
 
 % Diameters
-d_B  = 22;        % [mm] 
-d_S1 = d_B + 10;  % [mm]
-d_12 = d_S1 + 10; % [mm]
-d_C  = d_B;       % [mm]
+d_B  = 25.025; % [mm] 
+d_S1 = 29;     % [mm]
+d_12 = 44;     % [mm]
+d_C  = 35.035; % [mm]
 
 %%%%%%%%%%%% Shaft 2 %%%%%%%%%%%%
-r_fillet2 = 2; % [mm] Shoulder fillet radius
+r_fillet2 = 1; % [mm] Shoulder fillet radius
 
 % Diameters
-d_S22 = 50; % [mm]
-d_E   = d_S22-10; % [mm]
-d_45  = 60; % [mm]
-d_S21 = 50; % [mm]
-d_D   = d_S21-10; % [mm]
+d_S22 = 54;     % [mm]
+d_E   = 45.045; % [mm]
+d_45  = 60;     % [mm]
+d_S21 = 52;     % [mm]
+d_D   = 40.04;  % [mm]
 
 %%%%%%%%%%%% Shaft 3 %%%%%%%%%%%%
-r_keyseat3 = 0.4; % [mm] Keyseat fillet radius
-K_t_keyseat3 = 4; % Keyseat stress concentration factor % Machine Design fig 10-16 pg 615
-r_fillet3 = 2; % [mm] Shoulder fillet radius
+r_keyseat3 = 0.6; % [mm] Keyseat fillet radius
+K_t_keyseat3 = 3.8; % Keyseat stress concentration factor % Machine Design fig 10-16 pg 615
+r_fillet3 = 0.5; % [mm] Shoulder fillet radius
 
 % Diameters
-d_S3 = 75;      % [mm]
-d_G  = d_S3-10; % [mm]
-d_78 = d_S3+10; % [mm]
-d_F  = d_G;     % [mm]
+d_G  = 65.065; % [mm]
+d_S3 = 71;     % [mm]
+d_78 = 82;     % [mm]
+d_F  = 70.07;  % [mm]
 
 if exist(fullfile(export_import, "shrinkFit_diameters.mat"), 'file')
     load(fullfile(export_import, 'shrinkFit_diameters.mat'), ...
         'd_S1', 'd_B', 'd_C', 'd_12', 'd_S22', 'd_E', 'd_D', ...
         'd_S21', 'd_45', 'd_78', 'd_F', 'd_G', 'd_S3')
+else
+    fprintf('Using diameters from shaftDesign\n')
 end
 
 % Import
@@ -68,9 +76,15 @@ end
 % cs_ = [P (N), T (Nmm), M (Nmm), V_y (N), V_z (N), shaft diameter,...
 %        boolean (true -> keyseat, false -> shoulder-fillet),...
 %        notch radius, (keyseat stress concentration | D/d)];
-load('loadingDiagram_shaft1.mat', 'cs_A', 'cs_0', 'cs_1', 'cs_2')
-load('loadingDiagram_shaft2.mat', 'cs_3', 'cs_4', 'cs_5', 'cs_6')
-load('loadingDiagram_shaft3.mat', 'cs_7', 'cs_8', 'cs_9', 'cs_H')
+
+if exist(fullfile("export_import","loadingDiagram_shaft1.mat"),'file')
+    load(fullfile("export_import", 'loadingDiagram_shaft1.mat'), 'cs_A', 'cs_0', 'cs_1', 'cs_2')
+    load(fullfile("export_import", 'loadingDiagram_shaft2.mat'), 'cs_3', 'cs_4', 'cs_5', 'cs_6')
+    load(fullfile("export_import", 'loadingDiagram_shaft3.mat'), 'cs_7', 'cs_8', 'cs_9', 'cs_H')
+else
+    error("Run loadingDiagrams.m first")
+end
+
 cs_A = [cs_A d_B   true  r_keyseat1 K_t_keyseat1];
 cs_0 = [cs_0 d_B   false r_fillet1  d_S1/d_B];
 cs_1 = [cs_1 d_S1  false r_fillet1  d_12/d_S1];
@@ -105,26 +119,31 @@ end
 
 modifiedGoodman(S_y, S_yc, S_ut, shaft1_results, 'Shaft 1')
 
-% %% Shaft 2 loop
-% 
-% shaft2_results = zeros(size(shaft2_AllCS, 1), 5);  % 4 x 5
-% for i = 1:size(shaft2_AllCS, 1)
-%     fprintf('\n------ %s ------\n', shaft2_names{i});
-%     cs = shaft2_AllCS(i, :);
-%     run("fatigue.m")
-%     shaft2_results(i, :) = [S_e, sigma_e_m, sigma_e_a, n_y, n_f];
-% end
-% 
-% modifiedGoodman(S_y, S_yc, S_ut, shaft2_results, 'Shaft 2')
+%% Shaft 2 loop
 
-% %% Shaft 3 loop
-% 
-% shaft3_results = zeros(size(shaft3_AllCS, 1), 5);  % 4 x 5
-% for i = 1:size(shaft3_AllCS, 1)
-%     fprintf('\n------ %s ------\n', shaft3_names{i});
-%     cs = shaft3_AllCS(i, :);
-%     run("fatigue.m")
-%     shaft3_results(i, :) = [S_e, sigma_e_m, sigma_e_a, n_y, n_f];
-% end
-% 
-% modifiedGoodman(S_y, S_yc, S_ut, shaft3_results, 'Shaft 3')
+shaft2_results = zeros(size(shaft2_AllCS, 1), 5);  % 4 x 5
+for i = 1:size(shaft2_AllCS, 1)
+    fprintf('\n------ %s ------\n', shaft2_names{i});
+    cs = shaft2_AllCS(i, :);
+    run("fatigue.m")
+    shaft2_results(i, :) = [S_e, sigma_e_m, sigma_e_a, n_y, n_f];
+end
+
+modifiedGoodman(S_y, S_yc, S_ut, shaft2_results, 'Shaft 2')
+
+%% Shaft 3 loop
+
+shaft3_results = zeros(size(shaft3_AllCS, 1), 5);  % 4 x 5
+for i = 1:size(shaft3_AllCS, 1)
+    fprintf('\n------ %s ------\n', shaft3_names{i});
+    cs = shaft3_AllCS(i, :);
+    run("fatigue.m")
+    shaft3_results(i, :) = [S_e, sigma_e_m, sigma_e_a, n_y, n_f];
+end
+
+modifiedGoodman(S_y, S_yc, S_ut, shaft3_results, 'Shaft 3')
+
+% Export diameters
+save(fullfile("export_import","shaftDesignDiameters.mat"), 'd_S1', 'd_B',...
+'d_C', 'd_12', 'd_S22', 'd_E', 'd_D', 'd_S21', 'd_45', 'd_78', 'd_F', ...
+'d_G', 'd_S3', 'E')

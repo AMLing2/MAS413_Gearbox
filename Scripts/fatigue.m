@@ -23,7 +23,7 @@ I_p = (pi/2)*R^4; % [mm^4] Polar moment of inertia
 %%%%% Material data %%%%% Machine Design, Table A8 & A9 pg 1039-1040
 % "Key-value pair" not physical/mechanical key
 material_key = [355, 4140];
-material_data = struct('S_y', num2cell([335, 655]),...
+material_data = struct('S_y', num2cell([315, 655]),...
                        'S_ut', num2cell([470, 758]));
 material_table = dictionary(material_key, material_data);
 
@@ -38,7 +38,7 @@ a_sqrt_in_table = [0.130 0.118 0.108 0.093 0.080 0.070 0.062 0.055 0.049 0.044 0
 Neublers_table = dictionary(S_ut_ksi_table, a_sqrt_in_table);
 
 S_ut_ksi_temp = S_ut * MPa_to_ksi; % [ksi] converts S_ut from MPa to ksi
-S_ut_ksi = find_closest_value(S_ut_ksi_temp, S_ut_ksi_table);
+S_ut_ksi = find_closest_value_down(S_ut_ksi_temp, S_ut_ksi_table);
 
 a_sqrt_in = Neublers_table(S_ut_ksi); % [sqrt(in)]
 a_sqrt_mm = a_sqrt_in * sqrt(25.4); % [sqrt(mm)] % MAS236, L3 s13
@@ -55,8 +55,8 @@ if cs(7)
     K_t_axial = 1; % For redundancy, does not apply
     K_t_bend  = 1; % For redundancy, does not apply
     
-    if cs(7) && any([P, M, V_y, V_z] ~= 0)
-    fprintf(['Error: Check stress concentration factors K_t_axial & K_t_bend \n'...
+    if any([P, M, V_y, V_z] ~= 0)
+    warning(['Check stress concentration factors K_t_axial & K_t_bend \n'...
              'P = %2f\nM = %2f\nV_y = %2f\nV_z = %2f\n'], P, M, V_y, V_z);
     end
 else
@@ -73,7 +73,7 @@ else
                             -0.25759, -0.21796, -0.23757, -0.20958, ...
                             -0.19653, -0.18381, -0.17711, -0.17032]));
     D_d_bend_table = dictionary(D_d_bend_key, D_d_bend_values);
-    D_d_bend = find_closest_value(cs(9), D_d_bend_key);
+    D_d_bend = find_closest_value_up(cs(9), D_d_bend_key);
     A_bend = D_d_bend_table(D_d_bend).A;
     b_bend = D_d_bend_table(D_d_bend).b;
     
@@ -82,7 +82,7 @@ else
     D_d_tor_values = struct('A', num2cell([0.86331, 0.84897, 0.83425, 0.90337]),...
                             'b', num2cell([-0.23865, -0.23161, -0.21649, -0.12692]));
     D_d_tor_table = dictionary(D_d_tor_key, D_d_tor_values);
-    D_d_tor = find_closest_value(cs(9), D_d_tor_key);
+    D_d_tor = find_closest_value_up(cs(9), D_d_tor_key);
     A_tor = D_d_tor_table(D_d_tor).A;
     b_tor = D_d_tor_table(D_d_tor).b;
     
@@ -95,7 +95,7 @@ else
                               -0.25527, -0.22485, -0.20818, -0.19548, ...
                               -0.17076, -0.12474, -0.10474]));
     D_d_axial_table = dictionary(D_d_axial_key, D_d_axial_values);
-    D_d_axial = find_closest_value(cs(9), D_d_axial_key);
+    D_d_axial = find_closest_value_up(cs(9), D_d_axial_key);
     A_axial = D_d_axial_table(D_d_axial).A;
     b_axial = D_d_axial_table(D_d_axial).b;
     
@@ -147,7 +147,7 @@ if operating_temperature <= 450
 elseif operating_temperature <= 550
     C_temp = 1-0.0058*(operating_temperature-450);
 else
-    fprintf("Error: Operating temperature too high\n")
+    error("Operating temperature too high\n")
 end
 
 % Reliability factor % MAS236 L3 s48 & Machine Design pg 371
@@ -212,8 +212,8 @@ tau_z_shear_max_nom = (4/3)*(V_z_max/A); % [MPa]
 tau_z_shear_min_nom = (4/3)*(V_z_min/A); % [MPa]
 tau_z_shear_m_nom   = (tau_z_shear_max_nom + tau_z_shear_min_nom)/2; % [MPa]
 tau_z_shear_a_nom   = (tau_z_shear_max_nom - tau_z_shear_min_nom)/2; % [MPa]
-fprintf('tau_y_shear_max_nom = %2f\n', tau_y_shear_max_nom)
-fprintf('tau_z_shear_max_nom = %2f\n', tau_z_shear_max_nom)
+% fprintf('tau_y_shear_max_nom = %2f\n', tau_y_shear_max_nom)
+% fprintf('tau_z_shear_max_nom = %2f\n', tau_z_shear_max_nom)
 
 % Bending
 sigma_x_bend_max_nom = (M_max*R)/I; % [MPa]
@@ -226,8 +226,8 @@ tau_tor_max_nom = (T_max*R)/I_p; % [MPa]
 tau_tor_min_nom = (T_min*R)/I_p; % [MPa]
 tau_tor_m_nom   = (tau_tor_max_nom + tau_tor_min_nom)/2; % [MPa]
 tau_tor_a_nom   = (tau_tor_max_nom - tau_tor_min_nom)/2; % [MPa]
-fprintf('tau_tor_max_nom = %2f\n', tau_tor_max_nom)
-fprintf('sigma_x_bend_max_nom = %2f\n', sigma_x_bend_max_nom)
+% fprintf('tau_tor_max_nom = %2f\n', tau_tor_max_nom)
+% fprintf('sigma_x_bend_max_nom = %2f\n', sigma_x_bend_max_nom)
 
 %%%%% Mean & Amplitude stress w/stress concentration (Ductile materials) %%%%%
 % MAS236 L3 s19 & s21
@@ -259,14 +259,14 @@ sigma_x_a = sigma_x_axial_a + sigma_x_bend_a; % [MPa]
 sigma_e_m   = sqrt(sigma_x_m^2 + 3*(tau_tor_m^2)); % [MPa]
 sigma_e_a   = sqrt(sigma_x_a^2 + 3*(tau_tor_a^2)); % [MPa]
 sigma_e_max = sigma_e_m + sigma_e_a; % [MPa]
-fprintf('Neglected shear -->  sigma_e = %2f\n', sigma_e_max)
+% fprintf('Neglected shear -->  sigma_e = %2f\n', sigma_e_max)
 
 % Shear included
 % Von Mises Equivalent Stress
 sigma_e_m   = sqrt(sigma_x_m^2 + 3*(tau_tor_m^2+tau_y_shear_m^2+tau_z_shear_m^2)); % [MPa]
 sigma_e_a   = sqrt(sigma_x_a^2 + 3*(tau_tor_a^2+tau_y_shear_a^2+tau_z_shear_a^2)); % [MPa]
 sigma_e_max = sigma_e_m + sigma_e_a; % [MPa]
-fprintf('Included shear  -->  sigma_e = %2f\n', sigma_e_max)
+% fprintf('Included shear  -->  sigma_e = %2f\n', sigma_e_max)
 
 
 %%%%% Diameter Equation %%%%%
@@ -355,7 +355,7 @@ elseif ( sigma_e_m < 0 ) && ...
         ( abs(sigma_e_m - sigma_e_a) > abs(S_yc) )
     sigma_rev = abs(S_yc);
 else
-    fprintf('\sigma_{rev} error in Modified Goodman Diagram')
+    error('\sigma_{rev} error in Modified Goodman Diagram')
 end
 n_f = S_e/sigma_rev;
 
@@ -367,11 +367,21 @@ end
 
 
 % Function to find the closest value rounded down in the list (Most conservative approach)
-function closest_value = find_closest_value(value, list)
+function closest_value_down = find_closest_value_down(value, list)
     list = list(list <= value); % Filter out values greater than the given value
     if isempty(list)
         error('No values in the list are less than or equal to the given value.');
     end
     [~, index] = min(abs(list - value)); % Find the closest value among the remaining ones
-    closest_value = list(index);
+    closest_value_down = list(index);
+end
+
+% Function to find the closest value rounded up in the list (Most conservative approach)
+function closest_value_up = find_closest_value_up(value, list)
+    list = list(list >= value); % Filter out values less than the given value
+    if isempty(list)
+        error('No values in the list are greater than or equal to the given value.');
+    end
+    [~, index] = min(abs(list - value)); % Find the closest value among the remaining ones
+    closest_value_up = list(index);
 end

@@ -219,6 +219,7 @@ df_g4 = d_g4 - 2 * hf_4;
 if exist(fullfile("export_import","shaftDesign.mat"),"file")
     if initial_loop % only do this part once during the loop
         load(fullfile("export_import","shaftDesign.mat"))
+        if verbose; fprintf("Calculating interference fits\n"); end
         %calculate chamfer lengths [mm]:
         fillet_G1_L12 = 0.1; % TEMP
         fillet_G2_L45 = 0.1;

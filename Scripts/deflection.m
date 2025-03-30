@@ -12,6 +12,12 @@ else
     error('Run loadingDiagrams.m first')
 end
 
+if exist(fullfile(export_import, "shaftDesignDiameters.mat"), 'file')
+    load(fullfile(export_import, 'shaftDesignDiameters.mat'))
+else
+    error('Run shaftDesign.m first')
+end
+
 % Visuals
 lwDeflection = 2;
 sizeDeflectionText = 16;
@@ -82,7 +88,7 @@ theta_G_corrected = theta_G -K_3_G;
 maxDeflection = max( abs(delta_corrected) );
 checkEmpiricalRequirement = maxDeflection / L_AC;
 
-disp('===== Forced Deflection =====')
+disp('===== Forced Deflection Shaft 1 =====')
 
 if checkEmpiricalRequirement <= 1/3000
     disp("Deflection Good")
@@ -150,7 +156,7 @@ delta_g_G1 = abs(delta_G_corrected(index_L_AG1));
 omega_c = sqrt(g * (   ( (mass_g1*delta_g_G1) / (mass_g1*delta_g_G1^2))   ));
 n_c = (60/(2*pi))* omega_c; % [RPM]
 
-disp('===== Lateral Deflection =====')
+disp('===== Lateral Deflection Shaft 1 =====')
 
 % Test if n_shaft1 is outside [0.8*n_c, 1.25*n_c]
 if (n_1 < 0.8 * n_c) || (n_1 > 1.25 * n_c)
@@ -198,7 +204,7 @@ save(fullfile(export_import, "deflection_shaft1.mat"), ...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Shaft 2 Deflection - Forced and Free %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-clc; clear;
+clear;
 export_import = fullfile(pwd, 'export_import');
 
 % Import from Shaft 2
@@ -206,6 +212,12 @@ if exist(fullfile(export_import, "loadingDiagram_shaft2.mat"), 'file')
     load(fullfile(export_import, 'loadingDiagram_shaft2.mat'))
 else
     error('Run loadingDiagrams.m first')
+end
+
+if exist(fullfile(export_import, "shaftDesignDiameters.mat"), 'file')
+    load(fullfile(export_import, 'shaftDesignDiameters.mat'))
+else
+    error('Run shaftDesign.m first')
 end
 
 % Visuals
@@ -283,7 +295,7 @@ theta_corrected_G = theta_G - K_3_G;
 maxDeflection = max( abs(delta_corrected) );
 checkEmpiricalRequirement = maxDeflection / L_ED;
 
-disp('===== Forced Deflection =====')
+disp('===== Forced Deflection Shaft 2 =====')
 
 if checkEmpiricalRequirement <= 1/3000
     disp("Deflection Good")
@@ -354,7 +366,7 @@ n_c = (60/(2*pi))* omega_c; % [RPM]
 
 n_shaft2 = n_1/i_s1;
 
-disp('===== Lateral Deflection =====')
+disp('===== Lateral Deflection Shaft 2 =====')
 
 % Test if n_shaft2 is outside [0.8*n_c, 1.25*n_c]
 if (n_shaft2 < 0.8 * n_c) || (n_shaft2 > 1.25 * n_c)
@@ -401,7 +413,7 @@ ylabel('Deflection [m]')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Shaft 3 Deflection - Forced and Free %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-clc; clear;
+clear;
 export_import = fullfile(pwd, 'export_import');
 
 % Import from Shaft 3
@@ -409,6 +421,12 @@ if exist(fullfile(export_import, "loadingDiagram_shaft3.mat"), 'file')
     load(fullfile(export_import, 'loadingDiagram_shaft3.mat'))
 else
     error('Run loadingDiagrams.m first')
+end
+
+if exist(fullfile(export_import, "shaftDesignDiameters.mat"), 'file')
+    load(fullfile(export_import, 'shaftDesignDiameters.mat'))
+else
+    error('Run shaftDesign.m first')
 end
 
 % Visuals
@@ -487,7 +505,7 @@ theta_corrected_G = theta_G - K_3_G;
 maxDeflection = max( abs(delta_corrected) );
 checkEmpiricalRequirement = maxDeflection / L_FH;
 
-disp('===== Forced Deflection =====')
+disp('===== Forced Deflection Shaft 3 =====')
 
 if checkEmpiricalRequirement <= 1/3000
     disp("Deflection Good")
@@ -555,7 +573,7 @@ n_c = (60/(2*pi))* omega_c; %[rpm]
 
 n_shaft3 = n_1/i_tot;
 
-disp('===== Lateral Deflection =====')
+disp('===== Lateral Deflection Shaft 3 =====')
 
 % Test if n_shaft1 is outside [0.8*n_c, 1.25*n_c]
 if (n_shaft3 < 0.8 * n_c) || (n_shaft3 > 1.25 * n_c)
