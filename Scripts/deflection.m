@@ -12,8 +12,12 @@ else
     error('Run loadingDiagrams.m first')
 end
 
-if exist(fullfile(export_import, "shaftDesignDiameters.mat"), 'file')
-    load(fullfile(export_import, 'shaftDesignDiameters.mat'))
+if exist(fullfile(export_import, "shaftDesign.mat"), 'file')
+    load(fullfile(export_import, 'shaftDesign.mat')) % [mm]
+    d_B = d_B / 1000; % [m]
+    d_S1 = d_S1 / 1000; % [m]
+    d_12 = d_12 / 1000; % [m]
+    d_C = d_C / 1000; % [m]
 else
     error('Run shaftDesign.m first')
 end
@@ -47,11 +51,10 @@ for i = 1:res
         d = d_C;
     end
 
-    I_shaft(i) = (pi * d^4) / 64;
+    I_shaft(i) = (pi * d^4) / 64; % [m^4]
 end
 
-EI = I_shaft * E;
-
+EI = I_shaft * E; % [m^4]*[Pa]
 
 % Integration between L_AB and L_AC
 for i = 2:res
@@ -214,8 +217,13 @@ else
     error('Run loadingDiagrams.m first')
 end
 
-if exist(fullfile(export_import, "shaftDesignDiameters.mat"), 'file')
-    load(fullfile(export_import, 'shaftDesignDiameters.mat'))
+if exist(fullfile(export_import, "shaftDesign.mat"), 'file')
+    load(fullfile(export_import, 'shaftDesign.mat'))
+    d_E = d_E / 1000; % [m]
+    d_S22 = d_S22 / 1000; % [m]
+    d_S21 = d_S21 / 1000; % [m]
+    d_D = d_D / 1000; % [m]
+    d_45 = d_45 / 1000; % [m]
 else
     error('Run shaftDesign.m first')
 end
@@ -260,10 +268,10 @@ for i = 1:res
         d = d_D;
     end
 
-    I_shaft(i) = (pi * d^4) / 64;
+    I_shaft(i) = (pi * d^4) / 64; % [m^4]
 end
 
-EI = I_shaft * E;
+EI = I_shaft * E; % [m^4]*[Pa]
 
 
 % Integration between L_E and L_ED
@@ -423,8 +431,12 @@ else
     error('Run loadingDiagrams.m first')
 end
 
-if exist(fullfile(export_import, "shaftDesignDiameters.mat"), 'file')
-    load(fullfile(export_import, 'shaftDesignDiameters.mat'))
+if exist(fullfile(export_import, "shaftDesign.mat"), 'file')
+    load(fullfile(export_import, 'shaftDesign.mat'))
+    d_F = d_F / 1000; % [m]
+    d_78 = d_78 / 1000; % [m]
+    d_G = d_G / 1000; % [m]
+    d_S3 = d_S3 / 1000; % [m]
 else
     error('Run shaftDesign.m first')
 end
@@ -467,11 +479,10 @@ for i = 1:res
         d = d_S3;
     end
 
-    I_shaft(i) = (pi * d^4) / 64;
+    I_shaft(i) = (pi * d^4) / 64; % [m^4]
 end
 
-EI = I_shaft * E;
-
+EI = I_shaft * E; % [m^4]*[Pa]
 
 % Numerical Integration
 for i = 2:res
