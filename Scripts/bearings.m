@@ -1,6 +1,6 @@
 clc; close all; clear;
 
-lifetime = 10; % [years]
+lifetime = 5; % [years]
 daysPerYear = 260; % [days/year] work days
 work_cycle = 10; % [hours/day]
 minPerHour = 60; % [min/hour]
@@ -25,20 +25,18 @@ else
 end
 
 % Import diameters from Shaft Design
-if exist(fullfile("export_import","shaft_design.mat"),'file')
+if exist(fullfile("export_import","shaft_design.mat"),'file') 
     load(fullfile("export_import","shaft_design.mat"), "aaaa")
-else
+else % initial run
     warning("Run shaftDesign.m first") % change to error in the future
+    % First run initial diamterers
+    d_min_B = 24; % [mm]
+    d_min_C = 24; % [mm]
+    d_min_D = 0; % [mm]
+    d_min_E = 0; % [mm]
+    d_min_F = 65; % [mm]
+    d_min_G = 66; % [mm]
 end
-
-
-%load("shaftDesign.mat", "d_S11", "d_C")
-d_min_B = 24; % TEMP [mm]
-d_min_C = 24; % TEMP [mm]
-d_min_D = 40; % TEMP [mm]
-d_min_E = 40; % TEMP [mm]
-d_min_F = 65; % TEMP [mm]
-d_min_G = 65; % TEMP [mm]
 
 % load bearing .CSV file
 % data from: https://www.skf.com/group/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings#cid-493604
@@ -63,124 +61,167 @@ K_R = 1.0; % R% = 90
     K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side); 
 [b_index_C,n_bC] = ball_bearing_sizing(d_min_C ,C_Fr,C_Fa,cycles_lifetime_sh1, ...
     K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side); 
-sh1_i = [b_index_B,b_index_C];
-sh1_n = [n_bB,n_bC];
 % shaft 2: D E
 [b_index_D,n_bD] = ball_bearing_sizing(d_min_D ,D_Fr,D_Fa,cycles_lifetime_sh2, ...
     K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side); 
 [b_index_E,n_bE] = ball_bearing_sizing(d_min_E ,E_Fr,E_Fa,cycles_lifetime_sh2, ...
     K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side); 
-sh2_i = [b_index_D,b_index_E];
-sh2_n = [n_bD,n_bE];
 % shaft 3 : F G
 [b_index_G,n_bG] = ball_bearing_sizing(d_min_G ,G_Fr,G_Fa,cycles_lifetime_sh3, ...
     K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side);
 [b_index_F,n_bF] = ball_bearing_sizing(d_min_F ,F_Fr,F_Fa,cycles_lifetime_sh3, ...
     K_R, b_data.d, b_data.C, b_data.C0,b_data.f0,b_data.capped_one_side);
-sh3_i = [b_index_F,b_index_G];
-sh3_n = [n_bF,n_bG];
 
-% select bearing based on largest of two:
-% shaft 1:
-[~,i] = max([b_data.C0(sh1_i(1)),b_data.C0(sh1_i(2))]);
-bearing_sh1_i = sh1_i(i);
-bearing_sh1_n = sh1_n(i);
-bearing1_hours = (bearing_sh1_n / n_1) / minPerHour;
-% shaft 2:
-[~,i] = max([b_data.C0(sh2_i(1)),b_data.C0(sh2_i(2))]);
-bearing_sh2_i = sh2_i(i);
-bearing_sh2_n = sh2_n(i);
-bearing2_hours = (bearing_sh2_n / n_2) / minPerHour;
-% shaft 3:
-[~,i] = max([b_data.C0(sh3_i(1)),b_data.C0(sh3_i(2))]);
-bearing_sh3_i = sh3_i(i);
-bearing_sh3_n = sh3_n(i);
-bearing3_hours = (bearing_sh3_n / n_4) / minPerHour;
 % display as tables:
-% shaft 1
-data_sh1 = [b_data.d(bearing_sh1_i);
-    b_data.D(bearing_sh1_i);
-    b_data.B(bearing_sh1_i);
-    b_data.da_min(bearing_sh1_i);
-    b_data.da_max(bearing_sh1_i);
-    b_data.mass(bearing_sh1_i);
-    b_data.max_speed(bearing_sh1_i);
-    string(b_data.capped_one_side(bearing_sh1_i));
-    bearing_sh1_n*1e-6;
-    bearing1_hours;];
+
 data_names = ["Bore diameter [mm]";
     "Outer diameter [mm]";
     "Width [mm]";
     "da_min [mm]";
     "da_max [mm]";
+    "ra_max [mm]"
     "mass [kg]";
     "limiting speed [rpm]";
     "Name";
     "lifetime cycles [millions of revs]";
     "lifetime hours [h]"];
-bearing_tab_sh1 = table(data_sh1,data_names,'VariableNames',["Bearing 1 data","variables"]');
-disp(bearing_tab_sh1);
-b_B = b_data.B(bearing_sh1_i); % width of bearing
-b_C = b_B;
-fillet_r_B = b_data.ra_max(bearing_sh1_i); % save maximum shaft fillet radius [mm]
-fillet_r_C = fillet_r_B;
 
-% shaft 2
-data_sh2 = [b_data.d(bearing_sh2_i);
-    b_data.D(bearing_sh2_i);
-    b_data.B(bearing_sh2_i);
-    b_data.da_min(bearing_sh2_i);
-    b_data.da_max(bearing_sh2_i);
-    b_data.mass(bearing_sh2_i);
-    b_data.max_speed(bearing_sh2_i);
-    string(b_data.capped_one_side(bearing_sh2_i));
-    bearing_sh2_n*1e-6;
-    bearing2_hours;];
-bearing_tab_sh2 = table(data_sh2,data_names,'VariableNames',["Bearing 2 data","variables"]');
-disp(bearing_tab_sh2);
-b_D = b_data.B(bearing_sh2_i);
-b_E = b_D;
-fillet_r_D = b_data.ra_max(bearing_sh2_i); % save fillet radius
-fillet_r_E = fillet_r_D;
+% shaft 1 B C
+% bearing B
+lifetime_hour_B = (n_bB / n_1) / minPerHour;
+b_B = b_data.B(b_index_B); % width of bearing
+fillet_r_B = b_data.ra_max(b_index_B); % save maximum shaft fillet radius [mm]
+data_bearing_B = [b_data.d(b_index_B);
+    b_data.D(b_index_B);
+    b_B;
+    b_data.da_min(b_index_B);
+    b_data.da_max(b_index_B);
+    b_data.ra_max(b_index_B);
+    b_data.mass(b_index_B);
+    b_data.max_speed(b_index_B);
+    string(b_data.capped_one_side(b_index_B));
+    n_bB*1e-6;
+    lifetime_hour_B];
+bearing_tab_B = table(data_bearing_B,data_names,'VariableNames',["Bearing B data","variables"]');
+disp(bearing_tab_B);
 
-% shaft 3
-data_sh3 = [b_data.d(bearing_sh3_i);
-    b_data.D(bearing_sh3_i);
-    b_data.B(bearing_sh3_i);
-    b_data.da_min(bearing_sh3_i);
-    b_data.da_max(bearing_sh3_i);
-    b_data.mass(bearing_sh3_i);
-    b_data.max_speed(bearing_sh3_i);
-    string(b_data.capped_one_side(bearing_sh3_i));
-    bearing_sh3_n*1e-6;
-    bearing3_hours;];
-bearing_tab_sh3 = table(data_sh3,data_names,'VariableNames',["Bearing 3 data","variables"]');
-disp(bearing_tab_sh3);
-b_F = b_data.B(bearing_sh3_i);
-b_G = b_F;
-fillet_r_F = b_data.ra_max(bearing_sh3_i); % save fillet radius
-fillet_r_G = fillet_r_F;
+% bearing C
+lifetime_hour_C = (n_bC / n_1) / minPerHour;
+b_C = b_data.B(b_index_C);
+fillet_r_C = b_data.ra_max(b_index_C);
+data_bearing_C = [b_data.d(b_index_C);
+    b_data.D(b_index_C);
+    b_C;
+    b_data.da_min(b_index_C);
+    b_data.da_max(b_index_C);
+    b_data.ra_max(b_index_C);
+    b_data.mass(b_index_C);
+    b_data.max_speed(b_index_C);
+    string(b_data.capped_one_side(b_index_C));
+    n_bC*1e-6;
+    lifetime_hour_C];
+bearing_tab_C = table(data_bearing_C,data_names,'VariableNames',["Bearing C data","variables"]');
+disp(bearing_tab_C);
+
+% shaft 2 bearings D E
+
+% bearing D
+lifetime_hour_D = (n_bD / n_2) / minPerHour;
+b_D = b_data.B(b_index_D);
+fillet_r_D = b_data.ra_max(b_index_D);
+data_bearing_D = [b_data.d(b_index_D);
+    b_data.D(b_index_D);
+    b_data.B(b_index_D);
+    b_data.da_min(b_index_D);
+    b_data.da_max(b_index_D);
+    b_data.ra_max(b_index_D);
+    b_data.mass(b_index_D);
+    b_data.max_speed(b_index_D);
+    string(b_data.capped_one_side(b_index_D));
+    n_bD*1e-6;
+    lifetime_hour_D];
+bearing_tab_D = table(data_bearing_D,data_names,'VariableNames',["Bearing D data","variables"]');
+disp(bearing_tab_D);
+
+% bearing E
+lifetime_hour_E = (n_bE / n_2) / minPerHour;
+b_E = b_data.B(b_index_E);
+fillet_r_E = b_data.ra_max(b_index_E);
+data_bearing_E = [b_data.d(b_index_E);
+    b_data.D(b_index_E);
+    b_data.B(b_index_E);
+    b_data.da_min(b_index_E);
+    b_data.da_max(b_index_E);
+    b_data.ra_max(b_index_E);
+    b_data.mass(b_index_E);
+    b_data.max_speed(b_index_E);
+    string(b_data.capped_one_side(b_index_E));
+    n_bE*1e-6;
+    lifetime_hour_E];
+bearing_tab_E = table(data_bearing_E,data_names,'VariableNames',["Bearing E data","variables"]');
+disp(bearing_tab_E);
+
+% shaft 3 F G
+% bearing F
+lifetime_hour_F = (n_bF / n_1) / minPerHour;
+b_F = b_data.B(b_index_F);
+fillet_r_F = b_data.ra_max(b_index_F);
+data_bearing_F = [b_data.d(b_index_F);
+    b_data.D(b_index_F);
+    b_data.B(b_index_F);
+    b_data.da_min(b_index_F);
+    b_data.da_max(b_index_F);
+    b_data.ra_max(b_index_F);
+    b_data.mass(b_index_F);
+    b_data.max_speed(b_index_F);
+    string(b_data.capped_one_side(b_index_F));
+    n_bF*1e-6;
+    lifetime_hour_F];
+bearing_tab_F = table(data_bearing_F,data_names,'VariableNames',["Bearing F data","variables"]');
+disp(bearing_tab_F);
+
+% bearing G
+lifetime_hour_G = (n_bG / n_1) / minPerHour;
+b_G = b_data.B(b_index_G);
+fillet_r_G = b_data.ra_max(b_index_G);
+data_bearing_G = [b_data.d(b_index_G);
+    b_data.D(b_index_G);
+    b_data.B(b_index_G);
+    b_data.da_min(b_index_G);
+    b_data.da_max(b_index_G);
+    b_data.ra_max(b_index_G);
+    b_data.mass(b_index_G);
+    b_data.max_speed(b_index_G);
+    string(b_data.capped_one_side(b_index_G));
+    n_bG*1e-6;
+    lifetime_hour_G];
+bearing_tab_G = table(data_bearing_G,data_names,'VariableNames',["Bearing G data","variables"]');
+disp(bearing_tab_G);
+
+% Calculate shrink fits for each bearing
+% B C
+[d_B,h_B,s_B,temp_B,temp_shaft_B] = ...
+    shrinkFitBearing(b_data.D(b_index_B),b_data.d(b_index_B));
+[d_C,h_C,s_C,temp_C,temp_shaft_C] = ...
+    shrinkFitBearing(b_data.D(b_index_C),b_data.d(b_index_C));
+% E D
+[d_E,h_E,s_E,temp_E,temp_shaft_E] = ...
+    shrinkFitBearing(b_data.D(b_index_E),b_data.d(b_index_E));
+[d_D,h_D,s_D,temp_D,temp_shaft_D] = ...
+    shrinkFitBearing(b_data.D(b_index_D),b_data.d(b_index_D));
+% F G
+[d_F,h_F,s_F,temp_F,temp_shaft_F] = ...
+    shrinkFitBearing(b_data.D(b_index_F),b_data.d(b_index_F));
+[d_G,h_G,s_G,temp_G,temp_shaft_G] = ...
+    shrinkFitBearing(b_data.D(b_index_G),b_data.d(b_index_G));
+
+% print diameters
+table(d_C,d_B,d_E,d_G,d_F)
 
 % saving data:
 clear b_data % remove table before saving
 save(fullfile("export_import","bearings.mat"))
 
-% clean up or add to before b_data clear?
-dic_sh1 = dictionary(data_names,data_sh1);
-[d_B,h_sh1,s_sh1,temp_sh1_bearing,temp_sh1] = ...
-    shrinkFitBearing(str2double(dic_sh1( "Outer diameter [mm]")),...
-    str2double(dic_sh1("Bore diameter [mm]")));
-dic_sh2 = dictionary(data_names,data_sh2);
-[d_E,h_sh2,s_sh2,temp_sh2_bearing,temp_sh2] = ...
-    shrinkFitBearing(str2double(dic_sh2( "Outer diameter [mm]")),...
-    str2double(dic_sh2("Bore diameter [mm]")));
-dic_sh3 = dictionary(data_names,data_sh3);
-[d_F,h_sh3,s_sh3,temp_sh3_bearing,temp_sh3] = ...
-    shrinkFitBearing(str2double(dic_sh3( "Outer diameter [mm]")),...
-    str2double(dic_sh3("Bore diameter [mm]")));
-d_C = d_B; % set other bearings equal
-d_D = d_E;
-d_G = d_F;
 % save only diameters
 save(fullfile("export_import","diameter_shaft_bearings.mat"),"d_B","d_C", ...
     "d_E", "d_D", "d_F", "d_G");

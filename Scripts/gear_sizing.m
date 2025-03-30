@@ -98,6 +98,9 @@ sigma_o_lim_mat = dictionary(mat_names, sigma_o_lim_mat_list);
 E_mat_dic = dictionary(mat_names, E_mat_list);
 Sy_mat = 417; % [Mpa] yield strength of 16 MnCr 5, turn into list in the future? https://shop.machinemfg.com/composition-properties-and-uses-of-sae-aisi-5115-alloy-steel/
 
+E_mat_g = E_mat_dic(material); % Young's modulus for the gear material [MPa]
+V_mat_g = 0.29; % where does this come from?...
+
 sigma_b_lim = sigma_b_lim_mat(material) / V_b;
 % Z_v is calculated in the module_calc function
 sigma_o_lim = (sigma_o_lim_mat(material) / V_o) * K_L;
@@ -106,7 +109,7 @@ sigma_o_lim = (sigma_o_lim_mat(material) / V_o) * K_L;
 
 A = 5; % [m/s] operating factor, tab 2 pg 6 lec 4
 K_a = 1.25; % [-] external dynamic factor, electric motor with light shock, tab 1 pg 5 lec 4
-F_w = sqrt(0.35 * E_mat_dic(material) ); % [sqrt(N/mm^2)] material factor, lec 4 pg 9
+F_w = sqrt(0.35 * E_mat_g ); % [sqrt(N/mm^2)] material factor, lec 4 pg 9
 F_c = 1.76; % [-] edge form factor for alpha = 20, lec 4 pg 9
 
 % gammas for gears
@@ -234,8 +237,6 @@ if exist(fullfile("export_import","shaftDesign.mat"),"file")
 
         mu = 0.175; % pg 621 machine design, between 0.15 and 0.2 for shrink fit hubs
         %mu = 0.74; % for static dry, mild steel on mild steel, tab 7-1 pg 464 machine design
-        E_mat_g = E_mat_dic(material); % Young's modulus for the gear material [MPa]
-        V_mat_g = 0.29; % where does this come from?...
 
         initial_loop = false;
     end

@@ -61,6 +61,6 @@ function [d_s_c,h,s,heat_temp_bearing,temp_shaft,bearing_clearance] ...
     min_clearance = clearance_list(i);
     bearing_clearance = min_clearance - r; % [um]
     if bearing_clearance < 0
-        warning("bad bearing clearance")
+        % warning("bad bearing clearance")
     end
 end
