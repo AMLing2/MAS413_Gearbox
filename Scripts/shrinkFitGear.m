@@ -79,7 +79,7 @@ function [p,T_max,d_h_i,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_h,sigma_r
     sigma_r_h = -p;
     if (d_h_i > d_h_o)
         warning("Shaft larger than gear")
-        sigma_t_s = inf; % probably removing
+        sigma_t_s = inf; % impossible geometry, gear size needs to be increased
         sigma_t_h = inf;
         sigma_r_s = inf;
         sigma_r_h = inf;
