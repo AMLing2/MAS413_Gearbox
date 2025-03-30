@@ -87,15 +87,16 @@ T_4 = T_3 * i_s2;
 %%%% add helical module calcs
 
 % Material limits, KGR lec 4 pg 11 - table 5
-sigma_b_lim_mat_list = [160,210,220,250,300,310,410,410]; % [MPa]
+sigma_b_lim_mat_list = [160,210,220,250,300,310,410,410]; % [MPa] from lecture
 sigma_o_lim_mat_list = [430,520,540,610,715,760,1600,1900]; % [MPa]
-E_mat_list = [200 200 210 210 205 205 200 210]*1e3; % [MPa]
+E_mat_list = [200 200 210 210 205 205 200 210]*1e3; % [MPa] from links above
+V_mat_list = [0 0]*1e3; % [MPa] from links above
 mat_names = ["Fe 430", "Fe 590", "C 45 N", "C 60 N",...
     "34 Cr 4 V", "42 CrMo 4 V", "16 MnCr 5", "15 CrNi 6"];
 sigma_b_lim_mat = dictionary(mat_names, sigma_b_lim_mat_list);
 sigma_o_lim_mat = dictionary(mat_names, sigma_o_lim_mat_list);
 E_mat_dic = dictionary(mat_names, E_mat_list);
-Sy_mat = 417; % [Mpa] yield strenght of 16 MnCr 5, turn into list in the future? https://shop.machinemfg.com/composition-properties-and-uses-of-sae-aisi-5115-alloy-steel/
+Sy_mat = 417; % [Mpa] yield strength of 16 MnCr 5, turn into list in the future? https://shop.machinemfg.com/composition-properties-and-uses-of-sae-aisi-5115-alloy-steel/
 
 sigma_b_lim = sigma_b_lim_mat(material) / V_b;
 % Z_v is calculated in the module_calc function
@@ -212,9 +213,9 @@ df_g3 = d_g3 - 2 * hf_3;
 df_g4 = d_g4 - 2 * hf_4;
 
 % helical module iteration 2 and interference fits:
-if true%exist(fullfile("export_import","shaftDesign.mat"),"file")
+if exist(fullfile("export_import","shaftDesign.mat"),"file")
     if initial_loop % only do this part once during the loop
-        %load(fullfile("export_import","shaftDesign.mat"))
+        load(fullfile("export_import","shaftDesign.mat"))
         %calculate chamfer lengths [mm]:
         fillet_G1_L12 = 0.1; % TEMP
         fillet_G2_L45 = 0.1;
