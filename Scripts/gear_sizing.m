@@ -5,13 +5,8 @@ if ~exist(export_import, 'dir')
 end
 
 %TODO: 
-% contact stress, usually sigma_o > sigma_b - done
-% change m_n to m_t for all calcs - done
-% check i_tot is 1% of 17.3 - done
-% contact ratio between 1 and 2 - checked
-% material factor see line 73
-% stages must obey tables 12-4 12-5 pg 737, add check z2,z4 < 1309 ?
-% increase lambda to 14?
+% material factor see line 73 - done?
+% get E and V from shaft design
 
 % module of elasticity and material standards (no price):
 % https://www.michael-smith-engineers.co.uk/mse/uploads/resources/useful-info/General-Info/MATERIAL-GRADE-COMPARISON-TABLE-for-Web.pdf
@@ -28,8 +23,11 @@ end
 %%% Chosen Parameters %%%
 material = "16 MnCr 5";
 lambda = 14; % width factor, processed:  8-16, pg 17 lec 1, 14 to increase axial contact ratio to 1.15
-n_f = 2; % safety factor
+n_f = 2; % safety factor for interference fit pressure
+n_f_t = 1; % safety factor for interference fit max torque transmitted
 step = 0.05; % module increase for interference fit
+chamfer_multiplier = 1.5; % chamfer size compared to fillet radius
+verbose = true; % print extra info
 %%% Chosen Parameters %%%
 
 % Given Parameters:
@@ -169,12 +167,23 @@ mt_s2 = max([mt_3,mt_4]); % 4.5334 w/ 15 CrNi 6
 %%%%%%%% sizing calcs for helical gears
 fits_unchecked = true;
 stress_s1_checked = false;
+initial_loop = true;
 while fits_unchecked
 % pitch circle diameters iteration 1 [mm]
 d_g1 = mt_s1 * z_1;
 d_g2 = mt_s1 * z_2;
 d_g3 = mt_s2 * z_3;
 d_g4 = mt_s2 * z_4;
+
+% % pitch [mm]
+% p_s1 = pi*mt_s1;
+% p_s2 = pi*mt_s2;
+% 
+% % Diameter [mm], Juvinall eq (15.2) page 626, alt method
+% d_g1 = p_s1*z_1/pi;
+% d_g2 = p_s1*z_2/pi;
+% d_g3 = p_s2*z_3/pi;
+% d_g4 = p_s2*z_4/pi;
 
 % width of helical gears [mm]
 b_s1 = mt_s1 * lambda;
@@ -190,16 +199,6 @@ hf_2 = 1.25 * mt_s1;
 hf_3 = 1.25 * mt_s2; 
 hf_4 = 1.25 * mt_s2; 
 
-% % pitch [mm]
-% p_s1 = pi*mt_s1;
-% p_s2 = pi*mt_s2;
-% 
-% % Diameter [mm], Juvinall eq (15.2) page 626
-% d_g1 = p_s1*z_1/pi;
-% d_g2 = p_s1*z_2/pi;
-% d_g3 = p_s2*z_3/pi;
-% d_g4 = p_s2*z_4/pi;
-
 % addedum circle [mm]
 dt_g1 = d_g1 + 2 * ht_1;
 dt_g2 = d_g2 + 2 * ht_2;
@@ -212,79 +211,103 @@ df_g2 = d_g2 - 2 * hf_2;
 df_g3 = d_g3 - 2 * hf_3;
 df_g4 = d_g4 - 2 * hf_4;
 
-% helical module iteration 2 and press fits:
-if true%exist("shaftDesign.mat","file")
-    if false %~exist("d_s_111","var") % only load once
-        load("shaftDesign.mat")
-    end
-    d_shaft_g1 = 30; % [mm] % replace with loaded variable
-    d_shaft_g2 = 50;
-    d_shaft_g3 = 50;
-    d_shaft_g4 = 60;
+% helical module iteration 2 and interference fits:
+if true%exist(fullfile("export_import","shaftDesign.mat"),"file")
+    if initial_loop % only do this part once during the loop
+        %load(fullfile("export_import","shaftDesign.mat"))
+        %calculate chamfer lengths [mm]:
+        fillet_G1_L12 = 0.1; % TEMP
+        fillet_G2_L45 = 0.1;
+        fillet_G3_L45 = 0.1;
+        fillet_G4_L78 = 0.1;
+        chamfer_g1 = fillet_G1_L12 * chamfer_multiplier;
+        chamfer_g2 = fillet_G2_L45 * chamfer_multiplier;
+        chamfer_g3 = fillet_G3_L45 * chamfer_multiplier;
+        chamfer_g4 = fillet_G4_L78 * chamfer_multiplier;
+        warning("MAKE SURE TO LOAD E_MAT and V_MAT FROM SHAFT DESIGN")
 
-    mu = 0.175; % pg 621 machine design, between 0.15 and 0.2 for shrink fit hubs
-    %mu = 0.74; % for static dry, mild steel on mild steel, tab 7-1 pg 464 machine design
-    E_mat = E_mat_dic(material); % [MPa]
-    V_mat = 0.29; % where does this come from?...
+        d_shaft_g1 = 42; % [mm] % replace with loaded variable
+        d_shaft_g2 = 50;
+        d_shaft_g3 = 50;
+        d_shaft_g4 = 100;
+
+        mu = 0.175; % pg 621 machine design, between 0.15 and 0.2 for shrink fit hubs
+        %mu = 0.74; % for static dry, mild steel on mild steel, tab 7-1 pg 464 machine design
+        E_mat_g = E_mat_dic(material); % Young's modulus for the gear material [MPa]
+        V_mat_g = 0.29; % where does this come from?...
+
+        initial_loop = false;
+    end
+
     % calculate press fits of each gear
     if ~stress_s1_checked
-        % g1
+        % gear 1 interference fit
         [p_g1,T_max_g1,d_i_g1,h_tol_g1,s_tol_g1,heat_temp_hub_g1,cool_temp_shaft_g1 ...
             ,sigma_t_s_g1,sigma_t_o_g1,sigma_r_s_g1,sigma_r_o_g1] = ... % stresses
-            shrinkFitGear(df_g1,d_shaft_g1,b_s1,mu,E_mat*1e-3,E_mat*1e-3,V_mat,V_mat);
-        sigma_t_o_g1
-        sigma_r_o_g1
-        
-        % g2
+            shrinkFitGear(df_g1,d_shaft_g1,b_s1-chamfer_g1,mu, E_mat_g*1e-3,E_mat_g*1e-3,V_mat_g,V_mat_g);
+        % gear 2 interference fit
         [p_g2,T_max_g2,d_i_g2,h_tol_g2,s_tol_g2,heat_temp_hub_g2,cool_temp_shaft_g2 ...
             ,sigma_t_s_g2,sigma_t_o_g2,sigma_r_s_g2,sigma_r_o_g2] = ... % stresses
-            shrinkFitGear(df_g2,d_shaft_g2,b_s1,mu,E_mat*1e-3,E_mat*1e-3,V_mat,V_mat);
-        sigma_t_o_g2
-        sigma_r_o_g2
+            shrinkFitGear(df_g2,d_shaft_g2,b_s1-chamfer_g2,mu, E_mat_g*1e-3,E_mat_g*1e-3,V_mat_g,V_mat_g);
     
         % check if stresses are not too large for each gear:
         if (abs(sigma_t_s_g1) > (Sy_mat / n_f) &&  abs(sigma_r_o_g1) > (Sy_mat / n_f)) || ...
            (abs(sigma_t_s_g2) > (Sy_mat / n_f) &&  abs(sigma_r_o_g2) > (Sy_mat / n_f))  
             % increase module of first stage
+            if verbose; fprintf("increasing mt_s1 due to high fit stress\n"); end
             mt_s1 = mt_s1 + step;
             continue % restart loop
+        elseif T_max_g1 < n_f_t*T_1*1e-3 || T_max_g2 < n_f_t*T_2*1e-3
+            % error("Stage 1 cant transmit enough torque")
+            if verbose; fprintf("increasing mt_s1 due to low torque\n"); end
+            mt_s1 = mt_s1 + step;
+            continue
         else
-            stress_s1_checked = true; % don't recalculate in future loops
+            if verbose; fprintf("Stage 1 passed interference fit tests\n"); end
+            stress_s1_checked = true; % stage 1 good, don't recalculate in future loops
         end
     end
     % check for stage 2
     % g3
     [p_g3,T_max_g3,d_i_g3,h_tol_g3,s_tol_g3,heat_temp_hub_g3,cool_temp_shaft_g3 ...
         ,sigma_t_s_g3,sigma_t_o_g3,sigma_r_s_g3,sigma_r_o_g3] = ... % stresses
-        shrinkFitGear(df_g3,d_shaft_g3,b_s2,mu,E_mat*1e-3,E_mat*1e-3,V_mat,V_mat);
+        shrinkFitGear(df_g3,d_shaft_g3,b_s2-chamfer_g3,mu,E_mat_g*1e-3, E_mat_g*1e-3,V_mat_g,V_mat_g);
     % g4
     [p_g4,T_max_g4,d_i_g4,h_tol_g4,s_tol_g4,heat_temp_hub_g4,cool_temp_shaft_g4 ...
         ,sigma_t_s_g4,sigma_t_o_g4,sigma_r_s_g4,sigma_r_o_g4] = ... % stresses
-        shrinkFitGear(df_g4,d_shaft_g4,b_s2,mu,E_mat*1e-3,E_mat*1e-3,V_mat,V_mat);
+        shrinkFitGear(df_g4,d_shaft_g4,b_s2-chamfer_g4,mu,E_mat_g*1e-3, E_mat_g*1e-3,V_mat_g,V_mat_g);
 
     % check
     if (abs(sigma_t_s_g3) > (Sy_mat / n_f) &&  abs(sigma_r_o_g3) > (Sy_mat / n_f)) || ...
        (abs(sigma_t_s_g4) > (Sy_mat / n_f) &&  abs(sigma_r_o_g4) > (Sy_mat / n_f))  
         % increase module of second stage
+        if verbose; fprintf("increasing mt_s2 due to high fit stress\n"); end
         mt_s2 = mt_s2 + step;
         continue % restart loop
+    elseif T_max_g3 < n_f_t*T_3*1e-3 || T_max_g4 < n_f_t*T_4*1e-3
+        % error("Stage 2 cant transmit enough torque")
+        if verbose; fprintf("increasing mt_s1 due to low torque\n"); end
+        mt_s2 = mt_s2 + step;
+        continue
     end
-    if T_max_g1 < T_1*1e-3
-        error("Shaft 1 cant transmit torque")
-    elseif T_max_g2 < T_2*1e-3
-        error("Shaft 2 cant transmit torque")
-    elseif T_max_g3 < T_3*1e-3
-        error("Shaft 3 cant transmit torque")
-    elseif T_max_g4 < T_4*1e-3
-        error("Shaft 4 cant transmit torque")
-    end
-    fits_unchecked = false; % exit loop
+    if verbose; fprintf("Stage 2 passed interference fit tests\n"); end
+    fits_unchecked = false; % all values good, exit loop
+
+    % print interference fit values to tables
+    fit_table_data = ["T_max", "d_i_g", "temp_gear","temp_shaft","p","sigma_t_hub"]';
+    fit_data_g1 = [T_max_g1,d_i_g1,heat_temp_hub_g1, cool_temp_shaft_g1, p_g1,sigma_t_o_g1]';
+    fit_data_g2 = [T_max_g2,d_i_g2,heat_temp_hub_g2, cool_temp_shaft_g2, p_g2,sigma_t_o_g2]';
+    fit_data_g3 = [T_max_g3,d_i_g3,heat_temp_hub_g3, cool_temp_shaft_g3, p_g3,sigma_t_o_g3]';
+    fit_data_g4 = [T_max_g4,d_i_g4,heat_temp_hub_g4, cool_temp_shaft_g4, p_g4,sigma_t_o_g4]';
+    fit_table_g1 = table(fit_data_g1,fit_table_data)
+    fit_table_g2 = table(fit_data_g2,fit_table_data)
+    fit_table_g3 = table(fit_data_g3,fit_table_data)
+    fit_table_g4 = table(fit_data_g4,fit_table_data)
 else
-    warning("Unknown shaft diameters, skipping shrink fits")
+    warning("Unknown shaft diameters, skipping shrink fit calcs")
     fits_unchecked = false; % dont loop
 end
 end
-max_torques = table(T_max_g1, T_max_g2,T_max_g3,T_max_g4)
 modules = table(mt_s1, mt_s2)
 
 % % gearbox total length of gears
@@ -366,7 +389,6 @@ epsilon_a = ( sqrt( (d_a1/2)^2 - (d_b1/2)^2 ) + ...
               a_x * sind(alpha_wt) ) / ...
             ( pi*m_t*cosd(alpha_t) );
 %%% contact ratio - alternate from Lecture 3 page 12 %%%
-contactRatioStep1 = table(CR_s1, epsilon_a)
 
 %%% axial contact ratio %%%
 m_f_s1 = (b_s1 * tand(beta)) / (pi * mt_s1); % eq 13.5 machine design pg 796
@@ -376,6 +398,8 @@ if or( (m_f_s1 < 1), (m_f_s2 < 1) )
 elseif or((m_f_s1 < mF_min),(m_f_s2 < mF_min))
     warning("Axial contact ratio is low")
 end
+contactRatioStep1 = table(CR_s1, epsilon_a, m_f_s1)
+contactRatioStep2 = table(CR_s2, m_f_s2)
 %%% axial contact ratio %%%
 
 % Display results

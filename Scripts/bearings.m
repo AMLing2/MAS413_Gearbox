@@ -28,7 +28,7 @@ end
 if exist(fullfile("export_import","shaft_design.mat"),'file')
     load(fullfile("export_import","shaft_design.mat"), "aaaa")
 else
-    %error("Run shaftDesign.m first")
+    warning("Run shaftDesign.m first") % change to error in the future
 end
 
 
@@ -42,7 +42,8 @@ d_min_G = 65; % TEMP [mm]
 
 % load bearing .CSV file
 % data from: https://www.skf.com/group/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings#cid-493604
-csvfile = "../Data/combined_ballBearings_manual2.csv";
+% csvfile = "../Data/combined_ballBearings_manual2.csv";
+csvfile = fullfile("..","Data","combined_ballBearings_manual2.csv");
 b_data = readtable(csvfile,"NumHeaderLines",9,"DecimalSeparator",".","Delimiter",";");
 b_data.Properties.VariableNames = ["num","d","D","B","C","C0","Pu",...
     "ref_speed","max_speed","mass","name_null","designations", ...
@@ -119,8 +120,10 @@ data_names = ["Bore diameter [mm]";
     "lifetime hours [h]"];
 bearing_tab_sh1 = table(data_sh1,data_names,'VariableNames',["Bearing 1 data","variables"]');
 disp(bearing_tab_sh1);
-b_B = b_data.B(bearing_sh1_i);
+b_B = b_data.B(bearing_sh1_i); % width of bearing
 b_C = b_B;
+fillet_r_B = b_data.ra_max(bearing_sh1_i); % save maximum shaft fillet radius [mm]
+fillet_r_C = fillet_r_B;
 
 % shaft 2
 data_sh2 = [b_data.d(bearing_sh2_i);
@@ -137,6 +140,8 @@ bearing_tab_sh2 = table(data_sh2,data_names,'VariableNames',["Bearing 2 data","v
 disp(bearing_tab_sh2);
 b_D = b_data.B(bearing_sh2_i);
 b_E = b_D;
+fillet_r_D = b_data.ra_max(bearing_sh2_i); % save fillet radius
+fillet_r_E = fillet_r_D;
 
 % shaft 3
 data_sh3 = [b_data.d(bearing_sh3_i);
@@ -153,11 +158,14 @@ bearing_tab_sh3 = table(data_sh3,data_names,'VariableNames',["Bearing 3 data","v
 disp(bearing_tab_sh3);
 b_F = b_data.B(bearing_sh3_i);
 b_G = b_F;
+fillet_r_F = b_data.ra_max(bearing_sh3_i); % save fillet radius
+fillet_r_G = fillet_r_F;
 
+% saving data:
 clear b_data % remove table before saving
 save(fullfile("export_import","bearings.mat"))
 
-% calculate shrink fits
+% clean up or add to before b_data clear?
 dic_sh1 = dictionary(data_names,data_sh1);
 [d_B,h_sh1,s_sh1,temp_sh1_bearing,temp_sh1] = ...
     shrinkFitBearing(str2double(dic_sh1( "Outer diameter [mm]")),...
@@ -173,6 +181,7 @@ dic_sh3 = dictionary(data_names,data_sh3);
 d_C = d_B; % set other bearings equal
 d_D = d_E;
 d_G = d_F;
+% save only diameters
 save(fullfile("export_import","diameter_shaft_bearings.mat"),"d_B","d_C", ...
     "d_E", "d_D", "d_F", "d_G");
 
