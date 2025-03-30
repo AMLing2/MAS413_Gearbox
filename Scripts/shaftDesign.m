@@ -140,8 +140,9 @@ end
 modifiedGoodman(S_y, S_ut, shaft3_results, 'Shaft 3')
 load(fullfile(export_import, "loadingDiagram_common.mat"),'F_a_remaining')
 
-n_f = 2; % reset n_f
-shoulder_length_min = shoulder_length(F_a_remaining,min(d_S22,d_S21),d_45,n_f,S_y);
+n_f = 3; % reset n_f
+shoulder_length_min = shoulder_length(F_a_remaining,max(d_S22,d_S21),...
+    d_45-r_fillet2*1.5*2,n_f,S_y); % calculate gear chamfer not acting on the bottom of the shoulder
 if shoulder_length_min < L_45*1e3
     fprintf("\nL_45 shoulder length good\n")
 else
