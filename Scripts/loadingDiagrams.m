@@ -1,7 +1,7 @@
 clc; clear; close all;
 export_import = fullfile(pwd, 'export_import');
 
-disablePlotting = false;
+disablePlotting = true;
 disablePlot1 = false;
 disablePlot2 = false;
 disablePlot3 = false;
@@ -907,4 +907,58 @@ if (~disablePlotting) && (~disablePlot3)
     xlim( [ (-L_FH*0.1), (L_FH + L_FH*0.1) ] )
     ylim( [-5 5] )
     title('Shaft 3: One Directional Length', 'interpreter', 'latex')
+end
+
+
+
+%% Common functions for loading diagrams
+
+function plotLD(x, f, colFill)
+    % Plot f(x) as a black line with shaded area 
+    % between f(x) and abscissa
+
+    % Aesthetics :sparkly_glitter:
+    colLine = 'k';
+    lineW = 2;
+
+    % Filled Area
+    X = [x, fliplr(x)];
+    Y = [f, zeros(size(f))];
+
+    % Actual Plotting
+    hold on
+    fill(X, Y, colFill, 'FaceAlpha', 0.5, 'EdgeColor', 'none');
+    plot(x, f,'Color', colLine','LineWidth', lineW)
+    yline(0, 'k')
+
+    % Detect Jumps and Draw Line
+    jumpTol = 1;
+    jumps = find( abs( diff(f) ) > jumpTol );
+    for i = 1 : length(jumps)
+        xJump = x(jumps(i) + 1);
+        fPreJump = f(jumps(i));
+        fPostJump = f(jumps(i));
+        plot( [ xJump xJump ], [ fPreJump, fPostJump] , ...
+              colLine, 'LineWidth', lineW)
+    end
+
+end
+
+function dashLineV(L, figNr, spRow, spCol)
+    % Add dashed line to all figures
+    for i = (figNr-2) : figNr
+        if i < figNr
+            figure(i)
+            for row = 1 : spRow
+                for col = 1 : spCol
+                    spIdx = (row-1) * spCol + col;
+                    subplot(spRow,spCol,spIdx)
+                    xline(L, 'm--', 'LineWidth', 1)
+                end
+            end
+        else
+            figure(i)
+            xline(L, 'm--', 'LineWidth', 1)
+        end
+    end
 end
