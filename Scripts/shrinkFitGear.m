@@ -25,7 +25,7 @@
 % min_r_o = Minimum hub outer diamter [mm]
 
 function [p,T_max,d_h_i,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_h,sigma_r_s,sigma_r_h] ...
-    = shrinkFitGear(d_h_o,d_s,l,mu,E_o,E_i,V_o,V_i)
+    = shrinkFitGear(d_h_o,d_s,l,mu,fit,E_o,E_i,V_o,V_i)
 
     r_i = 0; % [mm] solid shaft, no hollow inner diameter
     r_o = d_h_o/2; % [mm] hub / gear outer radius
@@ -36,14 +36,19 @@ function [p,T_max,d_h_i,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_h,sigma_r
     C_s = 0.0052;
     C_i_8 = 0.0010;
     C_i_7 = 0.0005;
-    i_7 = C_i_7 * d_s; % [mm] average interference class 7, h7p6
-    i_8 = C_i_8 * d_s; % [mm] average interference class 8, h7s6
-    % h7s6 from table 4.1a (Steinschaden Lecture 6 slide 12 of
+    if strcmp(fit,"h7s6")
+        i = C_i_8 * d_s; % [mm] average interference class 8, h7s6
+        % h7s6 from table 4.1a (Steinschaden Lecture 6 slide 12 of
         % "078-Engineering-Drawings-Lecture-Linear-Fits-Tolerances.pdf")
+    elseif strcmp(fit,"h7p6")
+        i = C_i_7 * d_s; % [mm] average interference class 7, h7p6
+    else
+        error("select fit h7s6 or h7p6")
+    end
     
-    delta_r = i_8/2;
+    delta_r = i/2;
     % resize:a
-    d_h_i = d_s - i_8; % [mm] diameter of gear / hub inner hole
+    d_h_i = d_s - i; % [mm] diameter of gear / hub inner hole
     h = C_h * d_h_i^(1/3); % hub inner hole diameter tolerence 
     s = C_s * d_s^(1/3); % shaft diameter tolerence 
 
@@ -52,7 +57,7 @@ function [p,T_max,d_h_i,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_h,sigma_r
     temp_shaft = temp_room;
     L_0 = 2*pi*(d_h_i/2); % initial length (radius of outer - radius of inner) [mm]
     fit_tol = s+h; % extra radius for easier fit [mm]
-    L_heated = 2*pi*((d_h_i + i_8 + fit_tol)/2); % finishing length for fit [mm]
+    L_heated = 2*pi*((d_h_i + i + fit_tol)/2); % finishing length for fit [mm]
     alpha = 1.2e-5; % Coefficient of linear expansion [1/deg C], tab 17.1 pg 578
     heat_temp_hub = ((L_heated - L_0) / (alpha * L_0)) + temp_room; % [deg C] eq 17.6 pg 576
 

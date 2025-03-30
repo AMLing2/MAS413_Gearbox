@@ -23,8 +23,8 @@ end
 %%% Chosen Parameters %%%
 material = "16 MnCr 5";
 lambda = 14; % width factor, processed:  8-16, pg 17 lec 1, 14 to increase axial contact ratio to 1.15
-n_f = 2; % safety factor for interference fit pressure
-n_f_t = 1; % safety factor for interference fit max torque transmitted
+n_f = 2.5; % safety factor for interference fit pressure
+n_f_t = 2.5; % safety factor for interference fit max torque transmitted
 step = 0.05; % module increase for interference fit
 chamfer_multiplier = 1.5; % chamfer size compared to fillet radius
 verbose = true; % print extra info
@@ -243,11 +243,13 @@ if exist(fullfile("export_import","shaftDesign.mat"),"file")
         % gear 1 interference fit
         [p_g1,T_max_g1,d_i_g1,h_tol_g1,s_tol_g1,heat_temp_hub_g1,cool_temp_shaft_g1 ...
             ,sigma_t_s_g1,sigma_t_o_g1,sigma_r_s_g1,sigma_r_o_g1] = ... % stresses
-            shrinkFitGear(df_g1,d_shaft_g1,b_s1-chamfer_g1,mu, E_mat_g*1e-3,E_shaft*1e-3,V_mat_g,V_shaft);
+            shrinkFitGear(df_g1,d_shaft_g1,b_s1-chamfer_g1,mu,"h7p6", ... % h7p6 for lower temperature change
+            E_mat_g*1e-3,E_shaft*1e-3,V_mat_g,V_shaft);
         % gear 2 interference fit
         [p_g2,T_max_g2,d_i_g2,h_tol_g2,s_tol_g2,heat_temp_hub_g2,cool_temp_shaft_g2 ...
             ,sigma_t_s_g2,sigma_t_o_g2,sigma_r_s_g2,sigma_r_o_g2] = ... % stresses
-            shrinkFitGear(df_g2,d_shaft_g2,b_s1-chamfer_g2,mu, E_mat_g*1e-3,E_shaft*1e-3,V_mat_g,V_mat_g);
+            shrinkFitGear(df_g2,d_shaft_g2,b_s1-chamfer_g2,mu,"h7s6",...
+            E_mat_g*1e-3,E_shaft*1e-3,V_mat_g,V_mat_g);
     
         % check if stresses are not too large for each gear:
         if (abs(sigma_t_s_g1) > (Sy_mat / n_f) &&  abs(sigma_r_o_g1) > (Sy_mat / n_f)) || ...
@@ -270,11 +272,13 @@ if exist(fullfile("export_import","shaftDesign.mat"),"file")
     % g3
     [p_g3,T_max_g3,d_i_g3,h_tol_g3,s_tol_g3,heat_temp_hub_g3,cool_temp_shaft_g3 ...
         ,sigma_t_s_g3,sigma_t_o_g3,sigma_r_s_g3,sigma_r_o_g3] = ... % stresses
-        shrinkFitGear(df_g3,d_shaft_g3,b_s2-chamfer_g3,mu,E_mat_g*1e-3, E_mat_g*1e-3,V_mat_g,V_mat_g);
+        shrinkFitGear(df_g3,d_shaft_g3,b_s2-chamfer_g3,mu,"h7s6", ...
+        E_mat_g*1e-3, E_mat_g*1e-3,V_mat_g,V_mat_g);
     % g4
     [p_g4,T_max_g4,d_i_g4,h_tol_g4,s_tol_g4,heat_temp_hub_g4,cool_temp_shaft_g4 ...
         ,sigma_t_s_g4,sigma_t_o_g4,sigma_r_s_g4,sigma_r_o_g4] = ... % stresses
-        shrinkFitGear(df_g4,d_shaft_g4,b_s2-chamfer_g4,mu,E_mat_g*1e-3, E_mat_g*1e-3,V_mat_g,V_mat_g);
+        shrinkFitGear(df_g4,d_shaft_g4,b_s2-chamfer_g4,mu,"h7s6", ...
+        E_mat_g*1e-3, E_mat_g*1e-3,V_mat_g,V_mat_g);
 
     % check
     if (abs(sigma_t_s_g3) > (Sy_mat / n_f) &&  abs(sigma_r_o_g3) > (Sy_mat / n_f)) || ...
@@ -293,11 +297,17 @@ if exist(fullfile("export_import","shaftDesign.mat"),"file")
     fits_unchecked = false; % all values good, exit loop
 
     % print interference fit values to tables
-    fit_table_data = ["T_max", "d_i_g", "temp_gear","temp_shaft","p","sigma_t_hub"]';
-    fit_data_g1 = [T_max_g1,d_i_g1,heat_temp_hub_g1, cool_temp_shaft_g1, p_g1,sigma_t_o_g1]';
-    fit_data_g2 = [T_max_g2,d_i_g2,heat_temp_hub_g2, cool_temp_shaft_g2, p_g2,sigma_t_o_g2]';
-    fit_data_g3 = [T_max_g3,d_i_g3,heat_temp_hub_g3, cool_temp_shaft_g3, p_g3,sigma_t_o_g3]';
-    fit_data_g4 = [T_max_g4,d_i_g4,heat_temp_hub_g4, cool_temp_shaft_g4, p_g4,sigma_t_o_g4]';
+    fit_table_data = ["Torque max [Nm]","Torque req [Nm]", "diameter gear inner [mm]" ...
+        , "gear temperature [deg C]","shaft temp [deg C]","fit pressure [mPa]", ...
+        "hub tangential stress [mPa]","gear tolerance [mm]", "shaft tolerance [mm]"]';
+    fit_data_g1 = [T_max_g1,T_1*1e-3,d_i_g1,heat_temp_hub_g1, cool_temp_shaft_g1,...
+        p_g1,sigma_t_o_g1,h_tol_g1,s_tol_g1]';
+    fit_data_g2 = [T_max_g2,T_2*1e-3,d_i_g2,heat_temp_hub_g2, cool_temp_shaft_g2,...
+        p_g2,sigma_t_o_g2,h_tol_g2,s_tol_g2]';
+    fit_data_g3 = [T_max_g3,T_3*1e-3,d_i_g3,heat_temp_hub_g3, cool_temp_shaft_g3,...
+        p_g3,sigma_t_o_g3,h_tol_g3,s_tol_g3]';
+    fit_data_g4 = [T_max_g4,T_4*1e-3,d_i_g4,heat_temp_hub_g4, cool_temp_shaft_g4,...
+        p_g4,sigma_t_o_g4,h_tol_g4,s_tol_g4]';
     fit_table_g1 = table(fit_data_g1,fit_table_data)
     fit_table_g2 = table(fit_data_g2,fit_table_data)
     fit_table_g3 = table(fit_data_g3,fit_table_data)
