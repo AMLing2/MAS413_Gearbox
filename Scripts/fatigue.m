@@ -20,16 +20,12 @@ A = pi*R^2;       % [mm^2] Shaft area
 I = (pi/4)*R^4;   % [mm^4] Moment of inertia (I_x = I_y)
 I_p = (pi/2)*R^4; % [mm^4] Polar moment of inertia
 
-%%%%% Material data %%%%% Machine Design, Table A8 & A9 pg 1039-1040
-% "Key-value pair" not physical/mechanical key
-material_key = [355, 4140];
-material_data = struct('S_y', num2cell([315, 655]),...
-                       'S_ut', num2cell([470, 758]));
-material_table = dictionary(material_key, material_data);
-
-S_y = material_table(material).S_y;
-S_ut = material_table(material).S_ut;
-S_yc = -S_y; % [MPa] Compressive yeild strength ! PLACEHOLDER VALUE must be incorporated with material data table
+%%%%% Material data %%%%%
+% https://steelnavigator.ovako.com/steel-grades/s355j2/
+S_y = S355J2(1); % Yield strength [MPa]
+S_ut = S355J2(2); % Ultimate tensile sstrength [MPa]
+E = S355J2(3); % Youngs module [Pa]
+V_shaft = S355J2(4); % Poisson´s ratio
 
 
 %%%%% Neubler's Constant for Steels %%%%% Machine Design, Table 6-6 page 382

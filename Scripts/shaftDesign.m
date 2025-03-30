@@ -3,6 +3,7 @@ export_import = fullfile(pwd, 'export_import');
 
 % Common input parameters (for all shafts)
 n_f = 2; % Safety factor
+S355J2 = [315, 470, 210*1e9, 0.3]; % Material data [S_y, S_ut, Youngs module (Pa), Poisson´s ratio]
 material = 355; % (355, 4140)
 load_type = "Complex axial"; % ("Pure bending" "Pure axial" "Pure torsion" "Complex axial" "Complex non axial");
 surface_finish = "Machined"; % ("Ground" "Machined" "Hot-rolled" "As-forged") Other types: Machine Design pg 368, fig 6-26
@@ -10,10 +11,7 @@ reliability = 95; % [%] reliability factor (50 90 95 99 99.9 99.99 99.999 99.999
 operating_temperature = 70; % [celsius] defined by Kjell (only significant if > 450)
 first_iteration = false;  % (true / false) First iteration for diameter equation (limited geometry data)
 
-E = 210*1e9; % [GPa] to [Pa] E-module for S355J2
-V_shaft = 0.3; % Poisson´s ratio for S355J2
-
-% % Shaft Diameters
+% % Shaft Diameters (Old values)
 % d_C   = 0.010; % [m]
 % d_12  = 0.015; % [m]
 % d_B   = 0.011; % [m]
@@ -28,9 +26,6 @@ V_shaft = 0.3; % Poisson´s ratio for S355J2
 % d_G = 0.027;   % [m]
 % d_S3 = 0.025;  % [m]
 
-% run('bearings.m')
-% load(fullfile("export_import","diameter_shaft_bearings.mat"),"d_B","d_C", ...
-%     "d_E", "d_D", "d_F", "d_G")
 
 %%%%%%%%%%%% Shaft 1 %%%%%%%%%%%%
 r_keyseat1 = 0.25; % [mm] Keyseat fillet radius
@@ -118,7 +113,7 @@ for i = 1:size(shaft1_AllCS, 1)
     shaft1_results(i, :) = [S_e, sigma_e_m, sigma_e_a, n_y, n_f];
 end
 
-modifiedGoodman(S_y, S_yc, S_ut, shaft1_results, 'Shaft 1')
+modifiedGoodman(S_y, S_ut, shaft1_results, 'Shaft 1')
 
 %% Shaft 2 loop
 
@@ -130,7 +125,7 @@ for i = 1:size(shaft2_AllCS, 1)
     shaft2_results(i, :) = [S_e, sigma_e_m, sigma_e_a, n_y, n_f];
 end
 
-modifiedGoodman(S_y, S_yc, S_ut, shaft2_results, 'Shaft 2')
+modifiedGoodman(S_y, S_ut, shaft2_results, 'Shaft 2')
 
 %% Shaft 3 loop
 
@@ -142,7 +137,7 @@ for i = 1:size(shaft3_AllCS, 1)
     shaft3_results(i, :) = [S_e, sigma_e_m, sigma_e_a, n_y, n_f];
 end
 
-modifiedGoodman(S_y, S_yc, S_ut, shaft3_results, 'Shaft 3')
+modifiedGoodman(S_y, S_ut, shaft3_results, 'Shaft 3')
 
 % Export diameters
 save(fullfile("export_import","shaftDesign.mat"), 'd_S1', 'd_B',...
