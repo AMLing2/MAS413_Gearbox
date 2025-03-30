@@ -23,8 +23,8 @@ end
 %%% Chosen Parameters %%%
 material = "16 MnCr 5";
 lambda = 14; % width factor, processed:  8-16, pg 17 lec 1, 14 to increase axial contact ratio to 1.15
-n_f = 2; % safety factor for interference fit pressure
-n_f_t = 1; % safety factor for interference fit max torque transmitted
+n_f = 2.5; % safety factor for interference fit pressure
+n_f_t = 2.5; % safety factor for interference fit max torque transmitted
 step = 0.05; % module increase for interference fit
 chamfer_multiplier = 1.5; % chamfer size compared to fillet radius
 verbose = true; % print extra info
@@ -90,7 +90,6 @@ T_4 = T_3 * i_s2;
 sigma_b_lim_mat_list = [160,210,220,250,300,310,410,410]; % [MPa] from lecture
 sigma_o_lim_mat_list = [430,520,540,610,715,760,1600,1900]; % [MPa]
 E_mat_list = [200 200 210 210 205 205 200 210]*1e3; % [MPa] from links above
-V_mat_list = [0 0]*1e3; % [MPa] from links above
 mat_names = ["Fe 430", "Fe 590", "C 45 N", "C 60 N",...
     "34 Cr 4 V", "42 CrMo 4 V", "16 MnCr 5", "15 CrNi 6"];
 sigma_b_lim_mat = dictionary(mat_names, sigma_b_lim_mat_list);
@@ -99,7 +98,7 @@ E_mat_dic = dictionary(mat_names, E_mat_list);
 Sy_mat = 417; % [Mpa] yield strength of 16 MnCr 5, turn into list in the future? https://shop.machinemfg.com/composition-properties-and-uses-of-sae-aisi-5115-alloy-steel/
 
 E_mat_g = E_mat_dic(material); % Young's modulus for the gear material [MPa]
-V_mat_g = 0.29; % where does this come from?...
+V_mat_g = 0.28; % poissons ratio https://www.round-bars.com/products/16mncr5-steel-din-1-7131-case-hardening-steel/
 
 sigma_b_lim = sigma_b_lim_mat(material) / V_b;
 % Z_v is calculated in the module_calc function
@@ -218,23 +217,20 @@ df_g4 = d_g4 - 2 * hf_4;
 % helical module iteration 2 and interference fits:
 if exist(fullfile("export_import","shaftDesign.mat"),"file")
     if initial_loop % only do this part once during the loop
-        load(fullfile("export_import","shaftDesign.mat"))
+        load(fullfile("export_import","shaftDesign.mat"),'d_S1','d_S22',...
+            'd_S21','d_S3','r_fillet1','r_fillet2','r_fillet3','E', 'V_shaft')
+        E_shaft = E*1e-6; % [Pa] -> [mPa]
         if verbose; fprintf("Calculating interference fits\n"); end
         %calculate chamfer lengths [mm]:
-        fillet_G1_L12 = 0.1; % TEMP
-        fillet_G2_L45 = 0.1;
-        fillet_G3_L45 = 0.1;
-        fillet_G4_L78 = 0.1;
-        chamfer_g1 = fillet_G1_L12 * chamfer_multiplier;
-        chamfer_g2 = fillet_G2_L45 * chamfer_multiplier;
-        chamfer_g3 = fillet_G3_L45 * chamfer_multiplier;
-        chamfer_g4 = fillet_G4_L78 * chamfer_multiplier;
-        warning("MAKE SURE TO LOAD E_MAT and V_MAT FROM SHAFT DESIGN")
+        chamfer_g1 = r_fillet1 * chamfer_multiplier;
+        chamfer_g2 = r_fillet2 * chamfer_multiplier;
+        chamfer_g3 = r_fillet2 * chamfer_multiplier;
+        chamfer_g4 = r_fillet3 * chamfer_multiplier;
 
-        d_shaft_g1 = 42; % [mm] % replace with loaded variable
-        d_shaft_g2 = 50;
-        d_shaft_g3 = 50;
-        d_shaft_g4 = 100;
+        d_shaft_g1 = d_S1; % [mm] rename diameters
+        d_shaft_g2 = d_S21;
+        d_shaft_g3 = d_S22;
+        d_shaft_g4 = d_S3;
 
         mu = 0.175; % pg 621 machine design, between 0.15 and 0.2 for shrink fit hubs
         %mu = 0.74; % for static dry, mild steel on mild steel, tab 7-1 pg 464 machine design
@@ -247,11 +243,13 @@ if exist(fullfile("export_import","shaftDesign.mat"),"file")
         % gear 1 interference fit
         [p_g1,T_max_g1,d_i_g1,h_tol_g1,s_tol_g1,heat_temp_hub_g1,cool_temp_shaft_g1 ...
             ,sigma_t_s_g1,sigma_t_o_g1,sigma_r_s_g1,sigma_r_o_g1] = ... % stresses
-            shrinkFitGear(df_g1,d_shaft_g1,b_s1-chamfer_g1,mu, E_mat_g*1e-3,E_mat_g*1e-3,V_mat_g,V_mat_g);
+            shrinkFitGear(df_g1,d_shaft_g1,b_s1-chamfer_g1,mu,"h7p6", ... % h7p6 for lower temperature change
+            E_mat_g*1e-3,E_shaft*1e-3,V_mat_g,V_shaft);
         % gear 2 interference fit
         [p_g2,T_max_g2,d_i_g2,h_tol_g2,s_tol_g2,heat_temp_hub_g2,cool_temp_shaft_g2 ...
             ,sigma_t_s_g2,sigma_t_o_g2,sigma_r_s_g2,sigma_r_o_g2] = ... % stresses
-            shrinkFitGear(df_g2,d_shaft_g2,b_s1-chamfer_g2,mu, E_mat_g*1e-3,E_mat_g*1e-3,V_mat_g,V_mat_g);
+            shrinkFitGear(df_g2,d_shaft_g2,b_s1-chamfer_g2,mu,"h7s6",...
+            E_mat_g*1e-3,E_shaft*1e-3,V_mat_g,V_mat_g);
     
         % check if stresses are not too large for each gear:
         if (abs(sigma_t_s_g1) > (Sy_mat / n_f) &&  abs(sigma_r_o_g1) > (Sy_mat / n_f)) || ...
@@ -274,11 +272,13 @@ if exist(fullfile("export_import","shaftDesign.mat"),"file")
     % g3
     [p_g3,T_max_g3,d_i_g3,h_tol_g3,s_tol_g3,heat_temp_hub_g3,cool_temp_shaft_g3 ...
         ,sigma_t_s_g3,sigma_t_o_g3,sigma_r_s_g3,sigma_r_o_g3] = ... % stresses
-        shrinkFitGear(df_g3,d_shaft_g3,b_s2-chamfer_g3,mu,E_mat_g*1e-3, E_mat_g*1e-3,V_mat_g,V_mat_g);
+        shrinkFitGear(df_g3,d_shaft_g3,b_s2-chamfer_g3,mu,"h7s6", ...
+        E_mat_g*1e-3, E_mat_g*1e-3,V_mat_g,V_mat_g);
     % g4
     [p_g4,T_max_g4,d_i_g4,h_tol_g4,s_tol_g4,heat_temp_hub_g4,cool_temp_shaft_g4 ...
         ,sigma_t_s_g4,sigma_t_o_g4,sigma_r_s_g4,sigma_r_o_g4] = ... % stresses
-        shrinkFitGear(df_g4,d_shaft_g4,b_s2-chamfer_g4,mu,E_mat_g*1e-3, E_mat_g*1e-3,V_mat_g,V_mat_g);
+        shrinkFitGear(df_g4,d_shaft_g4,b_s2-chamfer_g4,mu,"h7s6", ...
+        E_mat_g*1e-3, E_mat_g*1e-3,V_mat_g,V_mat_g);
 
     % check
     if (abs(sigma_t_s_g3) > (Sy_mat / n_f) &&  abs(sigma_r_o_g3) > (Sy_mat / n_f)) || ...
@@ -297,11 +297,17 @@ if exist(fullfile("export_import","shaftDesign.mat"),"file")
     fits_unchecked = false; % all values good, exit loop
 
     % print interference fit values to tables
-    fit_table_data = ["T_max", "d_i_g", "temp_gear","temp_shaft","p","sigma_t_hub"]';
-    fit_data_g1 = [T_max_g1,d_i_g1,heat_temp_hub_g1, cool_temp_shaft_g1, p_g1,sigma_t_o_g1]';
-    fit_data_g2 = [T_max_g2,d_i_g2,heat_temp_hub_g2, cool_temp_shaft_g2, p_g2,sigma_t_o_g2]';
-    fit_data_g3 = [T_max_g3,d_i_g3,heat_temp_hub_g3, cool_temp_shaft_g3, p_g3,sigma_t_o_g3]';
-    fit_data_g4 = [T_max_g4,d_i_g4,heat_temp_hub_g4, cool_temp_shaft_g4, p_g4,sigma_t_o_g4]';
+    fit_table_data = ["Torque max [Nm]","Torque req [Nm]", "diameter gear inner [mm]" ...
+        , "gear temperature [deg C]","shaft temp [deg C]","fit pressure [mPa]", ...
+        "hub tangential stress [mPa]","gear tolerance [mm]", "shaft tolerance [mm]"]';
+    fit_data_g1 = [T_max_g1,T_1*1e-3,d_i_g1,heat_temp_hub_g1, cool_temp_shaft_g1,...
+        p_g1,sigma_t_o_g1,h_tol_g1,s_tol_g1]';
+    fit_data_g2 = [T_max_g2,T_2*1e-3,d_i_g2,heat_temp_hub_g2, cool_temp_shaft_g2,...
+        p_g2,sigma_t_o_g2,h_tol_g2,s_tol_g2]';
+    fit_data_g3 = [T_max_g3,T_3*1e-3,d_i_g3,heat_temp_hub_g3, cool_temp_shaft_g3,...
+        p_g3,sigma_t_o_g3,h_tol_g3,s_tol_g3]';
+    fit_data_g4 = [T_max_g4,T_4*1e-3,d_i_g4,heat_temp_hub_g4, cool_temp_shaft_g4,...
+        p_g4,sigma_t_o_g4,h_tol_g4,s_tol_g4]';
     fit_table_g1 = table(fit_data_g1,fit_table_data)
     fit_table_g2 = table(fit_data_g2,fit_table_data)
     fit_table_g3 = table(fit_data_g3,fit_table_data)

@@ -215,7 +215,7 @@ disp(bearing_tab_G);
 [d_G,h_G,s_G,temp_G,temp_shaft_G] = ...
     shrinkFitBearing(b_data.D(b_index_G),b_data.d(b_index_G));
 
-% print diameters
+% print shaft diameters
 table(d_C,d_B,d_E,d_G,d_F)
 
 % saving data:
