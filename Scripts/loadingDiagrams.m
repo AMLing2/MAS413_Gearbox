@@ -1,10 +1,10 @@
 clc; clear; close all;
 export_import = fullfile(pwd, 'export_import');
 
-disablePlotting = true;
-disablePlot1 = false;
+disablePlotting = false;
+disablePlot1 = true;
 disablePlot2 = false;
-disablePlot3 = false;
+disablePlot3 = true;
 
 %% Constants
 
@@ -103,7 +103,10 @@ F_G3 = mass_g3*g; % [N]
 F_t4 = T_out / r_G4; % [N]
 F_a4 = F_t4 * tand(beta); % [N]
 F_r4 = F_t4 * tand(alpha)/cosd(beta); % [N]
-F_G4 = mass_g4*g;  %[N]
+F_G4 = mass_g4*g; % [N]
+
+% Remaining Axial force of shaft 2
+F_a_remaining = abs(F_a3 - F_a2)
 
 %% Export Common for all Shafts
 save(fullfile(export_import, "loadingDiagram_common.mat"))
