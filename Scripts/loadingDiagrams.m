@@ -1,6 +1,11 @@
 clc; clear; close all;
 export_import = fullfile(pwd, 'export_import');
 
+disablePlotting = false;
+disablePlot1 = false;
+disablePlot2 = false;
+disablePlot3 = false;
+
 %% Constants
 
 % Chosen Parameters
@@ -136,27 +141,6 @@ xy_V = [];
 xy_M = [];
 xy_T = [];
 
-figure(figHandle);
-set(figHandle,'Units','Centimeter')
-set(figHandle,'Position',[xPos yPos wPlot hPlot]);
-sgtitle('\textbf{Shaft 1: XY - Plane}', 'interpreter', 'latex')
-subplot(2,2,1)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[N]', 'interpreter', 'latex')
-title('Axial Force $P(x)$', 'Interpreter','latex')
-subplot(2,2,2)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[N]', 'interpreter', 'latex')
-title('Shear Force $V_y(x)$', 'Interpreter','latex')
-subplot(2,2,3)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[Nm]', 'interpreter', 'latex')
-title('Bending Moment $M_z(x)$', 'Interpreter','latex')
-subplot(2,2,4)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[Nm]', 'interpreter', 'latex')
-title('Torque $T(x)$', 'Interpreter','latex')
-
 % 0 < x < L_AB
 x = linspace(0, L_AB, resolution);
 x(size(x))
@@ -182,14 +166,37 @@ xy_V = [xy_V, ones(size(x)) * (F_By - F_t1)]; % [N]
 xy_M = [xy_M, ( F_By*(x - L_AB) - F_t1*(x - L_AG1) )]; % [Nm]
 xy_T = [xy_T, ones(size(x)) * (T_M - F_t1*r_G1)]; % [Nm]
 
-subplot(2,2,1)
-plotLD(xy_x,xy_P, colFill)
-subplot(2,2,2)
-plotLD(xy_x,xy_V, colFill)
-subplot(2,2,3)
-plotLD(xy_x,xy_M, colFill)
-subplot(2,2,4)
-plotLD(xy_x,xy_T, colFill)
+if (~disablePlotting) && (~disablePlot1)
+    figure(figHandle);
+    set(figHandle,'Units','Centimeter')
+    set(figHandle,'Position',[xPos yPos wPlot hPlot]);
+    sgtitle('\textbf{Shaft 1: XY - Plane}', 'interpreter', 'latex')
+    subplot(2,2,1)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[N]', 'interpreter', 'latex')
+    title('Axial Force $P(x)$', 'Interpreter','latex')
+    subplot(2,2,2)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[N]', 'interpreter', 'latex')
+    title('Shear Force $V_y(x)$', 'Interpreter','latex')
+    subplot(2,2,3)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[Nm]', 'interpreter', 'latex')
+    title('Bending Moment $M_z(x)$', 'Interpreter','latex')
+    subplot(2,2,4)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[Nm]', 'interpreter', 'latex')
+    title('Torque $T(x)$', 'Interpreter','latex')
+
+    subplot(2,2,1)
+    plotLD(xy_x,xy_P, colFill)
+    subplot(2,2,2)
+    plotLD(xy_x,xy_V, colFill)
+    subplot(2,2,3)
+    plotLD(xy_x,xy_M, colFill)
+    subplot(2,2,4)
+    plotLD(xy_x,xy_T, colFill)
+end
 
 %% XZ - Plane
 
@@ -205,27 +212,6 @@ xz_V = [];
 xz_M = [];
 xz_T = [];
 xz_Mg = [];
-
-figure(figHandle);
-set(figHandle,'Units','Centimeter')
-set(figHandle,'Position',[xPos yPos wPlot hPlot]);
-sgtitle('\textbf{Shaft 1: XZ - Plane}', 'interpreter', 'latex')
-subplot(2,2,1)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[N]', 'interpreter', 'latex')
-title('Axial Force $P(x)$', 'Interpreter','latex')
-subplot(2,2,2)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[N]', 'interpreter', 'latex')
-title('Shear Force $V_z(x)$', 'Interpreter','latex')
-subplot(2,2,3)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[Nm]', 'interpreter', 'latex')
-title('Bending Moment $M_y(x)$', 'Interpreter','latex')
-subplot(2,2,4)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[Nm]', 'interpreter', 'latex')
-title('Torque $T(x)$', 'Interpreter','latex')
 
 % 0 < x < L_AB
 x = linspace(0, L_AB, resolution); % L_AB blir duplikert i xz_[n] listene
@@ -254,37 +240,62 @@ xz_M = [xz_M, ( F_r1*(x - L_AG1) - F_Bz*(x - L_AB) - F_a1*(r_G1) )]; % [Nm]
 xz_T = [xz_T, ones(size(x)) * (T_M - F_t1*r_G1)]; % [Nm]
 xz_Mg =[xz_Mg, +( F_Bg1 * (x - L_AB) ) - ( F_G1 * (x - L_AG1) ) ]; % [Nm]
 
-subplot(2,2,1)
-plotLD(xz_x,xz_P,colFill)
-subplot(2,2,2)
-plotLD(xz_x,xz_V,colFill)
-subplot(2,2,3)
-plotLD(xz_x,xz_M,colFill)
-subplot(2,2,4)
-plotLD(xz_x,xz_T,colFill)
-
+if (~disablePlotting) && (~disablePlot1)
+    figure(figHandle);
+    set(figHandle,'Units','Centimeter')
+    set(figHandle,'Position',[xPos yPos wPlot hPlot]);
+    sgtitle('\textbf{Shaft 1: XZ - Plane}', 'interpreter', 'latex')
+    subplot(2,2,1)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[N]', 'interpreter', 'latex')
+    title('Axial Force $P(x)$', 'Interpreter','latex')
+    subplot(2,2,2)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[N]', 'interpreter', 'latex')
+    title('Shear Force $V_z(x)$', 'Interpreter','latex')
+    subplot(2,2,3)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[Nm]', 'interpreter', 'latex')
+    title('Bending Moment $M_y(x)$', 'Interpreter','latex')
+    subplot(2,2,4)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[Nm]', 'interpreter', 'latex')
+    title('Torque $T(x)$', 'Interpreter','latex')
+    
+    subplot(2,2,1)
+    plotLD(xz_x,xz_P,colFill)
+    subplot(2,2,2)
+    plotLD(xz_x,xz_V,colFill)
+    subplot(2,2,3)
+    plotLD(xz_x,xz_M,colFill)
+    subplot(2,2,4)
+    plotLD(xz_x,xz_T,colFill)
+end
 
 %% Loading Diagram: Combined Bending Moment
 
 M = sqrt(xz_M.^2 + xy_M.^2); % [Nm]
+[M_max, M_max_idx] = max(M);
+L = xy_x(M_max_idx);
 
 % Figure setup
 figHandle = 3;
 wPlotM = wPlot;
 hPlotM = hPlot/2;
 
-figure(figHandle);
-set(figHandle,'Units','Centimeter')
-set(figHandle,'Position',[xPos yPos+hPlotM/2 wPlotM hPlotM]);
-plotLD(xy_x, M, colFill)
-title('Combined Moment', 'interpreter', 'latex', 'FontSize',fSize)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[Nm]', 'interpreter', 'latex')
-xlim([0 L_AC])
-
-[M_max, M_max_idx] = max(M);
-L = xy_x(M_max_idx);
-dashLineV(L, figHandle, 2, 2)
+if (~disablePlotting) && (~disablePlot1)
+    figure(figHandle);
+    set(figHandle,'Units','Centimeter')
+    set(figHandle,'Position',[xPos yPos+hPlotM/2 wPlotM hPlotM]);
+    plotLD(xy_x, M, colFill)
+    title('\textbf{Shaft 1: Combined Bending Moment}', ...
+        'interpreter', 'latex', 'FontSize',fSize)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[Nm]', 'interpreter', 'latex')
+    xlim([0 L_AC])
+    
+    dashLineV(L, figHandle, 2, 2)
+end
 
 
 %% Export
@@ -342,20 +353,22 @@ save(fullfile(export_import, "loadingDiagram_shaft1.mat"), saveVars{:})
 %% Length sanity check
 lW = 3;
 
-figHandle = 11;
-figure(figHandle)
-hold on
-plot( [0 L_AC],  [0  0], 'k', 'LineWidth', lW)
-plot( [0 L_AG1], [1  1], 'LineWidth', lW)
-plot( [0 L_AB],  [-1 -1], 'LineWidth', lW)
-plot( [L_AB (L_AB + L_BG1)], [-1 -1], 'LineWidth', lW)
-plot( [L_AG1 (L_AG1 + L_G1C)], [-1 -1], 'LineWidth', lW)
-xlabel('Length [m]')
-legend('$L_{AC}$', '$L_{AG1}$', '$L_{AB}$', '$L_{BG1}$', '$L_{G1C}$', ...
-    'Location','southoutside', 'interpreter', 'latex')
-xlim( [ (-L_AC*0.1), (L_AC + L_AC*0.1) ] )
-ylim( [-5 5] )
-title('One Directional Length', 'interpreter', 'latex')
+if (~disablePlotting) && (~disablePlot1)
+    figHandle = 11;
+    figure(figHandle)
+    hold on
+    plot( [0 L_AC],  [0  0], 'k', 'LineWidth', lW)
+    plot( [0 L_AG1], [1  1], 'LineWidth', lW)
+    plot( [0 L_AB],  [-1 -1], 'LineWidth', lW)
+    plot( [L_AB (L_AB + L_BG1)], [-1 -1], 'LineWidth', lW)
+    plot( [L_AG1 (L_AG1 + L_G1C)], [-1 -1], 'LineWidth', lW)
+    xlabel('Length [m]')
+    legend('$L_{AC}$', '$L_{AG1}$', '$L_{AB}$', '$L_{BG1}$', '$L_{G1C}$', ...
+        'Location','southoutside', 'interpreter', 'latex')
+    xlim( [ (-L_AC*0.1), (L_AC + L_AC*0.1) ] )
+    ylim( [-5 5] )
+    title('Shaft 1: One Directional Length', 'interpreter', 'latex')
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% MAS413 Project: Loading Diagrams - Shaft 2 %%
@@ -396,27 +409,6 @@ xy_P = [];
 xy_V = [];
 xy_M = [];
 xy_T = [];
- 
-XYplaneFig = figure(figHandle);
-set(figHandle,'Units','Centimeter')
-set(figHandle,'Position',[xPos yPos wPlot hPlot]);
-sgtitle('\textbf{Shaft 2: XY - Plane}', 'interpreter', 'latex')
-subplot(2,2,1)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[N]', 'interpreter', 'latex')
-title('Axial Force $P(x)$', 'Interpreter','latex')
-subplot(2,2,2)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[N]', 'interpreter', 'latex')
-title('Shear Force $V_y(x)$', 'Interpreter','latex')
-subplot(2,2,3)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[Nm]', 'interpreter', 'latex')
-title('Bending Moment $M_z(x)$', 'Interpreter','latex')
-subplot(2,2,4)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[Nm]', 'interpreter', 'latex')
-title('Torque $T(x)$', 'Interpreter','latex')
 
 % 0 < x < L_EG3
 x = linspace(0, L_EG3, resolution);
@@ -442,15 +434,37 @@ xy_V = [xy_V, ones(size(x)) * (F_t2 - F_Ey + F_t3)]; % [N]
 xy_M = [xy_M, ( F_t2*(x - L_EG2) - F_Ey*(x) + F_t3*(x - L_EG3) )]; % [Nm]
 xy_T = [xy_T, ones(size(x)) * (F_t3*r_G3 - F_t2*r_G2)]; % [Nm]
  
-subplot(2,2,1)
-plotLD(xy_x,xy_P, colFill)
-subplot(2,2,2)
-plotLD(xy_x,xy_V, colFill)
-subplot(2,2,3)
-plotLD(xy_x,xy_M, colFill)
-subplot(2,2,4)
-plotLD(xy_x,xy_T, colFill)
-
+if (~disablePlotting) && (~disablePlot2)
+    XYplaneFig = figure(figHandle);
+    set(figHandle,'Units','Centimeter')
+    set(figHandle,'Position',[xPos yPos wPlot hPlot]);
+    sgtitle('\textbf{Shaft 2: XY - Plane}', 'interpreter', 'latex')
+    subplot(2,2,1)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[N]', 'interpreter', 'latex')
+    title('Axial Force $P(x)$', 'Interpreter','latex')
+    subplot(2,2,2)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[N]', 'interpreter', 'latex')
+    title('Shear Force $V_y(x)$', 'Interpreter','latex')
+    subplot(2,2,3)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[Nm]', 'interpreter', 'latex')
+    title('Bending Moment $M_z(x)$', 'Interpreter','latex')
+    subplot(2,2,4)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[Nm]', 'interpreter', 'latex')
+    title('Torque $T(x)$', 'Interpreter','latex')
+    
+    subplot(2,2,1)
+    plotLD(xy_x,xy_P, colFill)
+    subplot(2,2,2)
+    plotLD(xy_x,xy_V, colFill)
+    subplot(2,2,3)
+    plotLD(xy_x,xy_M, colFill)
+    subplot(2,2,4)
+    plotLD(xy_x,xy_T, colFill)
+end
 
 %% XZ - Plane
 
@@ -466,27 +480,6 @@ xz_V = [];
 xz_M = [];
 xz_T = [];
 xz_Mg = [];
-
-XZplaneFig = figure(figHandle);
-set(figHandle,'Units','Centimeter')
-set(figHandle,'Position',[xPos yPos wPlot hPlot]);
-sgtitle('\textbf{Shaft 2: XZ - Plane}', 'interpreter', 'latex')
-subplot(2,2,1)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[N]', 'interpreter', 'latex')
-title('Axial Force $P(x)$', 'Interpreter','latex')
-subplot(2,2,2)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[N]', 'interpreter', 'latex')
-title('Shear Force $V_z(x)$', 'Interpreter','latex')
-subplot(2,2,3)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[Nm]', 'interpreter', 'latex')
-title('Bending Moment $M_y(x)$', 'Interpreter','latex')
-subplot(2,2,4)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[Nm]', 'interpreter', 'latex')
-title('Torque $T(x)$', 'Interpreter','latex')
  
 % 0 < x < L_EG3
 x = linspace(0, L_EG3, resolution);
@@ -516,37 +509,63 @@ xz_M = [xz_M, ( -F_Ez*(x) + F_r3*(x - L_EG3) - F_r2*(x - L_EG2) - ...
 xz_T = [xz_T,  ones(size(x)) * (F_t3*r_G3 - F_t2*r_G2)]; % [Nm]
 xz_Mg = [xz_Mg, F_EG*x - F_G3*(x-L_EG3) - F_G2* (x-L_EG2)]; % [N]
  
-subplot(2,2,1)
-plotLD(xz_x,xz_P,colFill)
-subplot(2,2,2)
-plotLD(xz_x,xz_V,colFill)
-subplot(2,2,3)
-plotLD(xz_x,xz_M,colFill)
-subplot(2,2,4)
-plotLD(xz_x,xz_T,colFill)
+if (~disablePlotting) && (~disablePlot2)
+    XZplaneFig = figure(figHandle);
+    set(figHandle,'Units','Centimeter')
+    set(figHandle,'Position',[xPos yPos wPlot hPlot]);
+    sgtitle('\textbf{Shaft 2: XZ - Plane}', 'interpreter', 'latex')
+    subplot(2,2,1)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[N]', 'interpreter', 'latex')
+    title('Axial Force $P(x)$', 'Interpreter','latex')
+    subplot(2,2,2)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[N]', 'interpreter', 'latex')
+    title('Shear Force $V_z(x)$', 'Interpreter','latex')
+    subplot(2,2,3)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[Nm]', 'interpreter', 'latex')
+    title('Bending Moment $M_y(x)$', 'Interpreter','latex')
+    subplot(2,2,4)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[Nm]', 'interpreter', 'latex')
+    title('Torque $T(x)$', 'Interpreter','latex')
+    
+    subplot(2,2,1)
+    plotLD(xz_x,xz_P,colFill)
+    subplot(2,2,2)
+    plotLD(xz_x,xz_V,colFill)
+    subplot(2,2,3)
+    plotLD(xz_x,xz_M,colFill)
+    subplot(2,2,4)
+    plotLD(xz_x,xz_T,colFill)
+end
 
 
 %% Loading Diagram: Combined Bending Moment
 
 M = sqrt(xz_M.^2 + xy_M.^2); % [Nm]
+[M_max, M_max_idx] = max(M);
+L = xy_x(M_max_idx);
 
 % Figure setup
 figHandle = 6;
 wPlotM = wPlot;
 hPlotM = hPlot/2;
 
-figure(figHandle);
-set(figHandle,'Units','Centimeter')
-set(figHandle,'Position',[xPos yPos+hPlotM/2 wPlotM hPlotM]);
-plotLD(xy_x, M, colFill)
-title('Combined Moment', 'interpreter', 'latex', 'FontSize',fSize)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[Nm]', 'interpreter', 'latex')
-xlim([0 L_ED])
+if (~disablePlotting) && (~disablePlot2)
+    figure(figHandle);
+    set(figHandle,'Units','Centimeter')
+    set(figHandle,'Position',[xPos yPos+hPlotM/2 wPlotM hPlotM]);
+    plotLD(xy_x, M, colFill)
+    title('\textbf{Shaft 2: Combined Bending Moment}', ...
+        'interpreter', 'latex', 'FontSize',fSize)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[Nm]', 'interpreter', 'latex')
+    xlim([0 L_ED])
 
-[M_max, M_max_idx] = max(M);
-L = xy_x(M_max_idx);
-dashLineV(L, figHandle, 2, 2)
+    dashLineV(L, figHandle, 2, 2)
+end
 
 %% Export
 
@@ -603,23 +622,24 @@ save(fullfile(export_import, "loadingDiagram_shaft2.mat"), saveVars{:})
 %% Length sanity check
 lW = 3;
 
-figHandle = 12;
-figure(figHandle)
-hold on
-plot( [0 L_ED],  [0  0], 'k', 'LineWidth', lW)
-plot( [0 L_EG2], [2  2], 'LineWidth', lW)
-plot( [0 L_EG3], [-1 -1], 'LineWidth', lW)
-plot( [L_EG3 (L_EG3 + L_G3G2)], [-1 -1], 'LineWidth', lW)
-plot( [L_EG2 (L_EG2 + L_G2D)], [-1 -1], 'LineWidth', lW)
-plot( [L_EG3 (L_EG3 + L_G3D)], [-2 -2], 'LineWidth', lW)
-xlabel('Length [m]')
-legend('$L_{ED}$', '$L_{EG2}$', '$L_{EG3}$', '$L_{G3G2}$', ...
-        '$L_{G2D}$', '$L_{G3D}$', ...
-        'Location','southoutside', 'interpreter', 'latex')
-xlim( [ (-L_ED*0.1), (L_ED + L_ED*0.1) ] )
-ylim( [-5 5] )
-title('One Directional Length', 'interpreter', 'latex')
-
+if (~disablePlotting) && (~disablePlot2)
+    figHandle = 12;
+    figure(figHandle)
+    hold on
+    plot( [0 L_ED],  [0  0], 'k', 'LineWidth', lW)
+    plot( [0 L_EG2], [2  2], 'LineWidth', lW)
+    plot( [0 L_EG3], [-1 -1], 'LineWidth', lW)
+    plot( [L_EG3 (L_EG3 + L_G3G2)], [-1 -1], 'LineWidth', lW)
+    plot( [L_EG2 (L_EG2 + L_G2D)], [-1 -1], 'LineWidth', lW)
+    plot( [L_EG3 (L_EG3 + L_G3D)], [-2 -2], 'LineWidth', lW)
+    xlabel('Length [m]')
+    legend('$L_{ED}$', '$L_{EG2}$', '$L_{EG3}$', '$L_{G3G2}$', ...
+            '$L_{G2D}$', '$L_{G3D}$', ...
+            'Location','southoutside', 'interpreter', 'latex')
+    xlim( [ (-L_ED*0.1), (L_ED + L_ED*0.1) ] )
+    ylim( [-5 5] )
+    title('Shaft 2: One Directional Length', 'interpreter', 'latex')
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% MAS413 Project: Loading Diagrams - Shaft 3 %%
@@ -661,27 +681,6 @@ xy_V = [];
 xy_M = [];
 xy_T = [];
 
-XYplaneFig = figure(figHandle);
-set(figHandle,'Units','Centimeter')
-set(figHandle,'Position',[xPos yPos wPlot hPlot]);
-sgtitle('\textbf{Shaft 3: XY - Plane}', 'interpreter', 'latex')
-subplot(2,2,1)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[N]', 'interpreter', 'latex')
-title('Axial Force $P(x)$', 'Interpreter','latex')
-subplot(2,2,2)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[N]', 'interpreter', 'latex')
-title('Shear Force $V_y(x)$', 'Interpreter','latex')
-subplot(2,2,3)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[Nm]', 'interpreter', 'latex')
-title('Bending Moment $M_z(x)$', 'Interpreter','latex')
-subplot(2,2,4)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[Nm]', 'interpreter', 'latex')
-title('Torque $T(x)$', 'Interpreter','latex')
-
 % 0 < x < L_FG4
 x = linspace(0, L_FG4, resolution);
 xy_x = [xy_x, x];
@@ -706,14 +705,37 @@ xy_V = [xy_V, ones(size(x)) * (F_Fy - F_t4 + F_Gy)]; % [N]
 xy_M = [xy_M, ( F_Fy*(x) - F_t4*(x - L_FG4) + F_Gy*(x - L_FG) )]; % [Nm]
 xy_T = [xy_T, ones(size(x))*(F_t4*r_G4)]; % [Nm]
 
-subplot(2,2,1)
-plotLD(xy_x,xy_P, colFill)
-subplot(2,2,2)
-plotLD(xy_x,xy_V, colFill)
-subplot(2,2,3)
-plotLD(xy_x,xy_M, colFill)
-subplot(2,2,4)
-plotLD(xy_x,xy_T, colFill)
+if (~disablePlotting) && (~disablePlot3)
+    XYplaneFig = figure(figHandle);
+    set(figHandle,'Units','Centimeter')
+    set(figHandle,'Position',[xPos yPos wPlot hPlot]);
+    sgtitle('\textbf{Shaft 3: XY - Plane}', 'interpreter', 'latex')
+    subplot(2,2,1)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[N]', 'interpreter', 'latex')
+    title('Axial Force $P(x)$', 'Interpreter','latex')
+    subplot(2,2,2)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[N]', 'interpreter', 'latex')
+    title('Shear Force $V_y(x)$', 'Interpreter','latex')
+    subplot(2,2,3)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[Nm]', 'interpreter', 'latex')
+    title('Bending Moment $M_z(x)$', 'Interpreter','latex')
+    subplot(2,2,4)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[Nm]', 'interpreter', 'latex')
+    title('Torque $T(x)$', 'Interpreter','latex')
+    
+    subplot(2,2,1)
+    plotLD(xy_x,xy_P, colFill)
+    subplot(2,2,2)
+    plotLD(xy_x,xy_V, colFill)
+    subplot(2,2,3)
+    plotLD(xy_x,xy_M, colFill)
+    subplot(2,2,4)
+    plotLD(xy_x,xy_T, colFill)
+end
 
 %% XZ - Plane
 
@@ -729,27 +751,6 @@ xz_V = [];
 xz_M = [];
 xz_T = [];
 xz_Mg = [];
-
-XZplaneFig = figure(figHandle);
-set(figHandle,'Units','Centimeter')
-set(figHandle,'Position',[xPos yPos wPlot hPlot]);
-sgtitle('\textbf{Shaft 3: XZ - Plane}', 'interpreter', 'latex')
-subplot(2,2,1)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[N]', 'interpreter', 'latex')
-title('Axial Force $P(x)$', 'Interpreter','latex')
-subplot(2,2,2)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[N]', 'interpreter', 'latex')
-title('Shear Force $V_z(x)$', 'Interpreter','latex')
-subplot(2,2,3)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[Nm]', 'interpreter', 'latex')
-title('Bending Moment $M_y(x)$', 'Interpreter','latex')
-subplot(2,2,4)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[Nm]', 'interpreter', 'latex')
-title('Torque $T(x)$', 'Interpreter','latex')
 
 % 0 < x < L_FG4
 x = linspace(0, L_FG4, resolution);
@@ -779,38 +780,62 @@ xz_M = [xz_M, ( F_Fz*(x) - F_r4*(x - L_FG4) - F_a4*(r_G4) + ...
 xz_T = [xz_T, ones(size(x)) * (F_t4*r_G4)]; % [Nm]
 xz_Mg = [xz_Mg, F_FG*x - F_G4*(x-L_FG4)+F_GG*(x-L_FG)];
 
-subplot(2,2,1)
-plotLD(xz_x,xz_P,colFill)
-subplot(2,2,2)
-plotLD(xz_x,xz_V,colFill)
-subplot(2,2,3)
-plotLD(xz_x,xz_M,colFill)
-subplot(2,2,4)
-plotLD(xz_x,xz_T,colFill)
-
+if (~disablePlotting) && (~disablePlot3)
+    XZplaneFig = figure(figHandle);
+    set(figHandle,'Units','Centimeter')
+    set(figHandle,'Position',[xPos yPos wPlot hPlot]);
+    sgtitle('\textbf{Shaft 3: XZ - Plane}', 'interpreter', 'latex')
+    subplot(2,2,1)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[N]', 'interpreter', 'latex')
+    title('Axial Force $P(x)$', 'Interpreter','latex')
+    subplot(2,2,2)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[N]', 'interpreter', 'latex')
+    title('Shear Force $V_z(x)$', 'Interpreter','latex')
+    subplot(2,2,3)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[Nm]', 'interpreter', 'latex')
+    title('Bending Moment $M_y(x)$', 'Interpreter','latex')
+    subplot(2,2,4)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[Nm]', 'interpreter', 'latex')
+    title('Torque $T(x)$', 'Interpreter','latex')
+    
+    subplot(2,2,1)
+    plotLD(xz_x,xz_P,colFill)
+    subplot(2,2,2)
+    plotLD(xz_x,xz_V,colFill)
+    subplot(2,2,3)
+    plotLD(xz_x,xz_M,colFill)
+    subplot(2,2,4)
+    plotLD(xz_x,xz_T,colFill)
+end
 
 %% Loading Diagram: Combined Bending Moment
 
 M = sqrt(xz_M.^2 + xy_M.^2); % [Nm]
+[M_max, M_max_idx] = max(M);
+L = xy_x(M_max_idx);
 
 % Figure setup
 figHandle = 9;
 wPlotM = wPlot;
 hPlotM = hPlot/2;
 
-figure(figHandle);
-set(figHandle,'Units','Centimeter')
-set(figHandle,'Position',[xPos yPos+hPlotM/2 wPlotM hPlotM]);
-plotLD(xy_x, M, colFill)
-title('Combined Moment', 'interpreter', 'latex', 'FontSize',fSize)
-xlabel('[m]', 'interpreter', 'latex')
-ylabel('[Nm]', 'interpreter', 'latex')
-xlim([0 L_FH])
-
-[M_max, M_max_idx] = max(M);
-L = xy_x(M_max_idx);
-dashLineV(L, figHandle, 2, 2)
-
+if (~disablePlotting) && (~disablePlot3)
+    figure(figHandle);
+    set(figHandle,'Units','Centimeter')
+    set(figHandle,'Position',[xPos yPos+hPlotM/2 wPlotM hPlotM]);
+    plotLD(xy_x, M, colFill)
+    title('\textbf{Shaft 3: Combined Bending Moment}', ...
+        'interpreter', 'latex', 'FontSize',fSize)
+    xlabel('[m]', 'interpreter', 'latex')
+    ylabel('[Nm]', 'interpreter', 'latex')
+    xlim([0 L_FH])
+    
+    dashLineV(L, figHandle, 2, 2)
+end
 
 %% Export
 
@@ -867,17 +892,19 @@ save(fullfile(export_import, "loadingDiagram_shaft3.mat"), saveVars{:})
 %% Length sanity check
 lW = 3;
 
-figHandle = 10;
-figure(figHandle)
-hold on
-plot( [0 L_FH],  [0  0], 'k', 'LineWidth', lW)
-plot( [0 L_FG], [1  1], 'LineWidth', lW)
-plot( [0 L_FG4], [-1 -1], 'LineWidth', lW)
-plot( [L_FG4 (L_FG4 + L_G4G)], [-1 -1], 'LineWidth', lW)
-plot( [L_FG (L_FG + L_GH)], [-1 -1], 'LineWidth', lW)
-xlabel('Length [m]')
-legend('$L_{FH}$', '$L_{FG}$', '$L_{FG4}$', '$L_{G4G}$', '$L_{GH}$', ...
-        'Location','southoutside', 'interpreter', 'latex')
-xlim( [ (-L_FH*0.1), (L_FH + L_FH*0.1) ] )
-ylim( [-5 5] )
-title('One Directional Length', 'interpreter', 'latex')
+if (~disablePlotting) && (~disablePlot3)
+    figHandle = 10;
+    figure(figHandle)
+    hold on
+    plot( [0 L_FH],  [0  0], 'k', 'LineWidth', lW)
+    plot( [0 L_FG], [1  1], 'LineWidth', lW)
+    plot( [0 L_FG4], [-1 -1], 'LineWidth', lW)
+    plot( [L_FG4 (L_FG4 + L_G4G)], [-1 -1], 'LineWidth', lW)
+    plot( [L_FG (L_FG + L_GH)], [-1 -1], 'LineWidth', lW)
+    xlabel('Length [m]')
+    legend('$L_{FH}$', '$L_{FG}$', '$L_{FG4}$', '$L_{G4G}$', '$L_{GH}$', ...
+            'Location','southoutside', 'interpreter', 'latex')
+    xlim( [ (-L_FH*0.1), (L_FH + L_FH*0.1) ] )
+    ylim( [-5 5] )
+    title('Shaft 3: One Directional Length', 'interpreter', 'latex')
+end
