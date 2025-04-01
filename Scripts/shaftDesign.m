@@ -54,10 +54,10 @@ K_t_keyseat3 = 3.8; % Keyseat stress concentration factor % Machine Design fig 1
 r_fillet3 = 0.5; % [mm] Shoulder fillet radius
 
 % Diameters
-d_G  = 65.065; % [mm]
-d_S3 = 71;     % [mm]
+d_G  = 70.07; % [mm]
+d_S3 = 76;     % [mm]
 d_78 = 82;     % [mm]
-d_F  = 70.07;  % [mm]
+d_F  = 65.065;  % [mm]
 
 if exist(fullfile(export_import, "shrinkFit_diameters.mat"), 'file')
     load(fullfile(export_import, 'shrinkFit_diameters.mat'), ...
