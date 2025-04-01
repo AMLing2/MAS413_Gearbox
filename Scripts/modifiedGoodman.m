@@ -49,7 +49,8 @@ function modifiedGoodman(S_y, S_ut, shaft_design_results, titleName)
     % plot(S_yc, 0, 'ko', 'MarkerFaceColor', [0.6350 0.0780 0.1840], 'MarkerSize', 6); % S_yc point
     
     % List of colors for loop plotting
-    marker_colour = {[0 0.4470 0.7410], [0.9290 0.6940 0.1250], [0.4940 0.1840 0.5560], [0.4660 0.6740 0.1880]};
+    % marker_colour = {[0 0.4470 0.7410], [0.9290 0.6940 0.1250], [0.4940 0.1840 0.5560], [0.4660 0.6740 0.1880]};
+    marker_colour = {[0 0.4470 0.7410], [0.9290 0.6940 0.1250], [0.4940 0.1840 0.5560], [0.4660 0.6740 0.1880], [0 0.4470 0.7410], [0.9290 0.6940 0.1250], [0.4940 0.1840 0.5560], [0.4660 0.6740 0.1880]};
 
     for i = 1:height(shaft_design_results)
 
@@ -90,13 +91,13 @@ function modifiedGoodman(S_y, S_ut, shaft_design_results, titleName)
     leg = legend('show');
 
     if titleName == 'Shaft 1'
-        legend(poi, {'A', '0', '1', '2'}, 'NumColumns', 2, 'Location', 'northeast')
+        legend(poi, {'A', '0L', '0R', '1L', '1R', '2L', '2R'}, 'NumColumns', 2, 'Location', 'northeast')
         title(leg,'Cross Sections')
     elseif titleName == 'Shaft 2'
-        legend(poi, {'3', '4', '5', '6'}, 'NumColumns', 2, 'Location', 'northeast')
+        legend(poi, {'3L', '3R', '4L', '4R', '5L', '5R', '6L', '6R'}, 'NumColumns', 2, 'Location', 'northeast')
         title(leg,'Cross Sections')
     else
-        legend(poi, {'7', '8', '9', 'H'}, 'NumColumns', 2, 'Location', 'northeast')
+        legend(poi, {'7L', '7R', '8L', '8R', '9L', '9R', 'H'}, 'NumColumns', 2, 'Location', 'northeast')
         title(leg,'Cross Sections')
     end
 end

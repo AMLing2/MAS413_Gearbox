@@ -76,7 +76,7 @@ end
 if exist(fullfile("export_import","loadingDiagram_shaft1.mat"),'file')
     load(fullfile("export_import", 'loadingDiagram_shaft1.mat'), 'cs_A', 'cs_0L', 'cs_1L', 'cs_2L',...
         'cs_0R', 'cs_1R', 'cs_2R')
-    load(fullfile("export_import", 'loadingDiagram_shaft2.mat'), 'cs_3L', 'cs_4L', 'cs_5L', 'cs_6L',...
+    load(fullfile("export_import", 'loadingDiagram_shaft2.mat'), 'cs_3L', 'cs_3R', 'cs_4L', 'cs_5L', 'cs_6L',...
         'cs_4R', 'cs_5R', 'cs_6R','E_Fa','D_Fa','L_45')
     load(fullfile("export_import", 'loadingDiagram_shaft3.mat'), 'cs_7L', 'cs_8L', 'cs_9L', 'cs_H',...
         'cs_7R', 'cs_8R', 'cs_9R')
@@ -84,7 +84,7 @@ else
     error("Run loadingDiagrams.m first")
 end
 
-cs_A = [cs_A d_B   true  r_keyseat1 K_t_keyseat1];
+cs_A =  [cs_A d_B   true  r_keyseat1 K_t_keyseat1];
 cs_0L = [cs_0L d_B   false r_fillet1  d_S1/d_B];
 cs_0R = [cs_0R d_B   false r_fillet1  d_S1/d_B];
 cs_1L = [cs_1L d_S1  false r_fillet1  d_12/d_S1];
@@ -105,36 +105,38 @@ cs_8R = [cs_8R d_78  false r_fillet3  d_78/d_S3];
 cs_8L = [cs_8L d_78  false r_fillet3  d_78/d_S3];
 cs_9R = [cs_9R d_S3  false r_fillet3  d_S3/d_G];
 cs_9L = [cs_9L d_S3  false r_fillet3  d_S3/d_G];
-cs_H = [cs_H d_G   true  r_keyseat3 K_t_keyseat3];
+cs_H =  [cs_H d_G   true  r_keyseat3 K_t_keyseat3];
 
 % Lists for for loop
-shaft1_AllCS = [cs_A; cs_0; cs_1; cs_2];
-shaft2_AllCS = [cs_3; cs_4; cs_5; cs_6];
-shaft3_AllCS = [cs_7; cs_8; cs_9; cs_H];
-shaft1_names = {'Cross section A', 'Cross section 0', 'Cross section 1', 'Cross section 2'};
-shaft2_names = {'Cross section 3', 'Cross section 4', 'Cross section 5', 'Cross section 6'};
-shaft3_names = {'Cross section 7', 'Cross section 8', 'Cross section 9', 'Cross section H'};
-
-% shaft1_AllCS = [cs_A; cs_0l; cs_0r; cs_1l; cs_1r; cs_2l; cs_2r];
-% shaft2_AllCS = [cs_3l; cs_3r; cs_4l; cs_4r; cs_5l; cs_5r; cs_6l; cs_6r];
-% shaft3_AllCS = [cs_7l; cs_7r; cs_8l; cs_8r; cs_9l;  cs_9r; cs_H];
+% shaft1_AllCS = [cs_A; cs_0; cs_1; cs_2];
+% shaft2_AllCS = [cs_3; cs_4; cs_5; cs_6];
+% shaft3_AllCS = [cs_7; cs_8; cs_9; cs_H];
 % shaft1_names = {'Cross section A', 'Cross section 0', 'Cross section 1', 'Cross section 2'};
-% shaft2_names = {'Cross section 3l', 'Cross section 3r', 'Cross section 4l', 'Cross section 4r'
-%                 'Cross section 5l', 'Cross section 5r', 'Cross section 6l', 'Cross section 6r'};
+% shaft2_names = {'Cross section 3', 'Cross section 4', 'Cross section 5', 'Cross section 6'};
 % shaft3_names = {'Cross section 7', 'Cross section 8', 'Cross section 9', 'Cross section H'};
 
+shaft1_AllCS = [cs_A; cs_0L; cs_0R; cs_1L; cs_1R; cs_2L; cs_2R];
+shaft2_AllCS = [cs_3L; cs_3R; cs_4L; cs_4R; cs_5L; cs_5R; cs_6L; cs_6R];
+shaft3_AllCS = [cs_7L; cs_7R; cs_8L; cs_8R; cs_9L;  cs_9R; cs_H];
+shaft1_names = {'Cross section A', 'Cross section 0L', 'Cross section 0R', 'Cross section 1L'...
+                'Cross section 1R', 'Cross section 2L', 'Cross section 2R'};
+shaft2_names = {'Cross section 3l', 'Cross section 3r', 'Cross section 4l', 'Cross section 4r'...
+                'Cross section 5l', 'Cross section 5r', 'Cross section 6l', 'Cross section 6r'};
+shaft3_names = {'Cross section 7L', 'Cross section 7R', 'Cross section 8L', 'Cross section 8R'...
+                'Cross section 9L', 'Cross section 9R', 'Cross section H'};
 
-% %% Shaft 1 loop
-% 
-% shaft1_results = zeros(size(shaft1_AllCS, 1), 5);
-% for i = 1:size(shaft1_AllCS, 1)
-%     fprintf('\n------ %s ------\n', shaft1_names{i});
-%     cs = shaft1_AllCS(i, :);
-%     run("fatigue.m")
-%     shaft1_results(i, :) = [S_e, sigma_e_m, sigma_e_a, n_y, n_f];
-% end
-% 
-% modifiedGoodman(S_y, S_ut, shaft1_results, 'Shaft 1')
+
+%% Shaft 1 loop
+
+shaft1_results = zeros(size(shaft1_AllCS, 1), 5);
+for i = 1:size(shaft1_AllCS, 1)
+    fprintf('\n------ %s ------\n', shaft1_names{i});
+    cs = shaft1_AllCS(i, :);
+    run("fatigue.m")
+    shaft1_results(i, :) = [S_e, sigma_e_m, sigma_e_a, n_y, n_f];
+end
+
+modifiedGoodman(S_y, S_ut, shaft1_results, 'Shaft 1')
 
 %% Shaft 2 loop
 
@@ -148,18 +150,18 @@ end
 
 modifiedGoodman(S_y, S_ut, shaft2_results, 'Shaft 2')
 
-% %% Shaft 3 loop
-% 
-% shaft3_results = zeros(size(shaft3_AllCS, 1), 5);
-% for i = 1:size(shaft3_AllCS, 1)
-%     fprintf('\n\n------ %s ------\n', shaft3_names{i});
-%     cs = shaft3_AllCS(i, :);
-%     run("fatigue.m")
-%     shaft3_results(i, :) = [S_e, sigma_e_m, sigma_e_a, n_y, n_f];
-% end
-% 
-% modifiedGoodman(S_y, S_ut, shaft3_results, 'Shaft 3')
-% load(fullfile(export_import, "loadingDiagram_common.mat"),'F_a_remaining')
+%% Shaft 3 loop
+
+shaft3_results = zeros(size(shaft3_AllCS, 1), 5);
+for i = 1:size(shaft3_AllCS, 1)
+    fprintf('\n\n------ %s ------\n', shaft3_names{i});
+    cs = shaft3_AllCS(i, :);
+    run("fatigue.m")
+    shaft3_results(i, :) = [S_e, sigma_e_m, sigma_e_a, n_y, n_f];
+end
+
+modifiedGoodman(S_y, S_ut, shaft3_results, 'Shaft 3')
+load(fullfile(export_import, "loadingDiagram_common.mat"),'F_a_remaining')
 % 
 % n_f = 3; % reset n_f
 % shoulder_length_min = shoulder_length(F_a_remaining,max(d_S22,d_S21),...
