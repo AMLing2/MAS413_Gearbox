@@ -34,7 +34,7 @@ T_shaft1 = T_M; % [Nm]
 T_shaft3 = T_out; % [Nm]
 
 S_yield = 180 * 10^6;  % [Pa] Aisi 1010 hot rolled
-S_yield_comp = 180 * 10^6; % [Pa]
+S_yield_comp = 180 * 10^6; % [Pa]Compression: ductile materials often same compression yield. Machine design book page 35: the compression test. 
 
 %% Calculated values
 
@@ -67,7 +67,7 @@ n_shear_1_2 = (0.577*S_yield)/tau_key_1_2; % [-]
 
 r_shaft_3 = d_shaft_3/2; % [m]
 tau_key_3_2 = (T_shaft3/r_shaft_3)/  (2*(w_3*l_3)); % [Pa]
-n_shear_3_2 = (0.577*S_yield)/tau_key_3_2; % [-]
+n_shear_3_2 = (0.577*S_yield)/tau_key_3_2; % [-] %Using 0.577 of s_yield because it is a realsonable appsoximation according to machine design page 37.
 
 
 %% Check for compression failure - one key
