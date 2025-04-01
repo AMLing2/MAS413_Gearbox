@@ -4,8 +4,10 @@ lifetime = 5; % [years]
 daysPerYear = 260; % [days/year] work days
 work_cycle = 10; % [hours/day]
 minPerHour = 60; % [min/hour]
-hours = lifetime * daysPerYear * work_cycle % [hours]
+hours = lifetime * daysPerYear * work_cycle % [hours] minimum bearing lifetime
+hours_full_system = 10 * daysPerYear * work_cycle % [hours], lifetime for whole system replacement
 ly = lifetime * daysPerYear * work_cycle * minPerHour; % [min]
+
 
 % Import shaft speeds from Gear Sizing
 if exist(fullfile("export_import","gear_sizes.mat"),'file')
@@ -163,7 +165,7 @@ disp(bearing_tab_E);
 
 % shaft 3 F G
 % bearing F
-lifetime_hour_F = (n_bF / n_1) / minPerHour;
+lifetime_hour_F = (n_bF / n_3) / minPerHour;
 b_F = b_data.B(b_index_F);
 fillet_r_F = b_data.ra_max(b_index_F);
 data_bearing_F = [b_data.d(b_index_F);
@@ -181,7 +183,7 @@ bearing_tab_F = table(data_bearing_F,data_names,'VariableNames',["Bearing F data
 disp(bearing_tab_F);
 
 % bearing G
-lifetime_hour_G = (n_bG / n_1) / minPerHour;
+lifetime_hour_G = (n_bG / n_3) / minPerHour;
 b_G = b_data.B(b_index_G);
 fillet_r_G = b_data.ra_max(b_index_G);
 data_bearing_G = [b_data.d(b_index_G);
