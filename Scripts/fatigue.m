@@ -48,10 +48,13 @@ q = 1/(1 + (a_sqrt_mm/sqrt(r_fillet)));
 % For end-milled keyseat % Machine Design, fig 10-16, pg 615
 if cs(7)
     K_t_tor = cs(9); % Stress concentration for keyseat
-    K_t_axial = 1; % For redundancy, does not apply
-    K_t_bend  = 1; % For redundancy, does not apply
-    
-    if any([P, M, V_y, V_z] ~= 0)
+   
+    %%%%% Conservative estimate from 1st iteration for redundancy
+    K_t_bend = 2.7;
+    K_t_axial = 3.0;
+    %%%%% (Should not apply)
+
+    if any(abs([P, M, V_y, V_z]) > 1e-8)
     warning(['Check stress concentration factors K_t_axial & K_t_bend \n'...
              'P = %2f\nM = %2f\nV_y = %2f\nV_z = %2f\n'], P, M, V_y, V_z);
     end
@@ -208,8 +211,6 @@ tau_z_shear_max_nom = (4/3)*(V_z_max/A); % [MPa]
 tau_z_shear_min_nom = (4/3)*(V_z_min/A); % [MPa]
 tau_z_shear_m_nom   = (tau_z_shear_max_nom + tau_z_shear_min_nom)/2; % [MPa]
 tau_z_shear_a_nom   = (tau_z_shear_max_nom - tau_z_shear_min_nom)/2; % [MPa]
-% fprintf('tau_y_shear_max_nom = %2f\n', tau_y_shear_max_nom)
-% fprintf('tau_z_shear_max_nom = %2f\n', tau_z_shear_max_nom)
 
 % Bending
 sigma_x_bend_max_nom = (M_max*R)/I; % [MPa]
@@ -222,8 +223,12 @@ tau_tor_max_nom = (T_max*R)/I_p; % [MPa]
 tau_tor_min_nom = (T_min*R)/I_p; % [MPa]
 tau_tor_m_nom   = (tau_tor_max_nom + tau_tor_min_nom)/2; % [MPa]
 tau_tor_a_nom   = (tau_tor_max_nom - tau_tor_min_nom)/2; % [MPa]
-% fprintf('tau_tor_max_nom = %2f\n', tau_tor_max_nom)
-% fprintf('sigma_x_bend_max_nom = %2f\n', sigma_x_bend_max_nom)
+
+% Print stresses to compare
+fprintf('tau_y_shear_max_nom  = %2f\n', tau_y_shear_max_nom)
+fprintf('tau_z_shear_max_nom  = %2f\n', tau_z_shear_max_nom)
+fprintf('tau_tor_max_nom      = %2f\n', tau_tor_max_nom)
+fprintf('sigma_x_bend_max_nom = %2f\n', sigma_x_bend_max_nom)
 
 %%%%% Mean & Amplitude stress w/stress concentration (Ductile materials) %%%%%
 % MAS236 L3 s19 & s21
@@ -255,14 +260,14 @@ sigma_x_a = sigma_x_axial_a + sigma_x_bend_a; % [MPa]
 sigma_e_m   = sqrt(sigma_x_m^2 + 3*(tau_tor_m^2)); % [MPa]
 sigma_e_a   = sqrt(sigma_x_a^2 + 3*(tau_tor_a^2)); % [MPa]
 sigma_e_max = sigma_e_m + sigma_e_a; % [MPa]
-% fprintf('Neglected shear -->  sigma_e = %2f\n', sigma_e_max)
+fprintf('\nNeglected shear -->  sigma_e = %2f\n', sigma_e_max)
 
 % Shear included
 % Von Mises Equivalent Stress
 sigma_e_m   = sqrt(sigma_x_m^2 + 3*(tau_tor_m^2+tau_y_shear_m^2+tau_z_shear_m^2)); % [MPa]
 sigma_e_a   = sqrt(sigma_x_a^2 + 3*(tau_tor_a^2+tau_y_shear_a^2+tau_z_shear_a^2)); % [MPa]
 sigma_e_max = sigma_e_m + sigma_e_a; % [MPa]
-% fprintf('Included shear  -->  sigma_e = %2f\n', sigma_e_max)
+fprintf('Included shear  -->  sigma_e = %2f\n', sigma_e_max)
 
 
 %%%%% Diameter Equation %%%%%
@@ -283,17 +288,7 @@ if first_iteration
     % End-mill keyset (r/d = 0.02)
     % K_t_bend = 2.14;
     % K_t_tor = 3;
-    % K_t_axial = -; 
-    
-    % Sled runner keyset
-    % K_t_bend = 1.7;
-    % K_t_tor = -;
     % K_t_axial = -;
-    
-    % Retaining ring groove
-    % K_t_bend = 5;
-    % K_t_tor = 3;
-    % K_t_axial = 5;
     
     % Conservative estimate for preliminary stage (q is unknown)
     K_f_bend = K_t_bend;
@@ -301,7 +296,6 @@ if first_iteration
     K_f_axial = K_t_axial;
     
     % Correction factors for preliminary stage % MAS236 L5 s12
-    C_load = 1; % Bending
     C_size = 1;
 end
 
@@ -313,7 +307,7 @@ d_eq =  ( ( (16*n_f) /pi) * ( sqrt(4*(K_f_bend*M_a)^2 + ...
                                    3*(K_f_tor*T_a)^2)/S_e + ...
                               sqrt(4*(K_f_bend*M_m)^2 + ...
                                    3*(K_f_tor*T_m)^2)/S_ut) )^(1/3);
-fprintf('d_eq = %.2f [mm],  Recomended shaft diameter\n', d_eq)
+fprintf('\nRecomended shaft diameter --> d_eq = %.2f [mm]\n', d_eq)
 % Other formulation in equation (10.8) % Machine Design pg 600 & 653
 
 % Quick check: failure againt yield at the first cycle % MAS236 L5 s7
@@ -332,9 +326,9 @@ else
 end
 
 if n_y > 1
-    fprintf('n_y = %.2f --> No static failure\n', n_y)
+    fprintf('\nNo static failure  --> n_y = %.2f\n', n_y)
 else
-    fprintf('n_y = %.2f --> Static failure\n', n_y)
+    fprintf('\nStatic failure     --> n_y = %.2f\n', n_y)
 end
 
 % Fatigue safety factor: MAS236 L4 s19
@@ -356,9 +350,9 @@ end
 n_f = S_e/sigma_rev;
 
 if n_f > 1
-    fprintf('n_f = %.2f --> No fatigue failure, infinite life\n', n_f)
+    fprintf('No fatigue failure --> n_f = %.2f\n', n_f)
 else
-    fprintf('n_f = %.2f --> Fatigue failure, finite life\n', n_f)
+    fprintf('Fatigue failure    --> n_f = %.2f\n', n_f)
 end
 
 
