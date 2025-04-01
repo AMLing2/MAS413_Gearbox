@@ -3,7 +3,7 @@ export_import = fullfile(pwd, 'export_import');
 
 disablePlotting = false;
 disablePlot1 = true;
-disablePlot2 = false;
+disablePlot2 = true;
 disablePlot3 = true;
 
 %% Constants
@@ -116,7 +116,7 @@ save(fullfile(export_import, "loadingDiagram_common.mat"))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Lengths
-L_BC  = b_B/2 + L_78 + b_s2 + L_45 + b_s1 + L_12; % [m]
+L_BC  = b_B/2 + L_78 + b_s2 + L_45 + b_s1 + L_12 + b_C/2; % [m]
 L_BG1 = b_B/2 + L_78 + b_s2 + L_45 + b_s1/2; % [m]
 L_G1C = L_BC - L_BG1; % [m]
 L_AG1 = L_AB + L_BG1; % [m]
@@ -302,7 +302,7 @@ end
 
 
 %% Export
-
+idx = 2;
 %%%% For Fatigue %%%%
 % Cross Section A
 [~, cs_A_idx] = closest(xy_x, 0);
@@ -313,29 +313,56 @@ cs_A_Vy = xy_V(cs_A_idx); % [N]
 cs_A_Vz = xz_V(cs_A_idx); % [N]
 cs_A = [cs_A_P cs_A_T cs_A_M cs_A_Vy cs_A_Vz];
 % Cross Section 0
-[~, cs_0_idx] = closest(xy_x, L_A0);
-cs_0_P = xy_P(cs_0_idx); % [N]
-cs_0_T = xy_T(cs_0_idx)*1e3; % [Nmm]
-cs_0_M = M(cs_0_idx)*1e3; % [Nmm]
-cs_0_Vy = xy_V(cs_0_idx); % [N]
-cs_0_Vz = xz_V(cs_0_idx); % [N]
-cs_0 = [cs_0_P cs_0_T cs_0_M cs_0_Vy cs_0_Vz];
+[~, cs_0L_idx] = closest(xy_x, L_A0);
+cs_0L_idx = cs_0L_idx - idx;
+cs_0L_P = xy_P(cs_0L_idx); % [N]
+cs_0L_T = xy_T(cs_0L_idx)*1e3; % [Nmm]
+cs_0L_M = M(cs_0L_idx)*1e3; % [Nmm]
+cs_0L_Vy = xy_V(cs_0L_idx); % [N]
+cs_0L_Vz = xz_V(cs_0L_idx); % [N]
+cs_0L = [cs_0L_P cs_0L_T cs_0L_M cs_0L_Vy cs_0L_Vz];
+[~, cs_0R_idx] = closest(xy_x, L_A0);
+cs_0R_idx = cs_0R_idx + idx;
+cs_0R_P = xy_P(cs_0R_idx); % [N]
+cs_0R_T = xy_T(cs_0R_idx)*1e3; % [Nmm]
+cs_0R_M = M(cs_0R_idx)*1e3; % [Nmm]
+cs_0R_Vy = xy_V(cs_0R_idx); % [N]
+cs_0R_Vz = xz_V(cs_0R_idx); % [N]
+cs_0R = [cs_0R_P cs_0R_T cs_0R_M cs_0R_Vy cs_0R_Vz];
 % Cross Section 1
-[~, cs_1_idx] = closest(xy_x, L_A1);
-cs_1_P = xy_P(cs_1_idx); % [N]
-cs_1_T = xy_T(cs_1_idx)*1e3; % [Nmm]
-cs_1_M = M(cs_1_idx)*1e3; % [Nmm]
-cs_1_Vy = xy_V(cs_1_idx); % [N]
-cs_1_Vz = xz_V(cs_1_idx); % [N]
-cs_1 = [cs_1_P cs_1_T cs_1_M cs_1_Vy cs_1_Vz];
+[~, cs_1L_idx] = closest(xy_x, L_A1);
+cs_1L_idx = cs_1L_idx - idx;
+cs_1L_P = xy_P(cs_1L_idx); % [N]
+cs_1L_T = xy_T(cs_1L_idx)*1e3; % [Nmm]
+cs_1L_M = M(cs_1L_idx)*1e3; % [Nmm]
+cs_1L_Vy = xy_V(cs_1L_idx); % [N]
+cs_1L_Vz = xz_V(cs_1L_idx); % [N]
+cs_1L = [cs_1L_P cs_1L_T cs_1L_M cs_1L_Vy cs_1L_Vz];
+[~, cs_1R_idx] = closest(xy_x, L_A1);
+cs_1R_idx = cs_1R_idx + idx;
+cs_1R_P = xy_P(cs_1R_idx); % [N]
+cs_1R_T = xy_T(cs_1R_idx)*1e3; % [Nmm]
+cs_1R_M = M(cs_1R_idx)*1e3; % [Nmm]
+cs_1R_Vy = xy_V(cs_1R_idx); % [N]
+cs_1R_Vz = xz_V(cs_1R_idx); % [N]
+cs_1R = [cs_1R_P cs_1R_T cs_1R_M cs_1R_Vy cs_1R_Vz];
 % Cross Section 2
-[~, cs_2_idx] = closest(xy_x, L_A2);
-cs_2_P = xy_P(cs_2_idx); % [N]
-cs_2_T = xy_T(cs_2_idx)*1e3; % [Nmm]
-cs_2_M = M(cs_2_idx)*1e3; % [Nmm]
-cs_2_Vy = xy_V(cs_2_idx); % [N]
-cs_2_Vz = xz_V(cs_2_idx); % [N]
-cs_2 = [cs_2_P cs_2_T cs_2_M cs_2_Vy cs_2_Vz];
+[~, cs_2L_idx] = closest(xy_x, L_A2);
+cs_2L_idx = cs_2L_idx - idx;
+cs_2L_P = xy_P(cs_2L_idx); % [N]
+cs_2L_T = xy_T(cs_2L_idx)*1e3; % [Nmm]
+cs_2L_M = M(cs_2L_idx)*1e3; % [Nmm]
+cs_2L_Vy = xy_V(cs_2L_idx); % [N]
+cs_2L_Vz = xz_V(cs_2L_idx); % [N]
+cs_2L = [cs_2L_P cs_2L_T cs_2L_M cs_2L_Vy cs_2L_Vz];
+[~, cs_2R_idx] = closest(xy_x, L_A2);
+cs_2R_idx = cs_2R_idx + idx;
+cs_2R_P = xy_P(cs_2R_idx); % [N]
+cs_2R_T = xy_T(cs_2R_idx)*1e3; % [Nmm]
+cs_2R_M = M(cs_2R_idx)*1e3; % [Nmm]
+cs_2R_Vy = xy_V(cs_2R_idx); % [N]
+cs_2R_Vz = xz_V(cs_2R_idx); % [N]
+cs_2R = [cs_2R_P cs_2R_T cs_2R_M cs_2R_Vy cs_2R_Vz];
 %%%% For Fatigue %%%%
 %%%% For Bearings %%%%
 [~, B_idx] = closest(xy_x, L_AB);
@@ -386,7 +413,7 @@ L_EG2 = L_EG3 + b_s2/2 + L_45 + b_s1/2; % [m]
 L_G3G2 = L_EG2 - L_EG3; % [m]
 L_G3D = L_ED - L_EG3; % [m]
 L_G2D = L_ED - L_EG2; % [m]
-L_E3 = L_ED - b_E/2; % [m]
+L_E3 = L_ED - b_D/2; % [m]
 L_E4 = L_EG2 - b_s1/2; % [m]
 L_E5 = L_EG3 + b_s2/2; % [m]
 L_E6 = b_E/2; % [m]
@@ -571,40 +598,76 @@ if (~disablePlotting) && (~disablePlot2)
 end
 
 %% Export
-
+idx = 2;
 %%%% For Fatigue %%%%
 % Cross Section 3
-[~, cs_3_idx] = closest(xy_x, L_E3);
-cs_3_P = xy_P(cs_3_idx);
-cs_3_T = xy_T(cs_3_idx)*1e3; % [Nmm]
-cs_3_M = M(cs_3_idx)*1e3; % [Nmm]
-cs_3_Vy = xy_V(cs_3_idx);
-cs_3_Vz = xz_V(cs_3_idx);
-cs_3 = [cs_3_P cs_3_T cs_3_M cs_3_Vy cs_3_Vz];
+[~, cs_3L_idx] = closest(xy_x, L_E3);
+cs_3L_idx = cs_3L_idx - idx;
+cs_3L_P = xy_P(cs_3L_idx);
+cs_3L_T = xy_T(cs_3L_idx)*1e3; % [Nmm]
+cs_3L_M = M(cs_3L_idx)*1e3; % [Nmm]
+cs_3L_Vy = xy_V(cs_3L_idx);
+cs_3L_Vz = xz_V(cs_3L_idx);
+cs_3L = [cs_3L_P cs_3L_T cs_3L_M cs_3L_Vy cs_3L_Vz];
+[~, cs_3R_idx] = closest(xy_x, L_E3);
+cs_3R_idx = cs_3R_idx + idx;
+cs_3R_P = xy_P(cs_3R_idx);
+cs_3R_T = xy_T(cs_3R_idx)*1e3; % [Nmm]
+cs_3R_M = M(cs_3R_idx)*1e3; % [Nmm]
+cs_3R_Vy = xy_V(cs_3R_idx);
+cs_3R_Vz = xz_V(cs_3R_idx);
+cs_3R = [cs_3R_P cs_3R_T cs_3R_M cs_3R_Vy cs_3R_Vz];
 % Cross Section 4
-[~, cs_4_idx] = closest(xy_x, L_E4);
-cs_4_P = xy_P(cs_4_idx);
-cs_4_T = xy_T(cs_4_idx)*1e3; % [Nmm]
-cs_4_M = M(cs_4_idx)*1e3; % [Nmm]
-cs_4_Vy = xy_V(cs_4_idx);
-cs_4_Vz = xz_V(cs_4_idx);
-cs_4 = [cs_4_P cs_4_T cs_4_M cs_4_Vy cs_4_Vz];
+[~, cs_4L_idx] = closest(xy_x, L_E4);
+cs_4L_idx = cs_4L_idx - idx;
+cs_4L_P = xy_P(cs_4L_idx);
+cs_4L_T = xy_T(cs_4L_idx)*1e3; % [Nmm]
+cs_4L_M = M(cs_4L_idx)*1e3; % [Nmm]
+cs_4L_Vy = xy_V(cs_4L_idx);
+cs_4L_Vz = xz_V(cs_4L_idx);
+cs_4L = [cs_4L_P cs_4L_T cs_4L_M cs_4L_Vy cs_4L_Vz];
+[~, cs_4R_idx] = closest(xy_x, L_E4);
+cs_4R_idx = cs_4R_idx + idx;
+cs_4R_P = xy_P(cs_4R_idx);
+cs_4R_T = xy_T(cs_4R_idx)*1e3; % [Nmm]
+cs_4R_M = M(cs_4R_idx)*1e3; % [Nmm]
+cs_4R_Vy = xy_V(cs_4R_idx);
+cs_4R_Vz = xz_V(cs_4R_idx);
+cs_4R = [cs_4R_P cs_4R_T cs_4R_M cs_4R_Vy cs_4R_Vz];
 % Cross Section 5
-[~, cs_5_idx] = closest(xy_x, L_E5);
-cs_5_P = xy_P(cs_5_idx);
-cs_5_T = xy_T(cs_5_idx)*1e3; % [Nmm]
-cs_5_M = M(cs_5_idx)*1e3; % [Nmm]
-cs_5_Vy = xy_V(cs_5_idx);
-cs_5_Vz = xz_V(cs_5_idx);
-cs_5 = [cs_5_P cs_5_T cs_5_M cs_5_Vy cs_5_Vz];
+[~, cs_5L_idx] = closest(xy_x, L_E5);
+cs_5L_idx = cs_5L_idx - idx;
+cs_5L_P = xy_P(cs_5L_idx);
+cs_5L_T = xy_T(cs_5L_idx)*1e3; % [Nmm]
+cs_5L_M = M(cs_5L_idx)*1e3; % [Nmm]
+cs_5L_Vy = xy_V(cs_5L_idx);
+cs_5L_Vz = xz_V(cs_5L_idx);
+cs_5L = [cs_5L_P cs_5L_T cs_5L_M cs_5L_Vy cs_5L_Vz];
+[~, cs_5R_idx] = closest(xy_x, L_E5);
+cs_5R_idx = cs_5R_idx + idx;
+cs_5R_P = xy_P(cs_5R_idx);
+cs_5R_T = xy_T(cs_5R_idx)*1e3; % [Nmm]
+cs_5R_M = M(cs_5R_idx)*1e3; % [Nmm]
+cs_5R_Vy = xy_V(cs_5R_idx);
+cs_5R_Vz = xz_V(cs_5R_idx);
+cs_5R = [cs_5R_P cs_5R_T cs_5R_M cs_5R_Vy cs_5R_Vz];
 % Cross Section 6
-[~, cs_6_idx] = closest(xy_x, L_E6);
-cs_6_P = xy_P(cs_6_idx);
-cs_6_T = xy_T(cs_6_idx)*1e3; % [Nmm]
-cs_6_M = M(cs_6_idx)*1e3; % [Nmm]
-cs_6_Vy = xy_V(cs_6_idx);
-cs_6_Vz = xz_V(cs_6_idx);
-cs_6 = [cs_6_P cs_6_T cs_6_M cs_6_Vy cs_6_Vz];
+[~, cs_6L_idx] = closest(xy_x, L_E6);
+cs_6L_idx = cs_6L_idx - idx;
+cs_6L_P = xy_P(cs_6L_idx);
+cs_6L_T = xy_T(cs_6L_idx)*1e3; % [Nmm]
+cs_6L_M = M(cs_6L_idx)*1e3; % [Nmm]
+cs_6L_Vy = xy_V(cs_6L_idx);
+cs_6L_Vz = xz_V(cs_6L_idx);
+cs_6L = [cs_6L_P cs_6L_T cs_6L_M cs_6L_Vy cs_6L_Vz];
+[~, cs_6R_idx] = closest(xy_x, L_E6);
+cs_6R_idx = cs_6R_idx + idx;
+cs_6R_P = xy_P(cs_6R_idx);
+cs_6R_T = xy_T(cs_6R_idx)*1e3; % [Nmm]
+cs_6R_M = M(cs_6R_idx)*1e3; % [Nmm]
+cs_6R_Vy = xy_V(cs_6R_idx);
+cs_6R_Vz = xz_V(cs_6R_idx);
+cs_6R = [cs_6R_P cs_6R_T cs_6R_M cs_6R_Vy cs_6R_Vz];
 %%%% For Fatigue %%%%
 %%%% For Bearings %%%%
 [~, E_idx] = closest(xy_x, 0);
@@ -841,32 +904,59 @@ if (~disablePlotting) && (~disablePlot3)
 end
 
 %% Export
-
+idx = 2;
 %%%% For Fatigue %%%%
 % Cross Section 7
-[~, cs_7_idx] = closest(xy_x, L_F7);
-cs_7_P = xy_P(cs_7_idx);
-cs_7_T = xy_T(cs_7_idx)*1e3; % [Nmm]
-cs_7_M = M(cs_7_idx)*1e3; % [Nmm]
-cs_7_Vy = xy_V(cs_7_idx);
-cs_7_Vz = xz_V(cs_7_idx);
-cs_7 = [cs_7_P cs_7_T cs_7_M cs_7_Vy cs_7_Vz];
+[~, cs_7L_idx] = closest(xy_x, L_F7);
+cs_7L_idx = cs_7L_idx - idx;
+cs_7L_P = xy_P(cs_7L_idx);
+cs_7L_T = xy_T(cs_7L_idx)*1e3; % [Nmm]
+cs_7L_M = M(cs_7L_idx)*1e3; % [Nmm]
+cs_7L_Vy = xy_V(cs_7L_idx);
+cs_7L_Vz = xz_V(cs_7L_idx);
+cs_7L = [cs_7L_P cs_7L_T cs_7L_M cs_7L_Vy cs_7L_Vz];
+[~, cs_7R_idx] = closest(xy_x, L_F7);
+cs_7R_idx = cs_7R_idx + idx;
+cs_7R_P = xy_P(cs_7R_idx);
+cs_7R_T = xy_T(cs_7R_idx)*1e3; % [Nmm]
+cs_7R_M = M(cs_7R_idx)*1e3; % [Nmm]
+cs_7R_Vy = xy_V(cs_7R_idx);
+cs_7R_Vz = xz_V(cs_7R_idx);
+cs_7R = [cs_7R_P cs_7R_T cs_7R_M cs_7R_Vy cs_7R_Vz];
 % Cross Section 8
-[~, cs_8_idx] = closest(xy_x, L_F8);
-cs_8_P = xy_P(cs_8_idx);
-cs_8_T = xy_T(cs_8_idx)*1e3; % [Nmm]
-cs_8_M = M(cs_8_idx)*1e3; % [Nmm]
-cs_8_Vy = xy_V(cs_8_idx);
-cs_8_Vz = xz_V(cs_8_idx);
-cs_8 = [cs_8_P cs_8_T cs_8_M cs_8_Vy cs_8_Vz];
+[~, cs_8L_idx] = closest(xy_x, L_F8);
+cs_8L_idx = cs_8L_idx - idx;
+cs_8L_P = xy_P(cs_8L_idx);
+cs_8L_T = xy_T(cs_8L_idx)*1e3; % [Nmm]
+cs_8L_M = M(cs_8L_idx)*1e3; % [Nmm]
+cs_8L_Vy = xy_V(cs_8L_idx);
+cs_8L_Vz = xz_V(cs_8L_idx);
+cs_8L = [cs_8L_P cs_8L_T cs_8L_M cs_8L_Vy cs_8L_Vz];
+[~, cs_8R_idx] = closest(xy_x, L_F8);
+cs_8R_idx = cs_8R_idx + idx;
+cs_8R_P = xy_P(cs_8R_idx);
+cs_8R_T = xy_T(cs_8R_idx)*1e3; % [Nmm]
+cs_8R_M = M(cs_8R_idx)*1e3; % [Nmm]
+cs_8R_Vy = xy_V(cs_8R_idx);
+cs_8R_Vz = xz_V(cs_8R_idx);
+cs_8R = [cs_8R_P cs_8R_T cs_8R_M cs_8R_Vy cs_8R_Vz];
 % Cross Section 9
-[~, cs_9_idx] = closest(xy_x, L_F9);
-cs_9_P = xy_P(cs_9_idx);
-cs_9_T = xy_T(cs_9_idx)*1e3; % [Nmm]
-cs_9_M = M(cs_9_idx)*1e3; % [Nmm]
-cs_9_Vy = xy_V(cs_9_idx);
-cs_9_Vz = xz_V(cs_9_idx);
-cs_9 = [cs_9_P cs_9_T cs_9_M cs_9_Vy cs_9_Vz];
+[~, cs_9L_idx] = closest(xy_x, L_F9);
+cs_9L_idx = cs_9L_idx - idx;
+cs_9L_P = xy_P(cs_9L_idx);
+cs_9L_T = xy_T(cs_9L_idx)*1e3; % [Nmm]
+cs_9L_M = M(cs_9L_idx)*1e3; % [Nmm]
+cs_9L_Vy = xy_V(cs_9L_idx);
+cs_9L_Vz = xz_V(cs_9L_idx);
+cs_9L = [cs_9L_P cs_9L_T cs_9L_M cs_9L_Vy cs_9L_Vz];
+[~, cs_9R_idx] = closest(xy_x, L_F9);
+cs_9R_idx = cs_9R_idx + idx;
+cs_9R_P = xy_P(cs_9R_idx);
+cs_9R_T = xy_T(cs_9R_idx)*1e3; % [Nmm]
+cs_9R_M = M(cs_9R_idx)*1e3; % [Nmm]
+cs_9R_Vy = xy_V(cs_9R_idx);
+cs_9R_Vz = xz_V(cs_9R_idx);
+cs_9R = [cs_9R_P cs_9R_T cs_9R_M cs_9R_Vy cs_9R_Vz];
 % Cross Section H
 [~, cs_H_idx] = closest(xy_x, L_FH);
 cs_H_P = xy_P(cs_H_idx);
