@@ -33,8 +33,8 @@ d_shaft_3 = d_G; % [m] % Diameter at key placement
 T_shaft1 = T_M; % [Nm]
 T_shaft3 = T_out; % [Nm]
 
-S_yield = 190 * 10^6;  % [Pa] medium carbon steel typical e-modulus found online
-S_yield_comp = 190 * 10^6; % [Pa]
+S_yield = 180 * 10^6;  % [Pa] Aisi 1010 hot rolled
+S_yield_comp = 180 * 10^6; % [Pa]
 
 %% Calculated values
 
