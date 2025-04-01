@@ -74,9 +74,9 @@ n_4 = n_3/ i_s2;
 
 % Gear Velocity [rad/sec]
 omega_1 = n_1 * (2*pi) / 60;
-% omega_2 = n_2 * (2*pi) / 60;
-% omega_3 = n_3 * (2*pi) / 60;
-% omega_4 = n_4 * (2*pi) / 60;
+omega_2 = n_2 * (2*pi) / 60;
+omega_3 = n_3 * (2*pi) / 60;
+omega_4 = n_4 * (2*pi) / 60;
 
 % Torques in each gear [Nmm]
 T_1 = P_1/omega_1 * 1e3;
@@ -242,18 +242,18 @@ if exist(fullfile("export_import","shaftDesign.mat"),"file")
     if ~stress_s1_checked
         % gear 1 interference fit
         [p_g1,T_max_g1,d_i_g1,h_tol_g1,s_tol_g1,heat_temp_hub_g1,cool_temp_shaft_g1 ...
-            ,sigma_t_s_g1,sigma_t_o_g1,sigma_r_s_g1,sigma_r_o_g1] = ... % stresses
+            ,sigma_t_s_g1,sigma_t_g_g1,sigma_r_s_g1,sigma_r_g_g1] = ... % stresses
             shrinkFitGear(df_g1,d_shaft_g1,b_s1-chamfer_g1,mu,"h7p6", ... % h7p6 for lower temperature change
             E_mat_g*1e-3,E_shaft*1e-3,V_mat_g,V_shaft);
         % gear 2 interference fit
         [p_g2,T_max_g2,d_i_g2,h_tol_g2,s_tol_g2,heat_temp_hub_g2,cool_temp_shaft_g2 ...
-            ,sigma_t_s_g2,sigma_t_o_g2,sigma_r_s_g2,sigma_r_o_g2] = ... % stresses
+            ,sigma_t_s_g2,sigma_t_g_g2,sigma_r_s_g2,sigma_r_g_g2] = ... % stresses
             shrinkFitGear(df_g2,d_shaft_g2,b_s1-chamfer_g2,mu,"h7s6",...
             E_mat_g*1e-3,E_shaft*1e-3,V_mat_g,V_mat_g);
     
-        % check if stresses are not too large for each gear:
-        if (abs(sigma_t_s_g1) > (Sy_mat / n_f) &&  abs(sigma_r_o_g1) > (Sy_mat / n_f)) || ...
-           (abs(sigma_t_s_g2) > (Sy_mat / n_f) &&  abs(sigma_r_o_g2) > (Sy_mat / n_f))  
+        % check if gear stresses are not too large for each gear:
+        if (abs(sigma_t_g_g1) > (Sy_mat / n_f) ||  abs(sigma_r_g_g1) > (Sy_mat / n_f)) || ...
+           (abs(sigma_t_g_g2) > (Sy_mat / n_f) ||  abs(sigma_r_g_g2) > (Sy_mat / n_f))  
             % increase module of first stage
             if verbose; fprintf("increasing mt_s1 due to high fit stress\n"); end
             mt_s1 = mt_s1 + step;
@@ -271,18 +271,18 @@ if exist(fullfile("export_import","shaftDesign.mat"),"file")
     % check for stage 2
     % g3
     [p_g3,T_max_g3,d_i_g3,h_tol_g3,s_tol_g3,heat_temp_hub_g3,cool_temp_shaft_g3 ...
-        ,sigma_t_s_g3,sigma_t_o_g3,sigma_r_s_g3,sigma_r_o_g3] = ... % stresses
+        ,sigma_t_s_g3,sigma_t_g_g3,sigma_r_s_g3,sigma_r_g_g3] = ... % stresses
         shrinkFitGear(df_g3,d_shaft_g3,b_s2-chamfer_g3,mu,"h7s6", ...
         E_mat_g*1e-3, E_mat_g*1e-3,V_mat_g,V_mat_g);
     % g4
     [p_g4,T_max_g4,d_i_g4,h_tol_g4,s_tol_g4,heat_temp_hub_g4,cool_temp_shaft_g4 ...
-        ,sigma_t_s_g4,sigma_t_o_g4,sigma_r_s_g4,sigma_r_o_g4] = ... % stresses
+        ,sigma_t_s_g4,sigma_t_g_g4,sigma_r_s_g4,sigma_r_g_g4] = ... % stresses
         shrinkFitGear(df_g4,d_shaft_g4,b_s2-chamfer_g4,mu,"h7s6", ...
         E_mat_g*1e-3, E_mat_g*1e-3,V_mat_g,V_mat_g);
 
-    % check
-    if (abs(sigma_t_s_g3) > (Sy_mat / n_f) &&  abs(sigma_r_o_g3) > (Sy_mat / n_f)) || ...
-       (abs(sigma_t_s_g4) > (Sy_mat / n_f) &&  abs(sigma_r_o_g4) > (Sy_mat / n_f))  
+    % check gear stresses
+    if (abs(sigma_t_g_g3) > (Sy_mat / n_f) ||  abs(sigma_r_g_g3) > (Sy_mat / n_f)) || ...
+       (abs(sigma_t_g_g4) > (Sy_mat / n_f) ||  abs(sigma_r_g_g4) > (Sy_mat / n_f))  
         % increase module of second stage
         if verbose; fprintf("increasing mt_s2 due to high fit stress\n"); end
         mt_s2 = mt_s2 + step;
@@ -301,13 +301,13 @@ if exist(fullfile("export_import","shaftDesign.mat"),"file")
         , "gear temperature [deg C]","shaft temp [deg C]","fit pressure [mPa]", ...
         "hub tangential stress [mPa]","gear tolerance [mm]", "shaft tolerance [mm]"]';
     fit_data_g1 = [T_max_g1,T_1*1e-3,d_i_g1,heat_temp_hub_g1, cool_temp_shaft_g1,...
-        p_g1,sigma_t_o_g1,h_tol_g1,s_tol_g1]';
+        p_g1,sigma_t_g_g1,h_tol_g1,s_tol_g1]';
     fit_data_g2 = [T_max_g2,T_2*1e-3,d_i_g2,heat_temp_hub_g2, cool_temp_shaft_g2,...
-        p_g2,sigma_t_o_g2,h_tol_g2,s_tol_g2]';
+        p_g2,sigma_t_g_g2,h_tol_g2,s_tol_g2]';
     fit_data_g3 = [T_max_g3,T_3*1e-3,d_i_g3,heat_temp_hub_g3, cool_temp_shaft_g3,...
-        p_g3,sigma_t_o_g3,h_tol_g3,s_tol_g3]';
+        p_g3,sigma_t_g_g3,h_tol_g3,s_tol_g3]';
     fit_data_g4 = [T_max_g4,T_4*1e-3,d_i_g4,heat_temp_hub_g4, cool_temp_shaft_g4,...
-        p_g4,sigma_t_o_g4,h_tol_g4,s_tol_g4]';
+        p_g4,sigma_t_g_g4,h_tol_g4,s_tol_g4]';
     fit_table_g1 = table(fit_data_g1,fit_table_data)
     fit_table_g2 = table(fit_data_g2,fit_table_data)
     fit_table_g3 = table(fit_data_g3,fit_table_data)
@@ -338,6 +338,12 @@ modules = table(mt_s1, mt_s2)
 % % diameteral pitch [mm]
 % dp_s1 = pi/p_s1;
 % dp_s2 = pi/p_s2;
+
+% pitch line velocity in [m/s]:
+v_p_g1 = (omega_1 * d_g1) * 1e-3;
+v_p_g2 = (omega_2 * d_g2) * 1e-3;
+v_p_g3 = (omega_3 * d_g3) * 1e-3;
+v_p_g4 = (omega_4 * d_g4) * 1e-3;
 
 % rough sum of material volume for gears [mm^3] -> [m^3]
 volume_g1 = pi * b_s1 * (d_g1/2)^2 * 1e-9;
@@ -413,14 +419,11 @@ contactRatioStep2 = table(CR_s2, m_f_s2)
 
 % Display results
 T = table([d_g1; d_g2; d_g3; d_g4], [b_s1; b_s1; b_s2; b_s2], [mass_g1; mass_g2; mass_g3; mass_g4], ...
-    'VariableNames', {'Diameter [mm]', 'Width [mm]', 'Mass [kg]'}, ...
+    [v_p_g1; v_p_g2; v_p_g3; v_p_g4],...
+    'VariableNames', {'Diameter [mm]', 'Width [mm]', 'Mass [kg]', 'Pitch line velocity [m/s]'}, ...
     'RowNames', {'gear 1', 'gear 2', 'gear 3', 'gear 4'});
 
 disp(T)
 
 save(fullfile(export_import, "gear_sizes.mat"))
 
-
-function m_t = module_from_fit()
-    
-end

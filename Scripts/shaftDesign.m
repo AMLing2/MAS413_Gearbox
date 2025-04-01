@@ -74,48 +74,38 @@ end
 %        notch radius, (keyseat stress concentration | D/d)];
 
 if exist(fullfile("export_import","loadingDiagram_shaft1.mat"),'file')
-    load(fullfile("export_import", 'loadingDiagram_shaft1.mat'), 'cs_A', 'cs_0', 'cs_1', 'cs_2')
-    load(fullfile("export_import", 'loadingDiagram_shaft2.mat'), 'cs_3', 'cs_4', 'cs_5', 'cs_6','E_Fa','D_Fa','L_45')
-    load(fullfile("export_import", 'loadingDiagram_shaft3.mat'), 'cs_7', 'cs_8', 'cs_9', 'cs_H')
+    load(fullfile("export_import", 'loadingDiagram_shaft1.mat'), 'cs_A', 'cs_0L', 'cs_1L', 'cs_2L',...
+        'cs_0R', 'cs_1R', 'cs_2R')
+    load(fullfile("export_import", 'loadingDiagram_shaft2.mat'), 'cs_3L', 'cs_4L', 'cs_5L', 'cs_6L',...
+        'cs_4R', 'cs_5R', 'cs_6R','E_Fa','D_Fa','L_45')
+    load(fullfile("export_import", 'loadingDiagram_shaft3.mat'), 'cs_7L', 'cs_8L', 'cs_9L', 'cs_H',...
+        'cs_7R', 'cs_8R', 'cs_9R')
 else
     error("Run loadingDiagrams.m first")
 end
 
 cs_A = [cs_A d_B   true  r_keyseat1 K_t_keyseat1];
-cs_0 = [cs_0 d_B   false r_fillet1  d_S1/d_B];
-cs_1 = [cs_1 d_S1  false r_fillet1  d_12/d_S1];
-cs_2 = [cs_2 d_C   false r_fillet1  d_12/d_C];
-cs_6 = [cs_6 d_E   false r_fillet2  d_S22/d_E];
-cs_5 = [cs_5 d_S22 false r_fillet2  d_45/d_S22];
-cs_4 = [cs_4 d_S21 false r_fillet2  d_45/d_S21];
-cs_3 = [cs_3 d_D   false r_fillet2  d_S21/d_D];
-cs_7 = [cs_7 d_F   false r_fillet3  d_78/d_F];
-cs_8 = [cs_8 d_78  false r_fillet3  d_78/d_S3];
-cs_9 = [cs_9 d_S3  false r_fillet3  d_S3/d_G];
+cs_0L = [cs_0L d_B   false r_fillet1  d_S1/d_B];
+cs_0R = [cs_0R d_B   false r_fillet1  d_S1/d_B];
+cs_1L = [cs_1L d_S1  false r_fillet1  d_12/d_S1];
+cs_1R = [cs_1R d_S1  false r_fillet1  d_12/d_S1];
+cs_2L = [cs_2L d_C   false r_fillet1  d_12/d_C];
+cs_2R = [cs_2R d_C   false r_fillet1  d_12/d_C];
+cs_3L = [cs_3L d_D   false r_fillet2  d_S21/d_D];
+cs_3R = [cs_3R d_D   false r_fillet2  d_S21/d_D];
+cs_4L = [cs_4L d_S21 false r_fillet2  d_45/d_S21];
+cs_4R = [cs_4R d_S21 false r_fillet2  d_45/d_S21];
+cs_5R = [cs_5R d_S22 false r_fillet2  d_45/d_S22];
+cs_5L = [cs_5L d_S22 false r_fillet2  d_45/d_S22];
+cs_6R = [cs_6R d_E   false r_fillet2  d_S22/d_E];
+cs_6L = [cs_6L d_E   false r_fillet2  d_S22/d_E];
+cs_7R = [cs_7R d_F   false r_fillet3  d_78/d_F];
+cs_7L = [cs_7L d_F   false r_fillet3  d_78/d_F];
+cs_8R = [cs_8R d_78  false r_fillet3  d_78/d_S3];
+cs_8L = [cs_8L d_78  false r_fillet3  d_78/d_S3];
+cs_9R = [cs_9R d_S3  false r_fillet3  d_S3/d_G];
+cs_9L = [cs_9L d_S3  false r_fillet3  d_S3/d_G];
 cs_H = [cs_H d_G   true  r_keyseat3 K_t_keyseat3];
-
-% cs_A  = [cs_A d_B   true  r_keyseat1 K_t_keyseat1];
-% cs_0l = [cs_0 d_B   false r_fillet1  d_S1/d_B];
-% cs_0r = [cs_0 d_B   false r_fillet1  d_S1/d_B];
-% cs_1l = [cs_1 d_S1  false r_fillet1  d_12/d_S1];
-% cs_1r = [cs_1 d_S1  false r_fillet1  d_12/d_S1];
-% cs_2l = [cs_2 d_C   false r_fillet1  d_12/d_C];
-% cs_2r = [cs_2 d_C   false r_fillet1  d_12/d_C];
-% cs_6l = [cs_6 d_E   false r_fillet2  d_S22/d_E];
-% cs_6r = [cs_6 d_E   false r_fillet2  d_S22/d_E];
-% cs_5l = [cs_5 d_S22 false r_fillet2  d_45/d_S22];
-% cs_5r = [cs_5 d_S22 false r_fillet2  d_45/d_S22];
-% cs_4l = [cs_4 d_S21 false r_fillet2  d_45/d_S21];
-% cs_4r = [cs_4 d_S21 false r_fillet2  d_45/d_S21];
-% cs_3l = [cs_3 d_D   false r_fillet2  d_S21/d_D];
-% cs_3r = [cs_3 d_D   false r_fillet2  d_S21/d_D];
-% cs_7l = [cs_7 d_F   false r_fillet3  d_78/d_F];
-% cs_7r = [cs_7 d_F   false r_fillet3  d_78/d_F];
-% cs_8l = [cs_8 d_78  false r_fillet3  d_78/d_S3];
-% cs_8r = [cs_8 d_78  false r_fillet3  d_78/d_S3];
-% cs_9l = [cs_9 d_S3  false r_fillet3  d_S3/d_G];
-% cs_9r = [cs_9 d_S3  false r_fillet3  d_S3/d_G];
-% cs_H  = [cs_H d_G   true  r_keyseat3 K_t_keyseat3];
 
 % Lists for for loop
 shaft1_AllCS = [cs_A; cs_0; cs_1; cs_2];

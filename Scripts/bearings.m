@@ -37,7 +37,7 @@ else % initial run
     d_min_D = 0; % [mm]
     d_min_E = 0; % [mm]
     d_min_F = 65; % [mm]
-    d_min_G = 66; % [mm]
+    d_min_G = 70; % [mm]
 end
 
 % load bearing .CSV file
