@@ -252,8 +252,8 @@ if exist(fullfile("export_import","shaftDesign.mat"),"file")
             E_mat_g*1e-3,E_shaft*1e-3,V_mat_g,V_mat_g);
     
         % check if gear stresses are not too large for each gear:
-        if (abs(sigma_t_g_g1) > (Sy_mat / n_f) ||  abs(sigma_r_g_g1) > (Sy_mat / n_f)) || ...
-           (abs(sigma_t_g_g2) > (Sy_mat / n_f) ||  abs(sigma_r_g_g2) > (Sy_mat / n_f))  
+        if (abs(sigma_t_g_g1) > (Sy_mat / n_f) || abs(sigma_r_g_g1) > (Sy_mat / n_f)) || ...
+           (abs(sigma_t_g_g2) > (Sy_mat / n_f) || abs(sigma_r_g_g2) > (Sy_mat / n_f))
             % increase module of first stage
             if verbose; fprintf("increasing mt_s1 due to high fit stress\n"); end
             mt_s1 = mt_s1 + step;
@@ -418,12 +418,22 @@ contactRatioStep2 = table(CR_s2, m_f_s2)
 %%% axial contact ratio %%%
 
 % Display results
+if exist("d_i_g1","var") % include inner diameter if second iteration
+T = table([d_g1; d_g2; d_g3; d_g4],[d_i_g1; d_i_g2; d_i_g3; d_i_g4], [b_s1; b_s1; b_s2; b_s2],...
+    [mass_g1; mass_g2; mass_g3; mass_g4], ...
+    [v_p_g1; v_p_g2; v_p_g3; v_p_g4],...
+    'VariableNames', {'Diameter [mm]','Inner D [mm]', 'Width [mm]', 'Mass [kg]', 'Pitch line velocity [m/s]'}, ...
+    'RowNames', {'gear 1', 'gear 2', 'gear 3', 'gear 4'});
+
+disp(T)
+else
 T = table([d_g1; d_g2; d_g3; d_g4], [b_s1; b_s1; b_s2; b_s2], [mass_g1; mass_g2; mass_g3; mass_g4], ...
     [v_p_g1; v_p_g2; v_p_g3; v_p_g4],...
     'VariableNames', {'Diameter [mm]', 'Width [mm]', 'Mass [kg]', 'Pitch line velocity [m/s]'}, ...
     'RowNames', {'gear 1', 'gear 2', 'gear 3', 'gear 4'});
 
 disp(T)
+end
 
 save(fullfile(export_import, "gear_sizes.mat"))
 
