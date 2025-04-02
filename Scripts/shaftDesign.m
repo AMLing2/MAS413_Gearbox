@@ -2,7 +2,7 @@ clc; clear; close all;
 export_import = fullfile(pwd, 'export_import');
 
 % Common input parameters (for all shafts)
-n_f = 2.5; % Safety factor
+n_f_desired = 2.5; % Safety factor
 S355J2 = [315, 470, 210*1e9, 0.3]; % Material data [S_y, S_ut, Youngs module (Pa), Poisson´s ratio]
 material = 355; % (355, 4140)
 load_type = "Complex axial"; % ("Pure bending" "Pure axial" "Pure torsion" "Complex axial" "Complex non axial");
@@ -140,8 +140,6 @@ end
 
 %% Shaft 2 loop
 
-n_f = 2.5; %%% FIX!!
-
 shaft2_results = zeros(size(shaft2_AllCS, 1), 5);
 for i = 1:size(shaft2_AllCS, 1)
     fprintf('\n\n------ %s ------\n', shaft2_names{i});
@@ -153,8 +151,6 @@ end
 % modifiedGoodman(S_y, S_ut, shaft2_results, 'Shaft 2')
 
 %% Shaft 3 loop
-
-n_f = 2.5; %%% FIX!!
 
 shaft3_results = zeros(size(shaft3_AllCS, 1), 5);
 for i = 1:size(shaft3_AllCS, 1)
