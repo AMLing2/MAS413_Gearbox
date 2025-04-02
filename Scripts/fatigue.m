@@ -14,11 +14,13 @@ d_shaft  = cs(6); % [mm] Shaft diameter
 %keyseat  = cs(7); % true -> keyseat, false -> shoulder-fillet
 r_fillet = cs(8); % [mm] Notch fillet radius
 
-% Calculated values
-R = (d_shaft/2);  % [mm] Shaft radius
-A = pi*R^2;       % [mm^2] Shaft area
-I = (pi/4)*R^4;   % [mm^4] Moment of inertia (I_x = I_y)
-I_p = (pi/2)*R^4; % [mm^4] Polar moment of inertia
+if ~first_iteration
+    % Calculated values
+    R = (d_shaft/2);  % [mm] Shaft radius
+    A = pi*R^2;       % [mm^2] Shaft area
+    I = (pi/4)*R^4;   % [mm^4] Moment of inertia (I_x = I_y)
+    I_p = (pi/2)*R^4; % [mm^4] Polar moment of inertia
+end
 
 %%%%% Material data %%%%%
 % https://steelnavigator.ovako.com/steel-grades/s355j2/
@@ -27,6 +29,130 @@ S_ut = S355J2(2); % Ultimate tensile sstrength [MPa]
 E = S355J2(3); % Youngs module [Pa]
 V_shaft = S355J2(4); % Poisson´s ratio
 
+
+%%%%% Correction factors %%%%%
+% Load factor % MAS236 L3 s43 & Machine Design pg 366
+C_load_table_key = ["Pure bending" "Pure axial" "Pure torsion" ...
+                    "Complex axial" "Complex non axial"]; % Key-Value Pair
+C_load_table_value = [1 0.75 1 0.75 1];
+C_load_table = dictionary(C_load_table_key, C_load_table_value);
+
+C_load = C_load_table(load_type);
+
+% Surface factor % MAS236 L3 s45 & Machine Design pg 369: for S_ut in [MPa]
+C_surf_table_key = ["Ground" "Machined" "Hot-rolled" "As-forged"];
+C_surf_table_value = struct('A', num2cell([1.58 4.51 57.7 272]), ...
+                            'b', num2cell([-0.085 -0.265 -0.718 -0.995]));
+C_surf_table = dictionary(C_surf_table_key, C_surf_table_value);
+C_surf_A = C_surf_table(surface_finish).A;
+C_surf_b = C_surf_table(surface_finish).b;
+
+C_surf = C_surf_A*S_ut^C_surf_b;
+if C_surf > 1
+    C_surf = 1;
+end
+
+% Temperature factor % MAS236 L3 s47 & Machine Design pg 371
+if operating_temperature <= 450
+    C_temp = 1;
+elseif operating_temperature <= 550
+    C_temp = 1-0.0058*(operating_temperature-450);
+else
+    error("Operating temperature too high\n")
+end
+
+% Reliability factor % MAS236 L3 s48 & Machine Design pg 371
+C_reliab_table_key = [50 90 95 99 99.9 99.99 99.999 99.9999]; % Key-Value
+C_reliab_table_value = [1 0.897 0.868 0.814 0.753 0.702 0.659 0.620];
+C_reliab_table = dictionary(C_reliab_table_key, C_reliab_table_value);
+C_reliab = C_reliab_table(reliability);
+
+% Other factors: MAS236 lecture 3 s49
+
+% For steels with "knee" % MAS236 L3 s39
+if S_ut < 1400 % [MPa]
+    S_e_prime = 0.5*S_ut; % [MPa]
+else
+    S_e_prime = 700; % [MPa]
+end
+
+
+%%%%% Max & Min forces %%%%%
+% Axial (constant)
+P_max =  P; % [N]
+P_min =  P; % [N]
+P_m   = (P_max + P_min)/2; % [N]
+P_a   = (P_max - P_min)/2; % [N]
+
+% Shear (fully reversed)
+V_y_max =  abs(V_y); % [N]
+V_y_min = -V_y_max; % [N]
+V_y_m   = (V_y_max + V_y_min)/2; % [N]
+V_y_a   = (V_y_max - V_y_min)/2; % [N]
+V_z_max =  abs(V_z); % [N]
+V_z_min = -V_z_max; % [N]
+V_z_m   = (V_y_max + V_y_min)/2; % [N]
+V_z_a   = (V_y_max - V_y_min)/2; % [N]
+
+% Bending (fully reversed)
+M_max =  M; % [Nmm]
+M_min = -M; % [Nmm]
+M_m   = (M_max + M_min)/2; % [Nmm]
+M_a   = (M_max - M_min)/2; % [Nmm]
+
+% Torque (constant)
+T_max =  T; % [Nmm]
+T_min =  T; % [Nmm]
+T_m   = (T_max + T_min)/2; % [Nmm]
+T_a   = (T_max - T_min)/2; % [Nmm]
+
+
+%%%%% Diameter Equation %%%%%
+if first_iteration
+    
+    % Estimating stress geometric concentration factors 
+                                % for preliminary stage % MAS236 L5 s10
+    % Shoulder fillet sharp (r/d = 0.02, D/d = 1.5)
+    K_t_bend = 2.7;
+    K_t_tor = 2.2;
+    K_t_axial = 3.0;
+    
+    % Shoulder fillet well-rounded (r/d = 0.1, D/d = 1.5)
+    % K_t_bend = 1.7;
+    % K_t_tor = 1.5;
+    % K_t_bend = 1.9;
+    
+    % End-mill keyset (r/d = 0.02)
+    % K_t_bend = 2.14;
+    % K_t_tor = 3;
+    % K_t_axial = -;
+    
+    % Conservative estimate for preliminary stage (q is unknown)
+    K_f_bend = K_t_bend;
+    K_f_tor = K_t_tor;
+    K_f_axial = K_t_axial;
+    
+    % Correction factors for preliminary stage % MAS236 L5 s12
+    C_size = 1;
+
+    % Endurance limit % MAS236 L4 s5
+    S_e = C_load*C_size*C_surf*C_temp*C_reliab*S_e_prime;
+    
+    % Diameter Equation % MAS236 L5 s6
+    d_1st =  ( ( (16*n_f_desired) /pi) * ( sqrt(4*(K_f_bend*M_a)^2 + ...
+                                       3*(K_f_tor*T_a)^2)/S_e + ...
+                                  sqrt(4*(K_f_bend*M_m)^2 + ...
+                                       3*(K_f_tor*T_m)^2)/S_ut) )^(1/3);
+    fprintf('\n1st recomended shaft diameter --> d_1st = %.2f [mm]\n', d_1st)
+    % Other formulation in equation (10.8) % Machine Design pg 600 & 653
+
+    % Quick check: failure againt yield at the first cycle % MAS236 L5 s7
+    % sigma_prime_amp = sqrt(((32*K_f_bend*M_amp)/(pi*d_shaft^3)) + 3*((16*K_f_tor*T_amp)/(pi*d_shaft^3)));
+    % sigma_prime_mean = sqrt(((32*K_f_bend*M_mean)/(pi*d_shaft^3)) + 3*((16*K_f_tor*T_mean)/(pi*d_shaft^3))); 
+    % sigma_max = sigma_prime_mean + sigma_prime_amp;
+    % n_y = S_y / sigma_maxc
+    return
+end
 
 %%%%% Neubler's Constant for Steels %%%%% Machine Design, Table 6-6 page 382
 S_ut_ksi_table = [50 55 60 70 80 90 100 110 120 130 140 160 180 200 220 240]; % [ksi]
@@ -109,92 +235,6 @@ K_f_tor   = 1 + q * (K_t_tor - 1);   % Shear  Stress
 K_f_axial = 1 + q * (K_t_axial - 1); % Normal Stress
 
 
-%%%%% Correction factors %%%%%
-% Load factor % MAS236 L3 s43 & Machine Design pg 366
-C_load_table_key = ["Pure bending" "Pure axial" "Pure torsion" ...
-                    "Complex axial" "Complex non axial"]; % Key-Value Pair
-C_load_table_value = [1 0.75 1 0.75 1];
-C_load_table = dictionary(C_load_table_key, C_load_table_value);
-
-C_load = C_load_table(load_type);
-
-% Size factor % MAS236 L3 s44 & Machine Design pg 367
-if d_shaft <= 8 % [mm]
-    C_size = 1;
-elseif d_shaft <= 250 % [mm]
-    C_size = 1.189*d_shaft^(-0.097);
-else
-    C_size = 0.6;
-end
-
-% Surface factor % MAS236 L3 s45 & Machine Design pg 369: for S_ut in [MPa]
-C_surf_table_key = ["Ground" "Machined" "Hot-rolled" "As-forged"];
-C_surf_table_value = struct('A', num2cell([1.58 4.51 57.7 272]), ...
-                            'b', num2cell([-0.085 -0.265 -0.718 -0.995]));
-C_surf_table = dictionary(C_surf_table_key, C_surf_table_value);
-C_surf_A = C_surf_table(surface_finish).A;
-C_surf_b = C_surf_table(surface_finish).b;
-
-C_surf = C_surf_A*S_ut^C_surf_b;
-if C_surf > 1
-    C_surf = 1;
-end
-
-% Temperature factor % MAS236 L3 s47 & Machine Design pg 371
-if operating_temperature <= 450
-    C_temp = 1;
-elseif operating_temperature <= 550
-    C_temp = 1-0.0058*(operating_temperature-450);
-else
-    error("Operating temperature too high\n")
-end
-
-% Reliability factor % MAS236 L3 s48 & Machine Design pg 371
-C_reliab_table_key = [50 90 95 99 99.9 99.99 99.999 99.9999]; % Key-Value
-C_reliab_table_value = [1 0.897 0.868 0.814 0.753 0.702 0.659 0.620];
-C_reliab_table = dictionary(C_reliab_table_key, C_reliab_table_value);
-C_reliab = C_reliab_table(reliability);
-
-% Other factors: MAS236 lecture 3 s49
-
-% For steels with "knee" % MAS236 L3 s39
-if S_ut < 1400 % [MPa]
-    S_e_prime = 0.5*S_ut; % [MPa]
-else
-    S_e_prime = 700; % [MPa]
-end
-
-
-%%%%% Max & Min forces %%%%%
-% Axial (constant)
-P_max =  P; % [N]
-P_min =  P; % [N]
-P_m   = (P_max + P_min)/2; % [N]
-P_a   = (P_max - P_min)/2; % [N]
-
-% Shear (fully reversed)
-V_y_max =  abs(V_y); % [N]
-V_y_min = -V_y_max; % [N]
-V_y_m   = (V_y_max + V_y_min)/2; % [N]
-V_y_a   = (V_y_max - V_y_min)/2; % [N]
-V_z_max =  abs(V_z); % [N]
-V_z_min = -V_z_max; % [N]
-V_z_m   = (V_y_max + V_y_min)/2; % [N]
-V_z_a   = (V_y_max - V_y_min)/2; % [N]
-
-% Bending (fully reversed)
-M_max =  M; % [Nmm]
-M_min = -M; % [Nmm]
-M_m   = (M_max + M_min)/2; % [Nmm]
-M_a   = (M_max - M_min)/2; % [Nmm]
-
-% Torque (constant)
-T_max =  T; % [Nmm]
-T_min =  T; % [Nmm]
-T_m   = (T_max + T_min)/2; % [Nmm]
-T_a   = (T_max - T_min)/2; % [Nmm]
-
-
 %%%%% Mean & Amplitude nominal stress %%%%% MAS236 L3 s15-18
 % Axial
 sigma_x_axial_max_nom = (P_max)/A; % [MPa]
@@ -270,51 +310,25 @@ sigma_e_max = sigma_e_m + sigma_e_a; % [MPa]
 fprintf('Included shear  -->  sigma_e = %2f\n', sigma_e_max)
 
 
-%%%%% Diameter Equation %%%%%
-if first_iteration
-    
-    % Estimating stress geometric concentration factors 
-                                % for preliminary stage % MAS236 L5 s10
-    % Shoulder fillet sharp (r/d = 0.02, D/d = 1.5)
-    K_t_bend = 2.7;
-    K_t_tor = 2.2;
-    K_t_axial = 3.0;
-    
-    % Shoulder fillet well-rounded (r/d = 0.1, D/d = 1.5)
-    % K_t_bend = 1.7;
-    % K_t_tor = 1.5;
-    % K_t_bend = 1.9;
-    
-    % End-mill keyset (r/d = 0.02)
-    % K_t_bend = 2.14;
-    % K_t_tor = 3;
-    % K_t_axial = -;
-    
-    % Conservative estimate for preliminary stage (q is unknown)
-    K_f_bend = K_t_bend;
-    K_f_tor = K_t_tor;
-    K_f_axial = K_t_axial;
-    
-    % Correction factors for preliminary stage % MAS236 L5 s12
+% Size factor % MAS236 L3 s44 & Machine Design pg 367
+if d_shaft <= 8 % [mm]
     C_size = 1;
+elseif d_shaft <= 250 % [mm]
+    C_size = 1.189*d_shaft^(-0.097);
+else
+    C_size = 0.6;
 end
 
 % Endurance limit % MAS236 L4 s5
 S_e = C_load*C_size*C_surf*C_temp*C_reliab*S_e_prime;
 
 % Diameter Equation % MAS236 L5 s6
-d_eq =  ( ( (16*n_f_desired) /pi) * ( sqrt(4*(K_f_bend*M_a)^2 + ...
+d_rec =  ( ( (16*n_f_desired) /pi) * ( sqrt(4*(K_f_bend*M_a)^2 + ...
                                    3*(K_f_tor*T_a)^2)/S_e + ...
                               sqrt(4*(K_f_bend*M_m)^2 + ...
                                    3*(K_f_tor*T_m)^2)/S_ut) )^(1/3);
-fprintf('\nRecomended shaft diameter --> d_eq = %.2f [mm]\n', d_eq)
+fprintf('\nRecomended shaft diameter --> d_rec = %.2f [mm]\n', d_rec)
 % Other formulation in equation (10.8) % Machine Design pg 600 & 653
-
-% Quick check: failure againt yield at the first cycle % MAS236 L5 s7
-% sigma_prime_amp = sqrt(((32*K_f_bend*M_amp)/(pi*d_shaft^3)) + 3*((16*K_f_tor*T_amp)/(pi*d_shaft^3)));
-% sigma_prime_mean = sqrt(((32*K_f_bend*M_mean)/(pi*d_shaft^3)) + 3*((16*K_f_tor*T_mean)/(pi*d_shaft^3))); 
-% sigma_max = sigma_prime_mean + sigma_prime_amp;
-% n_y = S_y / sigma_max
 
 
 %%%%% Safety factors %%%%%
