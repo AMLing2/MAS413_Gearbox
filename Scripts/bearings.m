@@ -30,14 +30,14 @@ end
 if exist(fullfile("export_import","shaft_design.mat"),'file') 
     load(fullfile("export_import","shaft_design.mat"), "aaaa")
 else % initial run
-    warning("Run shaftDesign.m first") % change to error in the future
+    % warning("Run shaftDesign.m first") % change to error in the future
     % First run initial diamterers
-    d_min_B = 24; % [mm]
-    d_min_C = 24; % [mm]
-    d_min_D = 0; % [mm]
-    d_min_E = 0; % [mm]
-    d_min_F = 65; % [mm]
-    d_min_G = 70; % [mm]
+    d_min_B = 26.02; % [mm]
+    d_min_C = 28.41; % [mm]
+    d_min_D = 45; % [mm]
+    d_min_E = 40.29; % [mm]
+    d_min_F = 41.73; % [mm]
+    d_min_G = 65; % [mm]
 end
 
 % load bearing .CSV file
@@ -165,7 +165,7 @@ disp(bearing_tab_E);
 
 % shaft 3 F G
 % bearing F
-lifetime_hour_F = (n_bF / n_3) / minPerHour;
+lifetime_hour_F = (n_bF / n_4) / minPerHour;
 b_F = b_data.B(b_index_F);
 fillet_r_F = b_data.ra_max(b_index_F);
 data_bearing_F = [b_data.d(b_index_F);
@@ -183,7 +183,7 @@ bearing_tab_F = table(data_bearing_F,data_names,'VariableNames',["Bearing F data
 disp(bearing_tab_F);
 
 % bearing G
-lifetime_hour_G = (n_bG / n_3) / minPerHour;
+lifetime_hour_G = (n_bG / n_4) / minPerHour;
 b_G = b_data.B(b_index_G);
 fillet_r_G = b_data.ra_max(b_index_G);
 data_bearing_G = [b_data.d(b_index_G);
@@ -218,10 +218,10 @@ disp(bearing_tab_G);
     shrinkFitBearing(b_data.D(b_index_G),b_data.d(b_index_G));
 
 % print shaft diameters
-table(d_C,d_B,d_E,d_G,d_F)
+shaft_d = table(d_C,d_B,d_D,d_E,d_G,d_F)
 
 % saving data:
-clear b_data % remove table before saving
+%clear b_data % remove table before saving
 save(fullfile("export_import","bearings.mat"))
 
 % save only diameters

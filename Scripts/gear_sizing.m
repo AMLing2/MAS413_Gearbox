@@ -233,7 +233,7 @@ if exist(fullfile("export_import","shaftDesign.mat"),"file")
         d_shaft_g4 = d_S3;
 
         mu = 0.175; % pg 621 machine design, between 0.15 and 0.2 for shrink fit hubs
-        %mu = 0.74; % for static dry, mild steel on mild steel, tab 7-1 pg 464 machine design
+        mu_st = 0.74; % for static dry, mild steel on mild steel, tab 7-1 pg 464 machine design
 
         initial_loop = false;
     end
@@ -242,13 +242,13 @@ if exist(fullfile("export_import","shaftDesign.mat"),"file")
     if ~stress_s1_checked
         % gear 1 interference fit
         [p_g1,T_max_g1,d_i_g1,h_tol_g1,s_tol_g1,heat_temp_hub_g1,cool_temp_shaft_g1 ...
-            ,sigma_t_s_g1,sigma_t_g_g1,sigma_r_s_g1,sigma_r_g_g1] = ... % stresses
-            shrinkFitGear(df_g1,d_shaft_g1,b_s1-chamfer_g1,mu,"h7p6", ... % h7p6 for lower temperature change
+            ,sigma_t_s_g1,sigma_t_g_g1,sigma_r_s_g1,sigma_r_g_g1,F_rem_g1] = ... % stresses
+            shrinkFitGear(df_g1,d_shaft_g1,b_s1-chamfer_g1,mu,mu_st,"h7p6", ... % h7p6 for lower temperature change
             E_mat_g*1e-3,E_shaft*1e-3,V_mat_g,V_shaft);
         % gear 2 interference fit
         [p_g2,T_max_g2,d_i_g2,h_tol_g2,s_tol_g2,heat_temp_hub_g2,cool_temp_shaft_g2 ...
-            ,sigma_t_s_g2,sigma_t_g_g2,sigma_r_s_g2,sigma_r_g_g2] = ... % stresses
-            shrinkFitGear(df_g2,d_shaft_g2,b_s1-chamfer_g2,mu,"h7s6",...
+            ,sigma_t_s_g2,sigma_t_g_g2,sigma_r_s_g2,sigma_r_g_g2,F_rem_g2] = ... % stresses
+            shrinkFitGear(df_g2,d_shaft_g2,b_s1-chamfer_g2,mu,mu_st,"h7s6",...
             E_mat_g*1e-3,E_shaft*1e-3,V_mat_g,V_mat_g);
     
         % check if gear stresses are not too large for each gear:
@@ -271,13 +271,13 @@ if exist(fullfile("export_import","shaftDesign.mat"),"file")
     % check for stage 2
     % g3
     [p_g3,T_max_g3,d_i_g3,h_tol_g3,s_tol_g3,heat_temp_hub_g3,cool_temp_shaft_g3 ...
-        ,sigma_t_s_g3,sigma_t_g_g3,sigma_r_s_g3,sigma_r_g_g3] = ... % stresses
-        shrinkFitGear(df_g3,d_shaft_g3,b_s2-chamfer_g3,mu,"h7s6", ...
+        ,sigma_t_s_g3,sigma_t_g_g3,sigma_r_s_g3,sigma_r_g_g3,F_rem_g3] = ... % stresses
+        shrinkFitGear(df_g3,d_shaft_g3,b_s2-chamfer_g3,mu,mu_st,"h7s6", ...
         E_mat_g*1e-3, E_mat_g*1e-3,V_mat_g,V_mat_g);
     % g4
     [p_g4,T_max_g4,d_i_g4,h_tol_g4,s_tol_g4,heat_temp_hub_g4,cool_temp_shaft_g4 ...
-        ,sigma_t_s_g4,sigma_t_g_g4,sigma_r_s_g4,sigma_r_g_g4] = ... % stresses
-        shrinkFitGear(df_g4,d_shaft_g4,b_s2-chamfer_g4,mu,"h7s6", ...
+        ,sigma_t_s_g4,sigma_t_g_g4,sigma_r_s_g4,sigma_r_g_g4,F_rem_g4] = ... % stresses
+        shrinkFitGear(df_g4,d_shaft_g4,b_s2-chamfer_g4,mu,mu_st,"h7s6", ...
         E_mat_g*1e-3, E_mat_g*1e-3,V_mat_g,V_mat_g);
 
     % check gear stresses
@@ -299,15 +299,16 @@ if exist(fullfile("export_import","shaftDesign.mat"),"file")
     % print interference fit values to tables
     fit_table_data = ["Torque max [Nm]","Torque req [Nm]", "diameter gear inner [mm]" ...
         , "gear temperature [deg C]","shaft temp [deg C]","fit pressure [mPa]", ...
-        "hub tangential stress [mPa]","gear tolerance [mm]", "shaft tolerance [mm]"]';
+        "hub tangential stress [mPa]","gear tolerance [mm]", "shaft tolerance [mm]", ...
+        "Chamfer length [mm]"]';
     fit_data_g1 = [T_max_g1,T_1*1e-3,d_i_g1,heat_temp_hub_g1, cool_temp_shaft_g1,...
-        p_g1,sigma_t_g_g1,h_tol_g1,s_tol_g1]';
+        p_g1,sigma_t_g_g1,h_tol_g1,s_tol_g1,chamfer_g1]';
     fit_data_g2 = [T_max_g2,T_2*1e-3,d_i_g2,heat_temp_hub_g2, cool_temp_shaft_g2,...
-        p_g2,sigma_t_g_g2,h_tol_g2,s_tol_g2]';
+        p_g2,sigma_t_g_g2,h_tol_g2,s_tol_g2,chamfer_g2]';
     fit_data_g3 = [T_max_g3,T_3*1e-3,d_i_g3,heat_temp_hub_g3, cool_temp_shaft_g3,...
-        p_g3,sigma_t_g_g3,h_tol_g3,s_tol_g3]';
+        p_g3,sigma_t_g_g3,h_tol_g3,s_tol_g3,chamfer_g3]';
     fit_data_g4 = [T_max_g4,T_4*1e-3,d_i_g4,heat_temp_hub_g4, cool_temp_shaft_g4,...
-        p_g4,sigma_t_g_g4,h_tol_g4,s_tol_g4]';
+        p_g4,sigma_t_g_g4,h_tol_g4,s_tol_g4,chamfer_g4]';
     fit_table_g1 = table(fit_data_g1,fit_table_data)
     fit_table_g2 = table(fit_data_g2,fit_table_data)
     fit_table_g3 = table(fit_data_g3,fit_table_data)

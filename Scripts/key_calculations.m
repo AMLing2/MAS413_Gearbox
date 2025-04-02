@@ -5,12 +5,12 @@ clc; close all; clear;
 export_import = fullfile(pwd, 'export_import');
 
 if exist(fullfile(export_import,'deflection_shaft1.mat'), 'file')
-    load(fullfile(export_import,'deflection_shaft1.mat'))
+    load(fullfile(export_import,'deflection_shaft1.mat'),'d_B')
 else
     error('Load deflection.m first')
 end
 if exist(fullfile(export_import,'deflection_shaft3.mat'), 'file')
-    load(fullfile(export_import,'deflection_shaft3.mat'))
+    load(fullfile(export_import,'deflection_shaft3.mat'), 'd_G')
 else
     error('Load deflection.m first')
 end
@@ -27,8 +27,8 @@ end
 
 %% Parameters
 
-d_shaft_1 = d_B; % [m] % Diameter at key placement
-d_shaft_3 = d_G; % [m] % Diameter at key placement
+d_shaft_1 = d_B; %[m] % Diameter at key placement
+d_shaft_3 = d_G; %[m] % Diameter at key placement
 
 T_shaft1 = T_M; % [Nm]
 T_shaft3 = T_out; % [Nm]
@@ -46,6 +46,15 @@ w_3 = d_shaft_3/4;   % [m]
 h_3 = d_shaft_3/6;   % [m]
 l_3 = 1.5*d_shaft_3; % [m]
 
+%% Actual values
+
+w_1 = 10e-3;   % [m]
+h_1 = 8e-3;   % [m]
+d_shaft_1 = 0.5*d_shaft_1; % [m]
+  
+w_3 = 20e-3;   % [m]
+h_3 = 12e-3;   % [m]
+l_3 = 1.25*d_shaft_3; % [m]
 
 %% Check for shear failure - one key
 
@@ -88,25 +97,25 @@ n_compression_3_2 = (S_yield_comp)      /    sigma_key_3_2; % [-]
 
 %% Print results
 fprintf('\n--- Shear Failure Check (One Key) ---\n');
-fprintf('Shear stress key 1 (tau_key_1): %.6f [Pa]\n', tau_key_1);
+fprintf('Shear stress key 1 (tau_key_1): %.6f [MPa]\n', tau_key_1/1e6);
 fprintf('Shear safety factor key 1 (n_shear_1): %.2f\n', n_shear_1);
 fprintf('Shear stress key 3 (tau_key_3): %.2f [MPa]\n', tau_key_3/ 1e6);
 fprintf('Shear safety factor key 3 (n_shear_3): %.2f\n', n_shear_3);
 
-fprintf('\n--- Shear Failure Check (Two Keys) ---\n');
-fprintf('Shear stress key 1 (tau_key_1_2): %.6f [Pa]\n', tau_key_1_2);
-fprintf('Shear safety factor key 1 (n_shear_1_2): %.2f\n', n_shear_1_2);
-fprintf('Shear stress key 3 (tau_key_3_2): %.2f [MPa]\n', tau_key_3_2/1e6);
-fprintf('Shear safety factor key 3 (n_shear_3_2): %.2f\n', n_shear_3_2);
+% fprintf('\n--- Shear Failure Check (Two Keys) ---\n');
+% fprintf('Shear stress key 1 (tau_key_1_2): %.6f [Pa]\n', tau_key_1_2);
+% fprintf('Shear safety factor key 1 (n_shear_1_2): %.2f\n', n_shear_1_2);
+% fprintf('Shear stress key 3 (tau_key_3_2): %.2f [MPa]\n', tau_key_3_2/1e6);
+% fprintf('Shear safety factor key 3 (n_shear_3_2): %.2f\n', n_shear_3_2);
 
 fprintf('\n--- Compression Failure Check (One Key) ---\n');
-fprintf('Compression stress key 1 (sigma_key_1): %.6f [Pa]\n', sigma_key_1);
+fprintf('Compression stress key 1 (sigma_key_1): %.6f [MPa]\n', sigma_key_1/1e6);
 fprintf('Compression safety factor key 1 (n_compression_1): %.2f\n', n_compression_1);
 fprintf('Compression stress key 3 (sigma_key_3): %.2f [MPa]\n', sigma_key_3/1e6);
 fprintf('Compression safety factor key 3 (n_compression_3): %.2f\n', n_compression_3);
 
-fprintf('\n--- Compression Failure Check (Two Keys) ---\n');
-fprintf('Compression stress key 1 (sigma_key_1_2): %.6f [Pa]\n', sigma_key_1_2);
-fprintf('Compression safety factor key 1 (n_compression_1_2): %.2f\n', n_compression_1_2);
-fprintf('Compression stress key 3 (sigma_key_3_2): %.2f [MPa]\n', sigma_key_3_2/1e6);
-fprintf('Compression safety factor key 3 (n_compression_3_2): %.2f\n', n_compression_3_2);
+% fprintf('\n--- Compression Failure Check (Two Keys) ---\n');
+% fprintf('Compression stress key 1 (sigma_key_1_2): %.6f [Pa]\n', sigma_key_1_2);
+% fprintf('Compression safety factor key 1 (n_compression_1_2): %.2f\n', n_compression_1_2);
+% fprintf('Compression stress key 3 (sigma_key_3_2): %.2f [MPa]\n', sigma_key_3_2/1e6);
+% fprintf('Compression safety factor key 3 (n_compression_3_2): %.2f\n', n_compression_3_2);

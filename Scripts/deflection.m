@@ -96,7 +96,7 @@ disp('===== Forced Deflection Shaft 1 =====')
 if checkEmpiricalRequirement <= 1/3000
     disp("Deflection Good")
 else
-    disp("Deflection not good")
+    warning("Deflection not good")
 end
 
 maxTheta = max(theta_corrected);
@@ -165,7 +165,7 @@ disp('===== Lateral Deflection Shaft 1 =====')
 if (n_1 < 0.8 * n_c) || (n_1 > 1.25 * n_c)
     disp("Lateral vibration good");
 else
-    disp("Lateral vibration not good, adjusted diameter values");
+    warning("Lateral vibration not good, adjusted diameter values");
     k = sqrt(  n_1*4   /    n_c     );
 
 
@@ -308,7 +308,7 @@ disp('===== Forced Deflection Shaft 2 =====')
 if checkEmpiricalRequirement <= 1/3000
     disp("Deflection Good")
 else
-    disp("Deflection not good")
+    warning("Deflection not good")
 end
 
 maxTheta = max(theta_corrected);
@@ -317,7 +317,7 @@ checkThetaRequirement = tan(maxTheta) ;
 if checkThetaRequirement < 0.001
     disp("Theta Good")
 else
-    disp("Theta Not Good")
+    warning("Theta Not Good")
 end
 
 % Forced Deflection Plot
@@ -380,7 +380,7 @@ disp('===== Lateral Deflection Shaft 2 =====')
 if (n_shaft2 < 0.8 * n_c) || (n_shaft2 > 1.25 * n_c)
     disp("Lateral vibration good");
 else
-    disp("Lateral vibration not good, values adjusted");
+    warning("Lateral vibration not good, values adjusted");
     
     k =  sqrt(  n_shaft2*4   /    n_c     );
 
@@ -521,7 +521,7 @@ disp('===== Forced Deflection Shaft 3 =====')
 if checkEmpiricalRequirement <= 1/3000
     disp("Deflection Good")
 else
-    disp("Deflection not good")
+    warning("Deflection not good")
 end
 
 maxTheta = max(theta_corrected);
@@ -530,7 +530,7 @@ checkThetaRequirement = tan(maxTheta) ;
 if checkThetaRequirement < 0.001
     disp("Theta Good")
 else
-    disp("Theta Not Good")
+    warning("Theta Not Good")
 end
 
 % Forced Deflection Plot
@@ -590,13 +590,13 @@ disp('===== Lateral Deflection Shaft 3 =====')
 if (n_shaft3 < 0.8 * n_c) || (n_shaft3 > 1.25 * n_c)
     disp("Lateral vibration good");
 else
-    disp("Lateral vibration not good, values adjusted");
+    warning("Lateral vibration not good, values adjusted");
 
     k =  sqrt(  n_shaft3*4   /    n_c     );
     
     d_F = d_F*k;
     d_78 = d_78*k;
-    d_G * d_G*k;
+    d_G = d_G*k;
     d_S3 = d_S3*k;
 
 end

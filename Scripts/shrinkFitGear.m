@@ -23,9 +23,10 @@
 % sigma_r_s = tangenial stress in hub / gear [MPa]
 % sigma_r_h = radial stress in hub / gear [MPa]
 % min_r_o = Minimum hub outer diamter [mm]
+% F_removal = force required to remove the gear [N]
 
-function [p,T_max,d_h_i,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_h,sigma_r_s,sigma_r_h] ...
-    = shrinkFitGear(d_h_o,d_s,l,mu,fit,E_o,E_i,V_o,V_i)
+function [p,T_max,d_h_i,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_h,sigma_r_s,sigma_r_h, F_removal] ...
+    = shrinkFitGear(d_h_o,d_s,l,mu_rec,mu_st,fit,E_o,E_i,V_o,V_i)
 
     r_i = 0; % [mm] solid shaft, no hollow inner diameter
     r_o = d_h_o/2; % [mm] hub / gear outer radius
@@ -70,11 +71,12 @@ function [p,T_max,d_h_i,h,s,heat_temp_hub,temp_shaft,sigma_t_s,sigma_t_h,sigma_r
 
     % stress calculations
     delta = 2 * delta_r;
-    p = (0.5 * delta)/ ((r/(E_o*1e3))*((r_o^2 + r^2)/(r_o^2 - r^2) + V_o) + ((r/(E_i*1e3)) * ((r^2)/(r^2) -V_i)));
+    p = (0.5 * delta)/ ((r/(E_o*1e3))*((r_o^2 + r^2)/(r_o^2 - r^2) + V_o) + ((r/(E_i*1e3)) * ((r^2)/(r^2) -V_i))); % [MPa] pressure in fit
     % p = (0.5*sigma) / ...
     %     ( ((r/(E_o*1e3)) * ( ((r_o^2 + r^2)/(r_o^2 - r^2) ) + V_o)) + ...
     %       ((r/(E_i*1e3)) * ( ((r^2 + r_i^2)/(r^2 - r_i^2) ) - V_i))); % [MPa] pressure in interface, eq 10.14a, pg 620 machine design
-    T_max = (2*pi*r^2 * mu * p * l) * 1e-3; % [Nm] eq 10.14b pg 621 machine design
+    T_max = (2*pi*r^2 * mu_rec * p * l) * 1e-3; % [Nm] eq 10.14b pg 621 machine design
+    F_removal = (mu_st * p * pi * d_s * l) * 1e-3; % [N] avpressningskraft, lab nr 2
 
     % tangential and radial stresses for shaft and hub, eq 10.15a to 10.16b pg 621 machine design
     sigma_t_s = -p * ((r^2 + r_i^2) / (r^2 - r_i^2));

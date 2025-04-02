@@ -12,36 +12,36 @@ operating_temperature = 70; % [celsius] defined by Kjell (only significant if > 
 first_iteration = false;  % (true / false) First iteration for diameter equation (limited geometry data)
 
 %%%%%%%%%%% Shaft 1 %%%%%%%%%%%%
-r_keyseat1 = 0; % [mm] Keyseat fillet radius
-K_t_keyseat1 = 0; % Keyseat stress concentration factor % Machine Design fig 10-16 pg 615
-r_fillet1 = 0; % [mm] Shoulder fillet radius
+r_keyseat1 = 0.4; % [mm] Keyseat fillet radius
+K_t_keyseat1 = 3.75; % Keyseat stress concentration factor % Machine Design fig 10-16 pg 615
+r_fillet1 = 0.5; % [mm] Shoulder fillet radius
 
 % Diameters
-d_B  = 0; % [mm] 
-d_S1 = 0;     % [mm]
-d_12 = 0;     % [mm]
-d_C  = 0; % [mm]
+d_B  = 30.03; % [mm] 
+d_S1 = 35;     % [mm]
+d_12 = 45;     % [mm]
+d_C  = 35.035; % [mm]
 
 %%%%%%%%%%% Shaft 2 %%%%%%%%%%%%
-r_fillet2 = 0; % [mm] Shoulder fillet radius
+r_fillet2 = 1.0; % [mm] Shoulder fillet radius
 
 % Diameters
-d_S22 = 0;     % [mm]
-d_E   = 0; % [mm]
-d_45  = 0;     % [mm]
-d_S21 = 0;     % [mm]
-d_D   = 0;  % [mm]
+d_S22 = 56;     % [mm]
+d_E   = 45.045; % [mm]
+d_45  = 66;     % [mm]
+d_S21 = 56;     % [mm]
+d_D   = 45.045;  % [mm]
 
 %%%%%%%%%%% Shaft 3 %%%%%%%%%%%%
-r_keyseat3 = 0; % [mm] Keyseat fillet radius
-K_t_keyseat3 = 0; % Keyseat stress concentration factor % Machine Design fig 10-16 pg 615
-r_fillet3 = 0; % [mm] Shoulder fillet radius
+r_keyseat3 = 0.4; % [mm] Keyseat fillet radius
+K_t_keyseat3 = 3.9; % Keyseat stress concentration factor % Machine Design fig 10-16 pg 615
+r_fillet3 = 0.6; % [mm] Shoulder fillet radius
 
 % Diameters
-d_G  = 0; % [mm]
-d_S3 = 0;     % [mm]
-d_78 = 0;     % [mm]
-d_F  = 0;  % [mm]
+d_G  = 65.065; % [mm]
+d_S3 = 66;     % [mm]
+d_78 = 76;     % [mm]
+d_F  = 45.045;  % [mm]
 
 if ~first_iteration && any([ ...
     r_keyseat1, K_t_keyseat1, r_fillet1, ...
@@ -138,7 +138,7 @@ end
 
 % d_eq_sh1_dic = dictionary(shaft1_names,d_eq_list);
 
-% modifiedGoodman(S_y, S_ut, shaft1_results, 'Shaft 1')
+modifiedGoodman(S_y, S_ut, shaft1_results, 'Shaft 1')
 
 %% Shaft 2 loop
 
@@ -170,17 +170,17 @@ for i = 1:size(shaft3_AllCS, 1)
     end
 end
 
-% modifiedGoodman(S_y, S_ut, shaft3_results, 'Shaft 3')
+modifiedGoodman(S_y, S_ut, shaft3_results, 'Shaft 3')
 load(fullfile(export_import, "loadingDiagram_common.mat"),'F_a_remaining')
-% 
-% n_f = 3; % reset n_f
-% shoulder_length_min = shoulder_length(F_a_remaining,max(d_S22,d_S21),...
-%     d_45-r_fillet2*1.5*2,n_f,S_y); % calculate gear chamfer not acting on the bottom of the shoulder
-% if shoulder_length_min < L_45*1e3
-%     fprintf("\nL_45 shoulder length good\n")
-% else
-%     fprintf("\nL_45 shoulder length needs to be increased to above %f [mm]\n",shoulder_length_min)
-% end
+
+n_f = 3; % reset n_f
+shoulder_length_min = shoulder_length(F_a_remaining,max(d_S22,d_S21),...
+    d_45-r_fillet2*1.5*2,n_f,S_y); % calculate gear chamfer not acting on the bottom of the shoulder
+if shoulder_length_min < L_45*1e3
+    fprintf("\nL_45 shoulder length good\n")
+else
+    fprintf("\nL_45 shoulder length needs to be increased to above %f [mm]\n",shoulder_length_min)
+end
 
 % Export diameters
 if ~first_iteration
