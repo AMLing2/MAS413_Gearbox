@@ -3,7 +3,7 @@ export_import = fullfile(pwd, 'export_import');
 
 disablePlotting = false;
 disablePlot1 = true;
-disablePlot2 = true;
+disablePlot2 = false;
 disablePlot3 = true;
 
 %% Constants
@@ -419,7 +419,8 @@ L_E5 = L_EG3 + b_s2/2; % [m]
 L_E6 = b_E/2; % [m]
 
 % Reaction forces @ bearings
-F_Ex = F_a2 - F_a3;
+F_Dx = F_a2 - F_a3; % to the right
+F_Ex = 0;
 F_Ez = (F_r3*L_G3D - F_r2*L_G2D - F_a3*r_G3 - F_a2*r_G2)/L_ED;
 F_Ey = (F_t3*L_G3D + F_t2*L_G2D)/L_ED;
 
