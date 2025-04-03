@@ -1,7 +1,7 @@
 clc; clear; close all;
 export_import = fullfile(pwd, 'export_import');
 
-disablePlotting = true;
+disablePlotting = false;
 disablePlot1 = true;
 disablePlot2 = true;
 disablePlot3 = false;

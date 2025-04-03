@@ -7,7 +7,7 @@ minPerHour = 60; % [min/hour]
 hours = lifetime * daysPerYear * work_cycle % [hours] minimum bearing lifetime
 hours_full_system = 10 * daysPerYear * work_cycle % [hours], lifetime for whole system replacement
 ly = lifetime * daysPerYear * work_cycle * minPerHour; % [min]
-enableImportShaftDiameters = true;
+manual_set = true;
 
 % Import shaft speeds from Gear Sizing
 if exist(fullfile("export_import","gear_sizes.mat"),'file')
@@ -26,9 +26,12 @@ else
     error("Run loadingDiagrams.m first")
 end
 
-if enableImportShaftDiameters
-    load(fullfile("export_import","shaftDesign.mat"), ...
+if exist(fullfile("export_import","shaftDesign_first.mat"),'file')
+    load(fullfile("export_import","shaftDesign_first.mat"), ...
         'd_min_B', 'd_min_C', 'd_min_D', 'd_min_E', 'd_min_F', 'd_min_G')
+
+else
+    error("Run shaftDesign.m first")
 end
 % % Import diameters from Shaft Design
 % if exist(fullfile("export_import","shaft_design.mat"),'file') 
@@ -36,13 +39,18 @@ end
 % else % initial run
 %     % warning("Run shaftDesign.m first") % change to error in the future
 %     % First run initial diamterers
-%     d_min_B = 26.02; % [mm]
+%    d_min_B = 26.02; % [mm]
 %     d_min_C = 28.41; % [mm]
 %     d_min_D = 45; % [mm]
 %     d_min_E = 40.29; % [mm]
 %     d_min_F = 41.73; % [mm]
 %     d_min_G = 65; % [mm]
 % end
+if manual_set
+    d_min_F = 70;
+    d_min_D = 44;
+    d_min_G = 65;
+end
 
 % load bearing .CSV file
 % data from: https://www.skf.com/group/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings#cid-493604
@@ -225,10 +233,10 @@ disp(bearing_tab_G);
 shaft_d = table(d_C,d_B,d_D,d_E,d_G,d_F)
 
 % Choose fillet radius for shaft design
-r_fillet1 = round( (min([fillet_r_B,fillet_r_C]))*1.5, 1);
-r_fillet2 = round( (min([fillet_r_E,fillet_r_D]))*1.5, 1);
-r_fillet3 = round( (min([fillet_r_F,fillet_r_G]))*1.5, 1);
-    % 50 percent increase, truncated to 1 decimal
+r_fillet1 = round( (min([fillet_r_B,fillet_r_C]))*0.75, 1);
+r_fillet2 = round( (min([fillet_r_E,fillet_r_D]))*0.75, 1);
+r_fillet3 = round( (min([fillet_r_F,fillet_r_G]))*0.75, 1);
+    % 25% decrease, rounded to 1 decimal
 
 % saving data:
 %clear b_data % remove table before saving

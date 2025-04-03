@@ -7,7 +7,7 @@ S355J2 = [315, 470, 210*1e9, 0.3]; % Material data [S_y, S_ut, Youngs module (Pa
 material = 355; % (355, 4140)
 load_type = "Complex axial"; % ("Pure bending" "Pure axial" "Pure torsion" "Complex axial" "Complex non axial");
 surface_finish = "Machined"; % ("Ground" "Machined" "Hot-rolled" "As-forged") Other types: Machine Design pg 368, fig 6-26
-reliability = 99; % [%] reliability factor (50 90 95 99 99.9 99.99 99.999 99.9999)
+reliability = 99.999; % [%] reliability factor (50 90 95 99 99.9 99.99 99.999 99.9999)
 operating_temperature = 70; % [celsius] defined by Kjell (only significant if > 450)
 enableImportBearingDiameters = true;
 
@@ -34,19 +34,19 @@ r_fillet3 = 0; % [mm]
 d_S1  = 35;     % [mm]
 d_12  = 45;     % [mm]
 d_S22 = 56;     % [mm]
-d_45  = 66;     % [mm]
+d_45  = 66;     % [mm] % max(d_S22,d_S21) + 10
 d_S21 = 56;     % [mm]
-d_S3  = 66;     % [mm]
-d_78  = 76;     % [mm]
+d_S3  = 72;     % [mm]
+d_78  = 82;     % [mm] % has to be d_S3 + 6 to 10 [mm]
 
 % Keyseat fillet radius - RexNord
 % https://www.rexnord.com/contentitems/techlibrary/documents/427-140_manual
 r_keyseat1 = 0.4; % [mm]
-r_keyseat3 = 0.4; % [mm]
+r_keyseat3 = 0.6; % [mm]
 
 % Keyseat stress concentration factor - Machine Design fig 10-16 pg 615
 K_t_keyseat1 = 3.75;
-K_t_keyseat3 = 3.9;
+K_t_keyseat3 = 3.75;
 
 %%%%%%%%%%%%%%%%%%% MANUAL GEOMETRY UPDATE %%%%%%%%%%%%%%%%%%%
 
@@ -239,7 +239,12 @@ d_min_G = max([d_rec_sh3_dic("Cross section 9L"), ...
                d_rec_sh3_dic("Cross section H")]);
 
 % Export diameters
-save(fullfile("export_import","shaftDesign.mat"), 'd_S1', 'd_B',...
-'d_C', 'd_12', 'd_S22', 'd_E', 'd_D', 'd_S21', 'd_45', 'd_78', 'd_F', ...
-'d_G', 'd_S3', 'r_fillet1','r_fillet2','r_fillet3', 'E','V_shaft', ...
-'d_min_B', 'd_min_C', 'd_min_D', 'd_min_E', 'd_min_F', 'd_min_G')
+if first_iteration
+    save(fullfile("export_import","shaftDesign_first.mat"), ...
+    'd_min_B', 'd_min_C', 'd_min_D', 'd_min_E', 'd_min_F', 'd_min_G')
+else
+    save(fullfile("export_import","shaftDesign.mat"), 'd_S1', 'd_B',...
+    'd_C', 'd_12', 'd_S22', 'd_E', 'd_D', 'd_S21', 'd_45', 'd_78', 'd_F', ...
+    'd_G', 'd_S3', 'r_fillet1','r_fillet2','r_fillet3', 'E','V_shaft', ...
+    'd_min_B', 'd_min_C', 'd_min_D', 'd_min_E', 'd_min_F', 'd_min_G')
+end

@@ -339,10 +339,12 @@ else
     n_y = S_y/abs(sigma_e_m - sigma_e_a);
 end
 
-if n_y > 1
+if n_y < n_f_desired
+    warning('n_y is below desired n_f --> n_y = %.2f', n_y)
+elseif n_y > 1
     fprintf('\nNo static failure  --> n_y = %.2f\n', n_y)
 else
-    fprintf('\nStatic failure     --> n_y = %.2f\n', n_y)
+    warning('Static failure     --> n_y = %.2f', n_y)
 end
 
 % Fatigue safety factor: MAS236 L4 s19
@@ -363,10 +365,13 @@ else
 end
 n_f = S_e/sigma_rev;
 
-if n_f > 1
+
+if n_f < n_f_desired
+    warning("Fatigue lower than desired --> n_f = %.2f", n_f)
+elseif n_f > 1
     fprintf('No fatigue failure --> n_f = %.2f\n', n_f)
 else
-    fprintf('Fatigue failure    --> n_f = %.2f\n', n_f)
+    warning('Fatigue failure    --> n_f = %.2f', n_f)
 end
 
 
