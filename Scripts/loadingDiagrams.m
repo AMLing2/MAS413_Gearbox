@@ -3,8 +3,8 @@ export_import = fullfile(pwd, 'export_import');
 
 disablePlotting = false;
 disablePlot1 = true;
-disablePlot2 = false;
-disablePlot3 = true;
+disablePlot2 = true;
+disablePlot3 = false;
 
 %% Constants
 
@@ -13,7 +13,7 @@ L_12 = 5e-3; % [m]
 L_45 = 5e-3; % [m]
 L_78 = 5e-3; % [m]
 L_AB = 0.05; % [m]
-L_GH = 0.05; % [m]
+L_GH = 10e-3; % [m]
     % Stage efficiencies
 % eta = 0.96; % [-] "finely worked teeth & good lubrication"
 eta = 1.00; % [-] Ideal Stages

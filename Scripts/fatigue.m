@@ -295,19 +295,19 @@ tau_tor_a = tau_tor_a_nom * K_f_tor; % [MPa]
 sigma_x_m = sigma_x_axial_m + sigma_x_bend_m; % [MPa]
 sigma_x_a = sigma_x_axial_a + sigma_x_bend_a; % [MPa]
 
-% Shear neglected
-% Von Mises Equivalent Stress
-sigma_e_m   = sqrt(sigma_x_m^2 + 3*(tau_tor_m^2)); % [MPa]
-sigma_e_a   = sqrt(sigma_x_a^2 + 3*(tau_tor_a^2)); % [MPa]
-sigma_e_max = sigma_e_m + sigma_e_a; % [MPa]
-fprintf('\nNeglected shear -->  sigma_e = %2f\n', sigma_e_max)
-
 % Shear included
 % Von Mises Equivalent Stress
 sigma_e_m   = sqrt(sigma_x_m^2 + 3*(tau_tor_m^2+tau_y_shear_m^2+tau_z_shear_m^2)); % [MPa]
 sigma_e_a   = sqrt(sigma_x_a^2 + 3*(tau_tor_a^2+tau_y_shear_a^2+tau_z_shear_a^2)); % [MPa]
 sigma_e_max = sigma_e_m + sigma_e_a; % [MPa]
-fprintf('Included shear  -->  sigma_e = %2f\n', sigma_e_max)
+fprintf('\nIncluded shear  -->  sigma_e = %2f\n', sigma_e_max)
+
+% Shear neglected
+% Von Mises Equivalent Stress
+sigma_e_m   = sqrt(sigma_x_m^2 + 3*(tau_tor_m^2)); % [MPa]
+sigma_e_a   = sqrt(sigma_x_a^2 + 3*(tau_tor_a^2)); % [MPa]
+sigma_e_max = sigma_e_m + sigma_e_a; % [MPa]
+fprintf('Neglected shear -->  sigma_e = %2f\n', sigma_e_max)
 
 
 % Size factor % MAS236 L3 s44 & Machine Design pg 367
