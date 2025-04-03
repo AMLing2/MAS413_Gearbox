@@ -139,11 +139,11 @@ if first_iteration
     S_e = C_load*C_size*C_surf*C_temp*C_reliab*S_e_prime;
     
     % Diameter Equation % MAS236 L5 s6
-    d_1st =  ( ( (16*n_f_desired) /pi) * ( sqrt(4*(K_f_bend*M_a)^2 + ...
+    d_rec =  ( ( (16*n_f_desired) /pi) * ( sqrt(4*(K_f_bend*M_a)^2 + ...
                                        3*(K_f_tor*T_a)^2)/S_e + ...
                                   sqrt(4*(K_f_bend*M_m)^2 + ...
                                        3*(K_f_tor*T_m)^2)/S_ut) )^(1/3);
-    fprintf('\n1st recomended shaft diameter --> d_1st = %.2f [mm]\n', d_1st)
+    fprintf('\n1st recomended shaft diameter --> d_1st = %.2f [mm]\n', d_rec)
     % Other formulation in equation (10.8) % Machine Design pg 600 & 653
 
     % Quick check: failure againt yield at the first cycle % MAS236 L5 s7

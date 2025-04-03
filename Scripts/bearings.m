@@ -7,7 +7,7 @@ minPerHour = 60; % [min/hour]
 hours = lifetime * daysPerYear * work_cycle % [hours] minimum bearing lifetime
 hours_full_system = 10 * daysPerYear * work_cycle % [hours], lifetime for whole system replacement
 ly = lifetime * daysPerYear * work_cycle * minPerHour; % [min]
-
+enableImportShaftDiameters = true;
 
 % Import shaft speeds from Gear Sizing
 if exist(fullfile("export_import","gear_sizes.mat"),'file')
@@ -26,19 +26,23 @@ else
     error("Run loadingDiagrams.m first")
 end
 
-% Import diameters from Shaft Design
-if exist(fullfile("export_import","shaft_design.mat"),'file') 
-    load(fullfile("export_import","shaft_design.mat"), "aaaa")
-else % initial run
-    % warning("Run shaftDesign.m first") % change to error in the future
-    % First run initial diamterers
-    d_min_B = 26.02; % [mm]
-    d_min_C = 28.41; % [mm]
-    d_min_D = 45; % [mm]
-    d_min_E = 40.29; % [mm]
-    d_min_F = 41.73; % [mm]
-    d_min_G = 65; % [mm]
+if enableImportShaftDiameters
+    load(fullfile("export_import","shaftDesign.mat"), ...
+        'd_min_B', 'd_min_C', 'd_min_D', 'd_min_E', 'd_min_F', 'd_min_G')
 end
+% % Import diameters from Shaft Design
+% if exist(fullfile("export_import","shaft_design.mat"),'file') 
+%     load(fullfile("export_import","shaft_design.mat"), "aaaa")
+% else % initial run
+%     % warning("Run shaftDesign.m first") % change to error in the future
+%     % First run initial diamterers
+%     d_min_B = 26.02; % [mm]
+%     d_min_C = 28.41; % [mm]
+%     d_min_D = 45; % [mm]
+%     d_min_E = 40.29; % [mm]
+%     d_min_F = 41.73; % [mm]
+%     d_min_G = 65; % [mm]
+% end
 
 % load bearing .CSV file
 % data from: https://www.skf.com/group/products/rolling-bearings/ball-bearings/deep-groove-ball-bearings#cid-493604
@@ -88,7 +92,7 @@ data_names = ["Bore diameter [mm]";
     "lifetime cycles [millions of revs]";
     "lifetime hours [h]"];
 
-% shaft 1 B C
+%%% shaft 1 - bearings B C %%%
 % bearing B
 lifetime_hour_B = (n_bB / n_1) / minPerHour;
 b_B = b_data.B(b_index_B); % width of bearing
@@ -125,7 +129,7 @@ data_bearing_C = [b_data.d(b_index_C);
 bearing_tab_C = table(data_bearing_C,data_names,'VariableNames',["Bearing C data","variables"]');
 disp(bearing_tab_C);
 
-% shaft 2 bearings D E
+%%% shaft 2 - bearings D E %%%
 
 % bearing D
 lifetime_hour_D = (n_bD / n_2) / minPerHour;
@@ -163,7 +167,7 @@ data_bearing_E = [b_data.d(b_index_E);
 bearing_tab_E = table(data_bearing_E,data_names,'VariableNames',["Bearing E data","variables"]');
 disp(bearing_tab_E);
 
-% shaft 3 F G
+%%% shaft 3 - bearings F G %%%
 % bearing F
 lifetime_hour_F = (n_bF / n_4) / minPerHour;
 b_F = b_data.B(b_index_F);
@@ -220,13 +224,19 @@ disp(bearing_tab_G);
 % print shaft diameters
 shaft_d = table(d_C,d_B,d_D,d_E,d_G,d_F)
 
+% Choose fillet radius for shaft design
+r_fillet1 = round( (min([fillet_r_B,fillet_r_C]))*1.5, 1);
+r_fillet2 = round( (min([fillet_r_E,fillet_r_D]))*1.5, 1);
+r_fillet3 = round( (min([fillet_r_F,fillet_r_G]))*1.5, 1);
+    % 50 percent increase, truncated to 1 decimal
+
 % saving data:
 %clear b_data % remove table before saving
 save(fullfile("export_import","bearings.mat"))
 
-% save only diameters
-save(fullfile("export_import","diameter_shaft_bearings.mat"),"d_B","d_C", ...
-    "d_E", "d_D", "d_F", "d_G");
+% % save only diameters
+% save(fullfile("export_import","diameter_shaft_bearings.mat"),"d_B","d_C", ...
+%     "d_E", "d_D", "d_F", "d_G");
 
 %% Ball Bearing Selection
 function [bearing_index,lifetime] = ball_bearing_sizing(d_min,F_r,F_a,cycles,K_R,d_list,C_dyn_list,C_0_list,f0_list,desg_list)
