@@ -1,0 +1,11 @@
+﻿"Symbol";"Value";"Unit";
+"TraceParts.PartNumber";"10-23092016-090924";"";
+"REFERENCE";"6006-RS1";"";
+"TraceParts.PartVersion";"1.2.0";"";
+"TraceParts.InstanceId";"10-23092016-0909247764Q2569RU187VI15PIJ4VOO";"";
+"TraceParts.PartTitle";"Deep groove ball bearings, single row, contact seal on one side";"";
+"SUPPLIER";"SKF";"";
+"DESIGN";"Single row deep groove ball bearing, contact seal on one side, Bore Ø 30 mm, Outside Ø 55 mm";"";
+"TRACEPARTS";"TRACEPARTS";"";
+"TraceParts.PartLanguage";"en";"";
+"MASS";"0.118";"";

@@ -1,0 +1,11 @@
+﻿"Symbol";"Value";"Unit";
+"TraceParts.PartNumber";"10-23092016-090924";"";
+"REFERENCE";"6013-RS1";"";
+"TraceParts.PartTitle";"Deep groove ball bearings, single row, contact seal on one side";"";
+"TraceParts.InstanceId";"10-23092016-0909248KXKWT6JXCY25R7TWF3UQHVSD";"";
+"DESIGN";"Single row deep groove ball bearing, contact seal on one side, Bore Ø 65 mm, Outside Ø 100 mm";"";
+"SUPPLIER";"SKF";"";
+"TraceParts.PartVersion";"1.2.0";"";
+"TRACEPARTS";"TRACEPARTS";"";
+"TraceParts.PartLanguage";"en";"";
+"MASS";"0.442";"";
