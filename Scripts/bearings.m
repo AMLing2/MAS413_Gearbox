@@ -237,6 +237,13 @@ r_fillet1 = round( (min([fillet_r_B,fillet_r_C]))*0.75, 1);
 r_fillet2 = round( (min([fillet_r_E,fillet_r_D]))*0.75, 1);
 r_fillet3 = round( (min([fillet_r_F,fillet_r_G]))*0.75, 1);
     % 25% decrease, rounded to 1 decimal
+% calculate bearing center distance
+dm1 = (b_data.d(b_index_B) + b_data.D(b_index_B))/2; % bearing B
+dm2 = (b_data.d(b_index_C) + b_data.D(b_index_C))/2; % bearing C
+dm3 = (b_data.d(b_index_D) + b_data.D(b_index_D))/2; % bearing D
+dm4 = (b_data.d(b_index_E) + b_data.D(b_index_E))/2; % bearing E
+dm5 = (b_data.d(b_index_F) + b_data.D(b_index_F))/2; % bearing F
+dm6 = (b_data.d(b_index_G) + b_data.D(b_index_G))/2; % bearing G
 
 % saving data:
 %clear b_data % remove table before saving

@@ -50,11 +50,11 @@ S_yield_comp = 180 * 10^6; % [Pa]Compression: ductile materials often same compr
 % https://www.rexnord.com/contentitems/techlibrary/documents/427-140_manual
 w_1 = 10e-3;   % [m]
 h_1 = 8e-3;   % [m]
-l_1 = 0.5*d_shaft_1; % [m]
+l_1 = round(0.5*d_shaft_1,3); % [m]
   
 w_3 = 20e-3;   % [m]
 h_3 = 12e-3;   % [m]
-l_3 = 1.25*d_shaft_3; % [m]
+l_3 = round(1.25*d_shaft_3,3); % [m]
 
 %% Check for shear failure - one key
 

@@ -162,8 +162,8 @@ mt_3 = m_n_3 / cosd(beta);
 mt_4 = m_n_4 / cosd(beta);
 mt_s1 = modulemap_t(max([mt_1,mt_2]),beta); % get max and convert to standard size
 mt_s2 = modulemap_t(max([mt_3,mt_4]),beta); 
-mt_s1 = max([mt_1,mt_2]); 
-mt_s2 = max([mt_3,mt_4]); 
+% mt_s1 = max([mt_1,mt_2]); 
+% mt_s2 = max([mt_3,mt_4]); 
 % mt_s1 = 2.5882;
 % mt_s2 = 4.1411;
 
