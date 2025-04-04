@@ -1,78 +1,101 @@
-﻿"alpha"= 20 'Helix angle, psi [deg]
-"beta"= 15 'Pressure angle, theta [deg]
-"z_1"= 18 'Number of teeth, pinion 1
-"z_2"= 79 'Number of teeth, gear 2
-"z_3"= 18 'Number of teeth, pinion 3
-"z_4"= 71 'Number of teeth, gear 4
-"c_dist_1"= 0.129 'Center distance stage 1 [m]
-"c_dist_2"= 0.1788 'Center distance stage 2 [m]
-"m_s1"= 2 * "c_dist_1" / ("z_1" + "z_2") * 1000 'Module stage 1 [mm]
-"m_s2"= 2 * "c_dist_2" / ("z_3" + "z_4") * 1000 'Module stage 2 [mm]
-"d_g1"= "m_s1" * "z_1" 'Pitch circle 1 [mm]
-"d_g2"= "m_s1" * "z_2" 'Pitch circle 2 [mm]
-"d_g3"= "m_s2" * "z_3" 'Pitch circle 3 [mm]
-"d_g4"= "m_s2" * "z_4" 'Pitch circle 4 [mm]
-"ht_1"= "m_s1" 'Top height 1 [mm]
-"ht_2"= "m_s1" 'Top height 2 [mm]
-"ht_3"= "m_s2" 'Top height 3 [mm]
-"ht_4"= "m_s2" 'Top height 4 [mm]
-"hf_1"= 1.25 * "m_s1" 'Bottom height 1 [mm]
-"hf_2"= 1.25 * "m_s1" 'Bottom height 2 [mm]
-"hf_3"= 1.25 * "m_s2" 'Bottom height 3 [mm]
-"hf_4"= 1.25 * "m_s2" 'Bottom height 4 [mm]
-"dt_g1"= "d_g1" + 2 * "ht_1" 'Addendum 1 [mm]
-"dt_g2"= "d_g2" + 2 * "ht_2" 'Addendum 2 [mm]
-"dt_g3"= "d_g3" + 2 * "ht_3" 'Addendum 3 [mm]
-"dt_g4"= "d_g4" + 2 * "ht_4" 'Addendum 4 [mm]
-"df_g1"= "d_g1" - 2 * "hf_1" 'Dedendum 1 [mm]
-"df_g2"= "d_g2" - 2 * "hf_2" 'Dedendum 2 [mm]
-"df_g3"= "d_g3" - 2 * "hf_3" 'Dedendum 3 [mm]
-"df_g4"= "d_g4" - 2 * "hf_4" 'Dedendum 4 [mm]
-"p_s1"= pi * "m_s1" 'Pitch 1 [mm]
-"p_s2"= pi * "m_s2" 'Pitch 2 [mm]
-"sn_s1"= "p_s1" / 2 - 0.05 * "m_s1" 'Tooth thickness 1 [mm]
-"sn_s2"= "p_s2" / 2 - 0.05 * "m_s2" 'Tooth thickness 2 [mm]
-"en_s1"= "p_s1" / 2 + 0.05 * "m_s1" 'Hatch width 1 [mm]
-"en_s2"= "p_s2" / 2 + 0.05 * "m_s2" 'Hatch width 2 [mm]
-"mt_s1"= "m_s1" / cos("beta") 'Helical module 1
-"mt_s2"= "m_s2" / cos("beta") 'Helical module 2
-"lambda"= 10 'Width factor, 8-12
-"b_s1"= "mt_s1" * "lambda" 'Helical gear width 1
-"b_s2"= "mt_s2" * "lambda" 'Helical gear width 2
-"pt_s1"= "p_s1" / cos("beta") 'Transverse pitch 1 [mm]
-"pt_s2"= "p_s2" / cos("beta") 'Transverse pitch 2 [mm]
-"px_s1"= "p_s1" / sin("beta") 'Axial pitch 1 [mm]
-"px_s2"= "p_s2" / sin("beta") 'Axial pitch 2 [mm]
-"dp_s1"= pi / "pt_s1" 'Diametral pitch 1 [mm]
-"dp_s2"= pi / "pt_s2" 'Diametral pitch 2 [mm]
-"d_B"= 30.03 'Inner diameter bearing B [mm]
-"d_S1"= 35 'Diameter shaft 1 [mm]
-"d_C"= 35.035 'Inner diameter bearing C [mm]
-"d_12"= 45 'Larger diameter shaft 1 [mm]
-"d_S2_1"= 56 'Diameter shaft 2 part 1 [mm]
-"d_S2_2"= 56 'Diameter shaft 2 part 2 [mm]
-"d_D"= 45.045 'Inner diameter bearing D [mm]
-"d_E"= 45.045 'Inner diameter bearing E [mm]
-"d_45"= 66 'Larger diameter shaft 2 [mm]
-"d_G"= 65.065 'Inner diameter bearing G [mm]
-"d_S3"= 66 'Diameter shaft 3 [mm]
-"d_F"= 45.045 'Inner diameter bearing F [mm]
-"d_78"= 76 'Larger diameter shaft 3 [mm]
-"b_G1"= "b_s1" 'Gear 1 width [mm]
-"b_G2"= "b_s1" 'Gear 2 width [mm]
-"b_G3"= "b_s2" 'Gear 3 width [mm]
-"b_G4"= "b_s2" 'Gear 4 width [mm]
-"b_B"= 13 'Bearing B width [mm]
-"b_C"= 21 'Bearing C width [mm]
-"b_D"= 25 'Bearing D width [mm]
-"b_E"= 25 'Bearing E width [mm]
-"b_F"= 19 'Bearing F width [mm]
-"b_G"= 18 'Bearing G width [mm]
-"L_12"= 5 '[mm]
-"L_45"= 5 '[mm]
-"L_78"= 5 '[mm]
-"L_AB"= 50 '[mm]
-"L_GH"= 50 '[mm]
-"r_S1"= 0.5 '[mm]
-"r_S2"= 1 '[mm]
-"r_S3"= 0.6 '[mm] 
+﻿"alpha"= 20 'Pressure angle, theta [deg]
+"beta"= 15 'Helix angle, psi [deg]
+
+"z_1"= 18 'Number of teeth, pinion 1
+"z_2"= 79 'Number of teeth, gear 2
+"z_3"= 18 'Number of teeth, pinion 3
+"z_4"= 71 'Number of teeth, gear 4
+
+"c_dist_1"= 138 'Center distance stage 1 [mm]
+"c_dist_2"= 207.314 'Center distance stage 2 [mm]
+
+"m_s1"= 2 * "c_dist_1" / ("z_1" + "z_2") 'Module stage 1 [mm]
+"m_s2"= 2 * "c_dist_2" / ("z_3" + "z_4") 'Module stage 2 [mm]
+
+"d_g1"= "m_s1" * "z_1" 'Pitch circle 1 [mm]
+"d_g2"= "m_s1" * "z_2" 'Pitch circle 2 [mm]
+"d_g3"= "m_s2" * "z_3" 'Pitch circle 3 [mm]
+"d_g4"= "m_s2" * "z_4" 'Pitch circle 4 [mm]
+
+"ht_1"= "m_s1" 'Top height 1 [mm]
+"ht_2"= "m_s1" 'Top height 2 [mm]
+"ht_3"= "m_s2" 'Top height 3 [mm]
+"ht_4"= "m_s2" 'Top height 4 [mm]
+
+"hf_1"= 1.25 * "m_s1" 'Bottom height 1 [mm]
+"hf_2"= 1.25 * "m_s1" 'Bottom height 2 [mm]
+"hf_3"= 1.25 * "m_s2" 'Bottom height 3 [mm]
+"hf_4"= 1.25 * "m_s2" 'Bottom height 4 [mm]
+
+"dt_g1"= "d_g1" + 2 * "ht_1" 'Addendum 1 [mm]
+"dt_g2"= "d_g2" + 2 * "ht_2" 'Addendum 2 [mm]
+"dt_g3"= "d_g3" + 2 * "ht_3" 'Addendum 3 [mm]
+"dt_g4"= "d_g4" + 2 * "ht_4" 'Addendum 4 [mm]
+
+"df_g1"= "d_g1" - 2 * "hf_1" 'Dedendum 1 [mm]
+"df_g2"= "d_g2" - 2 * "hf_2" 'Dedendum 2 [mm]
+"df_g3"= "d_g3" - 2 * "hf_3" 'Dedendum 3 [mm]
+"df_g4"= "d_g4" - 2 * "hf_4" 'Dedendum 4 [mm]
+
+"p_s1"= pi * "m_s1" 'Pitch 1 [mm]
+"p_s2"= pi * "m_s2" 'Pitch 2 [mm]
+
+"sn_s1"= "p_s1" / 2 - 0.05 * "m_s1" 'Tooth thickness 1 [mm]
+"sn_s2"= "p_s2" / 2 - 0.05 * "m_s2" 'Tooth thickness 2 [mm]
+
+"en_s1"= "p_s1" / 2 + 0.05 * "m_s1" 'Hatch width 1 [mm]
+"en_s2"= "p_s2" / 2 + 0.05 * "m_s2" 'Hatch width 2 [mm]
+
+"mt_s1"= "m_s1" / cos("beta") 'Helical module 1
+"mt_s2"= "m_s2" / cos("beta") 'Helical module 2
+
+"lambda"= 14 'Width factor, 8-12
+"b_s1"= "mt_s1" * "lambda" 'Helical gear width 1
+"b_s2"= "mt_s2" * "lambda" 'Helical gear width 2
+
+"pt_s1"= "p_s1" / cos("beta") 'Transverse pitch 1 [mm]
+"pt_s2"= "p_s2" / cos("beta") 'Transverse pitch 2 [mm]
+
+"px_s1"= "p_s1" / sin("beta") 'Axial pitch 1 [mm]
+"px_s2"= "p_s2" / sin("beta") 'Axial pitch 2 [mm]
+
+"dp_s1"= pi / "pt_s1" 'Diametral pitch 1 [mm]
+"dp_s2"= pi / "pt_s2" 'Diametral pitch 2 [mm]
+
+"d_B"= 30.03 'Inner diameter bearing B [mm]
+"d_S1"= 35 'Diameter shaft 1 [mm]
+"d_C"= 35.035 'Inner diameter bearing C [mm]
+"d_12"= 45 'Larger diameter shaft 1 [mm]
+
+"d_S2_1"= 56 'Diameter shaft 2 part 1 [mm]
+"d_S2_2"= 56 'Diameter shaft 2 part 2 [mm]
+"d_D"= 45.045 'Inner diameter bearing D [mm]
+"d_E"= 45.045 'Inner diameter bearing E [mm]
+"d_45"= 66 'Larger diameter shaft 2 [mm]
+
+"d_G"= 65.065 'Inner diameter bearing G [mm]
+"d_S3"= 72 'Diameter shaft 3 [mm]
+"d_F"= 70.07 'Inner diameter bearing F [mm]
+"d_78"= 82 'Larger diameter shaft 3 [mm]
+
+"b_G1"= "b_s1" 'Gear 1 width [mm]
+"b_G2"= "b_s1" 'Gear 2 width [mm]
+"b_G3"= "b_s2" 'Gear 3 width [mm]
+"b_G4"= "b_s2" 'Gear 4 width [mm]
+
+"b_B"= 13 'Bearing B width [mm]
+"b_C"= 21 'Bearing C width [mm]
+"b_D"= 25 'Bearing D width [mm]
+"b_E"= 25 'Bearing E width [mm]
+"b_F"= 20 'Bearing F width [mm]
+"b_G"= 18 'Bearing G width [mm]
+
+"L_12"= 5 '[mm]
+"L_45"= 5 '[mm]
+"L_78"= 5 '[mm]
+"L_AB"= 50 '[mm]
+"L_GH"= 100 '[mm]
+
+"r_S1"= 0.8 '[mm]
+"r_S2"= 1.1 '[mm]
+"r_S3"= 0.8 '[mm] 
