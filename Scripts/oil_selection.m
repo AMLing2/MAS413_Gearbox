@@ -81,6 +81,10 @@ function ks = ks(F_t, b, d1, U)
 
     % Output:
     %   ks - [N/mm^2]
+    F_t
+    b
+    d1
+    U
     
     ks = (F_t / (b * d1)) * ((U + 1) / U) * 3;
 end
