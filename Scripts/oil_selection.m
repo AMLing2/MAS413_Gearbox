@@ -1,6 +1,6 @@
 clc; close all; clear;
 
-export_import = fullfile(pwd, 'export_import_last');
+export_import = fullfile(pwd, 'export_import');
 
 if exist(fullfile(export_import,'loadingDiagram_common.mat'), 'file')
     load(fullfile(export_import,'loadingDiagram_common.mat'), ...
@@ -81,10 +81,6 @@ function ks = ks(F_t, b, d1, U)
 
     % Output:
     %   ks - [N/mm^2]
-    F_t
-    b
-    d1
-    U
-    
+
     ks = (F_t / (b * d1)) * ((U + 1) / U) * 3;
 end
