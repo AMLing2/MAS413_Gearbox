@@ -4,10 +4,6 @@ if ~exist(export_import, 'dir')
     mkdir(export_import);
 end
 
-%TODO: 
-% material factor see line 73 - done?
-% get E and V from shaft design
-
 % module of elasticity and material standards (no price):
 % https://www.michael-smith-engineers.co.uk/mse/uploads/resources/useful-info/General-Info/MATERIAL-GRADE-COMPARISON-TABLE-for-Web.pdf
 % material (diameter) (grade) (related link)
@@ -160,12 +156,16 @@ sigmaO = table(sigma_o_1, sigma_o_3)
 format short
 
 % converting to transverse (helical) module
-mt_1 = m_n_1 / cosd(beta);
-mt_2 = m_n_2 / cosd(beta);
+mt_1 = m_n_1 / cosd(beta)
+mt_2 = m_n_2 / cosd(beta)
 mt_3 = m_n_3 / cosd(beta);
 mt_4 = m_n_4 / cosd(beta);
-mt_s1 = max([mt_1,mt_2]); % 3.1180 w/ 15 CrNi 6
-mt_s2 = max([mt_3,mt_4]); % 4.5334 w/ 15 CrNi 6
+mt_s1 = modulemap_t(max([mt_1,mt_2]),beta); % get max and convert to standard size
+mt_s2 = modulemap_t(max([mt_3,mt_4]),beta); 
+mt_s1 = max([mt_1,mt_2]); 
+mt_s2 = max([mt_3,mt_4]); 
+% mt_s1 = 2.5882;
+% mt_s2 = 4.1411;
 
 %%%%%%%% sizing calcs for helical gears
 fits_unchecked = true;
@@ -250,21 +250,28 @@ if exist(fullfile("export_import","shaftDesign.mat"),"file")
             ,sigma_t_s_g2,sigma_t_g_g2,sigma_r_s_g2,sigma_r_g_g2,F_rem_g2] = ... % stresses
             shrinkFitGear(df_g2,d_shaft_g2,b_s1-chamfer_g2,mu,mu_st,"h7s6",...
             E_mat_g*1e-3,E_shaft*1e-3,V_mat_g,V_mat_g);
+        n_f_g1 = Sy_mat/abs(sigma_t_g_g1);
+        n_f_g2 = Sy_mat/abs(sigma_t_g_g2);
     
         % check if gear stresses are not too large for each gear:
         if (abs(sigma_t_g_g1) > (Sy_mat / n_f) || abs(sigma_r_g_g1) > (Sy_mat / n_f)) || ...
            (abs(sigma_t_g_g2) > (Sy_mat / n_f) || abs(sigma_r_g_g2) > (Sy_mat / n_f))
             % increase module of first stage
-            if verbose; fprintf("increasing mt_s1 due to high fit stress\n"); end
-            mt_s1 = mt_s1 + step;
+            if verbose; fprintf("increasing mt_s1 due to high fit stress, n_f_g1 = %.2f, n_f_g2 = %.2f\n", ...
+                n_f_g1, n_f_g2); end
+            mt_s1 = modulemap_t(mt_s1 + step,beta); % increase by step and convert to standard size
+            % mt_s1 = mt_s1 + step;
             continue % restart loop
         elseif T_max_g1 < n_f_t*T_1*1e-3 || T_max_g2 < n_f_t*T_2*1e-3
             % error("Stage 1 cant transmit enough torque")
-            if verbose; fprintf("increasing mt_s1 due to low torque\n"); end
-            mt_s1 = mt_s1 + step;
+            if verbose; fprintf("increasing mt_s1 due to low torque"); end
+            if verbose; fprintf(", T_max_g1 = %.2f, T_max_g2 = %.2f\n",T_max_g1,T_max_g2); end
+            mt_s1 = modulemap_t(mt_s1 + step,beta); % convert to standard size
+            % mt_s1 = mt_s1 + step;
             continue
         else
-            if verbose; fprintf("Stage 1 passed interference fit tests\n"); end
+            if verbose; fprintf("Stage 1 passed interference fit tests, n_f_g1 = %.2f, n_f_g2 = %.2f\n", ...
+                n_f_g1, n_f_g2); end
             stress_s1_checked = true; % stage 1 good, don't recalculate in future loops
         end
     end
@@ -279,21 +286,28 @@ if exist(fullfile("export_import","shaftDesign.mat"),"file")
         ,sigma_t_s_g4,sigma_t_g_g4,sigma_r_s_g4,sigma_r_g_g4,F_rem_g4] = ... % stresses
         shrinkFitGear(df_g4,d_shaft_g4,b_s2-chamfer_g4,mu,mu_st,"h7s6", ...
         E_mat_g*1e-3, E_mat_g*1e-3,V_mat_g,V_mat_g);
+    n_f_g3 = Sy_mat/abs(sigma_t_g_g3);
+    n_f_g4 = Sy_mat/abs(sigma_t_g_g4);
 
     % check gear stresses
     if (abs(sigma_t_g_g3) > (Sy_mat / n_f) ||  abs(sigma_r_g_g3) > (Sy_mat / n_f)) || ...
        (abs(sigma_t_g_g4) > (Sy_mat / n_f) ||  abs(sigma_r_g_g4) > (Sy_mat / n_f))  
         % increase module of second stage
-        if verbose; fprintf("increasing mt_s2 due to high fit stress\n"); end
-        mt_s2 = mt_s2 + step;
+        if verbose; fprintf("increasing mt_s2 due to high fit stress, n_f_g3 = %.2f, n_f_g4 = %.2f\n", ...
+                n_f_g3, n_f_g4); end
+        mt_s2 = modulemap_t(mt_s2 + step,beta);
+        % mt_s2 = mt_s2 + step;
         continue % restart loop
     elseif T_max_g3 < n_f_t*T_3*1e-3 || T_max_g4 < n_f_t*T_4*1e-3
         % error("Stage 2 cant transmit enough torque")
-        if verbose; fprintf("increasing mt_s1 due to low torque\n"); end
-        mt_s2 = mt_s2 + step;
+        if verbose; fprintf("increasing mt_s2 due to low torque"); end
+        if verbose; fprintf(", T_max_g3 = %.2f, T_max_g4 = %.2f\n",T_max_g3,T_max_g4); end
+        mt_s2 = modulemap_t(mt_s2 + step,beta);
+        % mt_s2 = mt_s2 + step;
         continue
     end
-    if verbose; fprintf("Stage 2 passed interference fit tests\n"); end
+    if verbose; fprintf("Stage 2 passed interference fit tests, n_f_g3 = %.2f, n_f_g4 = %.2f\n", ...
+                n_f_g3, n_f_g4); end
     fits_unchecked = false; % all values good, exit loop
 
     % print interference fit values to tables
@@ -438,3 +452,13 @@ end
 
 save(fullfile(export_import, "gear_sizes.mat"))
 
+function m_t_new = modulemap_t(mt,beta)
+    %standard_mt = [1, 1.25, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6, 7] / cosd(beta);
+    standard_mt = [1, 1.25, 1.5, 2, 2.25, 2.5, 2.75, 3, 3.5, 4, 4.5, 5, 6, 7] / cosd(beta);
+    m_t_new = standard_mt(standard_mt > mt);
+    if isempty(m_t_new)
+        error("module above 7")
+    else
+        m_t_new = m_t_new(1);
+    end
+end

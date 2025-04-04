@@ -103,7 +103,7 @@ maxTheta = max(theta_corrected);
 checkThetaRequirement = tan(maxTheta) ;
 
 if checkThetaRequirement < 0.001
-    disp("Theta Good")
+    fprintf("Theta Good, %2f [deg]\n",checkThetaRequirement)
 else
     disp("Theta Not Good")
 end
@@ -315,7 +315,7 @@ maxTheta = max(theta_corrected);
 checkThetaRequirement = tan(maxTheta) ;
 
 if checkThetaRequirement < 0.001
-    disp("Theta Good")
+    fprintf("Theta Good, %2f [deg]\n",checkThetaRequirement)
 else
     warning("Theta Not Good")
 end
@@ -528,7 +528,7 @@ maxTheta = max(theta_corrected);
 checkThetaRequirement = tan(maxTheta) ;
 
 if checkThetaRequirement < 0.001
-    disp("Theta Good")
+    fprintf("Theta Good, %2f [deg]\n",checkThetaRequirement)
 else
     warning("Theta Not Good")
 end

@@ -7,7 +7,7 @@ S355J2 = [315, 470, 210*1e9, 0.3]; % Material data [S_y, S_ut, Youngs module (Pa
 material = 355; % (355, 4140)
 load_type = "Complex axial"; % ("Pure bending" "Pure axial" "Pure torsion" "Complex axial" "Complex non axial");
 surface_finish = "Machined"; % ("Ground" "Machined" "Hot-rolled" "As-forged") Other types: Machine Design pg 368, fig 6-26
-reliability = 99.999; % [%] reliability factor (50 90 95 99 99.9 99.99 99.999 99.9999)
+reliability = 99; % [%] reliability factor (50 90 95 99 99.9 99.99 99.999 99.9999)
 operating_temperature = 70; % [celsius] defined by Kjell (only significant if > 450)
 enableImportBearingDiameters = true;
 
