@@ -4,6 +4,7 @@
 *.mat
 
 # Ignore the contents of SolidoWorks folders
+SolidWorks/Bearings/
 SolidWorks/Gears/
 SolidWorks/Shafts/
 *.SLDASM
