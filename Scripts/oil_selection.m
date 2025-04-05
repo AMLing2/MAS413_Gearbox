@@ -1,6 +1,6 @@
 clc; close all; clear;
 
-export_import = fullfile(pwd, 'export_import');
+export_import = fullfile(pwd, 'export_import_last');
 
 if exist(fullfile(export_import,'loadingDiagram_common.mat'), 'file')
     load(fullfile(export_import,'loadingDiagram_common.mat'), ...
@@ -78,9 +78,10 @@ function ks = ks(F_t, b, d1, U)
     %   b  - Gear Width [mm]
     %   d1 - Pitch Circle Diameter [mm]
     %   U  - Gear Ratio
+    % Added 1.25 due to the moderate load factor
 
     % Output:
     %   ks - [N/mm^2]
 
-    ks = (F_t / (b * d1)) * ((U + 1) / U) * 3;
+    ks = (F_t / (b * d1)) * ((U + 1) / U) * 3 *1.25;
 end
