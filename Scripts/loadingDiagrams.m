@@ -2,8 +2,8 @@ clc; clear; close all;
 export_import = fullfile(pwd, 'export_import');
 
 disablePlotting = false;
-disablePlot1 = true;
-disablePlot2 = true;
+disablePlot1 = false;
+disablePlot2 = false;
 disablePlot3 = false;
 
 %% Constants
@@ -297,7 +297,9 @@ if (~disablePlotting) && (~disablePlot1)
     ylabel('[Nm]', 'interpreter', 'latex')
     xlim([0 L_AC])
     
-    dashLineV(L, figHandle, 2, 2)
+    dashLineV(L_A0, figHandle, 2, 2)
+    dashLineV(L_A1, figHandle, 2, 2)
+    dashLineV(L_A2, figHandle, 2, 2)
 end
 
 
@@ -595,7 +597,10 @@ if (~disablePlotting) && (~disablePlot2)
     ylabel('[Nm]', 'interpreter', 'latex')
     xlim([0 L_ED])
 
-    dashLineV(L, figHandle, 2, 2)
+    dashLineV(L_E3, figHandle, 2, 2)
+    dashLineV(L_E4, figHandle, 2, 2)
+    dashLineV(L_E5, figHandle, 2, 2)
+    dashLineV(L_E6, figHandle, 2, 2)
 end
 
 %% Export
@@ -901,7 +906,9 @@ if (~disablePlotting) && (~disablePlot3)
     ylabel('[Nm]', 'interpreter', 'latex')
     xlim([0 L_FH])
     
-    dashLineV(L, figHandle, 2, 2)
+    dashLineV(L_F7, figHandle, 2, 2)
+    dashLineV(L_F8, figHandle, 2, 2)
+    dashLineV(L_F9, figHandle, 2, 2)
 end
 
 %% Export
@@ -1047,12 +1054,12 @@ function dashLineV(L, figNr, spRow, spCol)
                 for col = 1 : spCol
                     spIdx = (row-1) * spCol + col;
                     subplot(spRow,spCol,spIdx)
-                    xline(L, 'm--', 'LineWidth', 1)
+                    xline(L, '--', 'Color', '#92D050', 'LineWidth', 1)
                 end
             end
         else
             figure(i)
-            xline(L, 'm--', 'LineWidth', 1)
+            xline(L, '--', 'Color', '#92D050', 'LineWidth', 1)
         end
     end
 end
