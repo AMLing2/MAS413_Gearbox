@@ -49,7 +49,6 @@ function modifiedGoodman(S_y, S_ut, shaft_design_results, titleName)
     % plot(S_yc, 0, 'ko', 'MarkerFaceColor', [0.6350 0.0780 0.1840], 'MarkerSize', 6); % S_yc point
     
     % List of colors for loop plotting
-    % marker_colour = {[0 0.4470 0.7410], [0.9290 0.6940 0.1250], [0.4940 0.1840 0.5560], [0.4660 0.6740 0.1880]};
     % marker_colour = {[0 0.4470 0.7410], [0.9290 0.6940 0.1250], [0.4940 0.1840 0.5560], [0.4660 0.6740 0.1880], [0 0.4470 0.7410], [0.9290 0.6940 0.1250], [0.4940 0.1840 0.5560], [0.4660 0.6740 0.1880]};
         % A 0L 0R 1L 1R 2L 2R
     marker_color1 = {[0 0.4470 0.7410], [0.9290 0.6940 0.1250], [0.9290 0.6940 0.1250], [0.4940 0.1840 0.5560], [0.4940 0.1840 0.5560], [0.4660 0.6740 0.1880], [0.4660 0.6740 0.1880]};
@@ -102,7 +101,15 @@ function modifiedGoodman(S_y, S_ut, shaft_design_results, titleName)
     xticklabels({sprintf('$S_y = %.0f$', S_y), sprintf('$S_{ut} = %.0f$', S_ut)}); % Custom x-axis labels
     yticklabels({0, sprintf('$S_e = %.0f$', S_e), sprintf('$S_y = %.0f$', S_y)}); % Custom y-axis labels
     % yticklabels({'S_e', 'S_y'});
-    
+
+    tickVals = 0 : 100 : 500;
+    ax.YAxis.MinorTick = 'on';
+    ax.YAxis.MinorTickValues = tickVals;
+    ax.XAxis.MinorTick = 'on';
+    ax.XAxis.MinorTickValues = tickVals;
+    tickLenghts = 0.012;
+    ax.TickLength = [tickLenghts tickLenghts];
+
     set(gca, 'FontSize', 14);
     ax.YAxisLocation = 'origin'; % Move y-axis to x = 0
     
@@ -112,28 +119,19 @@ function modifiedGoodman(S_y, S_ut, shaft_design_results, titleName)
     title(sprintf('\\textbf{%s}', titleName), 'interpreter', 'latex');
     leg = legend('show');
 
-        % if titleName == 'Shaft 1'
-        %     legend(poi, {'A', '0L', '0R', '1L', '1R', '2L', '2R'}, 'NumColumns', 2, 'Location', 'northeast')
-        %     title(leg,'Cross Sections')
-        % elseif titleName == 'Shaft 2'
-        %     legend(poi, {'3L', '3R', '4L', '4R', '5L', '5R', '6L', '6R'}, 'NumColumns', 2, 'Location', 'northeast')
-        %     title(leg,'Cross Sections')
-        % else
-        %     legend(poi, {'7L', '7R', '8L', '8R', '9L', '9R', 'H'}, 'NumColumns', 2, 'Location', 'northeast')
-        %     title(leg,'Cross Sections')
-        % end
     end
     if titleName == 'Shaft 1'
+        % A 0L 0R 1L 1R 2L 2R
         legend([poi(2),poi(4),poi(6),poi(1),poi(3),poi(5),poi(7)], ...
             {'0L','1L','2L','A','0R','1R','2R'}, 'NumColumns', 2, 'Location', 'northeast', 'interpreter', 'latex');
         title(leg,'Cross Sections', 'interpreter', 'latex');
     elseif titleName == 'Shaft 2'
-        % legend(poi, {'3L', '3R', '4L', '4R', '5L', '5R', '6L', '6R'}, 'NumColumns', 2, 'Location', 'northeast')
+        % 3L 3R 4L 4R 5L 5R 6L 6R
         legend([poi(1),poi(3),poi(5),poi(7),poi(2),poi(4),poi(6),poi(8)], ...
             {'3L','4L','5L','6L','3R','4R','5R','6R'}, 'NumColumns', 2, 'Location', 'northeast', 'interpreter', 'latex');
         title(leg,'Cross Sections', 'interpreter', 'latex');
     else
-        % legend(poi, {'7L', '7R', '8L', '8R', '9L', '9R', 'H'}, 'NumColumns', 2, 'Location', 'northeast')
+        % 7L 7R 8L 8R 9L 9R H
         legend([poi(1),poi(3),poi(5),poi(7),poi(2),poi(4),poi(6)], ...
             {'7L','8L','9L','H','7R','8R','9R'}, 'NumColumns', 2, 'Location', 'northeast', 'interpreter', 'latex');
         title(leg,'Cross Sections', 'interpreter', 'latex');
