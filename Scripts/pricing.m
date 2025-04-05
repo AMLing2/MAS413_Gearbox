@@ -22,7 +22,9 @@ mat_names = ["Fe 430", "Fe 590", "C 45 N", "C 60 N",...
 price_per_kg = [1.5 1.5 1.8 1.8 4 3.5 4.5 5]; % [dollar/kg] very rough estimates from chatGPT, based on rounded up round bar
 density = [7.85 7.85 7.80 7.80 7.85 7.85 7.85 7.80]*1e3; % [g/cc] -> [kg/m^3]
 prices_m3 = (price_per_kg) .* density;
-material_sum_list = [8.5329e+04 5.5350e+04 5.3616e+04 4.2779e+04 2.9276e+04 2.5489e+04 5.1830e+03 4.8950e+03]*1e-6; % [cm^3] -> [m^3]
+material_sum_list = [0.090602334425297 ...
+    0.058357245244539 0.057075819570932 0.049329532885301 0.032464003685267 ...
+    0.029750686178046 0.007630558753910 0.009847915711449]; % [m^3]
 price_list = material_sum_list .*  prices_m3;
 weight = material_sum_list .* density;
 

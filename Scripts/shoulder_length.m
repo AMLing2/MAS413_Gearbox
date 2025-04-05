@@ -10,5 +10,6 @@
 function L_sh = shoulder_length(a,d_shaft,d_shoulder,n_f,S_y)
     A_norm = pi * (d_shoulder/2)^2 - pi * (d_shaft/2)^2;
     sigma_x = a / (A_norm);
-    L_sh = a/ (sqrt( (((S_y/n_f) *sqrt(2))^2 - 2 * sigma_x^2) / (6)) * 2 * pi * ((d_shoulder - d_shaft)/2) );
+    %L_sh  = a/ (sqrt( (((S_y/n_f) *sqrt(2))^2 - 2*sigma_x^2) /6 ) * pi * (d_shoulder - d_shaft) );
+    L_sh = a/ (sqrt( (((S_y/n_f)^2)*2 - 2*sigma_x^2)/6  )* (pi*d_shaft) );
 end

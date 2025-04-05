@@ -16,8 +16,8 @@ end
 % 16 MnCr 5: (285mm) (AISI 5115 / 1.7131) https://matweb.com/search/DataSheet.aspx?MatGUID=2ab813ffa05d40329dffe0ee7f58b5de
 % 15 CrNi 6: (277mm) https://matweb.com/search/DataSheet.aspx?MatGUID=9ab3bf332758468ab36010790bd94349 ?
 
-%%% Chosen Parameters %%%
-material = "16 MnCr 5";
+%%% Chosen Parameters %%% % material_sum
+material = "16 MnCr 5"; 
 lambda = 14; % width factor, processed:  8-16, pg 17 lec 1, 14 to increase axial contact ratio to 1.15
 n_f = 2.5; % safety factor for interference fit pressure
 n_f_t = 2.5; % safety factor for interference fit max torque transmitted
@@ -365,7 +365,7 @@ volume_g1 = pi * b_s1 * (d_g1/2)^2 * 1e-9;
 volume_g2 = pi * b_s1 * (d_g2/2)^2 * 1e-9;
 volume_g3 = pi * b_s2 * (d_g3/2)^2 * 1e-9;
 volume_g4 = pi * b_s2 * (d_g4/2)^2 * 1e-9;
-material_sum = volume_g1 + volume_g2 + volume_g3 + volume_g4;
+material_sum = volume_g1 + volume_g2 + volume_g3 + volume_g4; % [m^3]
 density = 7.85*1e3; % [kg/m^3]
 mass_g1 = volume_g1 * density;
 mass_g2 = volume_g2 * density;
@@ -457,7 +457,8 @@ function m_t_new = modulemap_t(mt,beta)
     standard_mt = [1, 1.25, 1.5, 2, 2.25, 2.5, 2.75, 3, 3.5, 4, 4.5, 5, 6, 7] / cosd(beta);
     m_t_new = standard_mt(standard_mt > mt);
     if isempty(m_t_new)
-        error("module above 7")
+        warning("Module above 7, not rounding to standard")
+        m_t_new = mt;
     else
         m_t_new = m_t_new(1);
     end

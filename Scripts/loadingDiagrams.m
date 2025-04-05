@@ -13,7 +13,7 @@ L_12 = 5e-3; % [m]
 L_45 = 5e-3; % [m]
 L_78 = 5e-3; % [m]
 L_AB = 0.05; % [m]
-L_GH = 10e-3; % [m]
+L_GH = 100e-3; % [m]
     % Stage efficiencies
 % eta = 0.96; % [-] "finely worked teeth & good lubrication"
 eta = 1.00; % [-] Ideal Stages
