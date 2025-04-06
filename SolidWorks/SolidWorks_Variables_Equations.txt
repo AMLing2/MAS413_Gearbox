@@ -6,8 +6,8 @@
 "z_3"= 18 'Number of teeth, pinion 3
 "z_4"= 71 'Number of teeth, gear 4
 
-"c_dist_1"= 138 'Center distance stage 1 [mm]
-"c_dist_2"= 207.314 'Center distance stage 2 [mm]
+"c_dist_1"= 138.08 'Center distance stage 1 [mm]
+"c_dist_2"= 207.3141 'Center distance stage 2 [mm]
 
 "m_s1"= 2 * "c_dist_1" / ("z_1" + "z_2") 'Module stage 1 [mm]
 "m_s2"= 2 * "c_dist_2" / ("z_3" + "z_4") 'Module stage 2 [mm]
@@ -46,15 +46,15 @@
 "en_s1"= "p_s1" / 2 + 0.05 * "m_s1" 'Hatch width 1 [mm]
 "en_s2"= "p_s2" / 2 + 0.05 * "m_s2" 'Hatch width 2 [mm]
 
-"mt_s1"= "m_s1" / cos("beta") 'Helical module 1
-"mt_s2"= "m_s2" / cos("beta") 'Helical module 2
+"mt_s1"= "m_s1" 'Helical module 1
+"mt_s2"= "m_s2" 'Helical module 2
 
 "lambda"= 14 'Width factor, 8-12
 "b_s1"= "mt_s1" * "lambda" 'Helical gear width 1
 "b_s2"= "mt_s2" * "lambda" 'Helical gear width 2
 
-"pt_s1"= "p_s1" / cos("beta") 'Transverse pitch 1 [mm]
-"pt_s2"= "p_s2" / cos("beta") 'Transverse pitch 2 [mm]
+"pt_s1"= "p_s1" 'Transverse pitch 1 [mm]
+"pt_s2"= "p_s2" 'Transverse pitch 2 [mm]
 
 "px_s1"= "p_s1" / sin("beta") 'Axial pitch 1 [mm]
 "px_s2"= "p_s2" / sin("beta") 'Axial pitch 2 [mm]
