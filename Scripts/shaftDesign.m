@@ -86,14 +86,14 @@ if ~first_iteration && any([ ...
     error('Missing input variable, ensure no geometry is zero unless 1st iteration');
 end
 
-% --- Adrian ---
-if exist(fullfile(export_import, "shrinkFit_diameters.mat"), 'file')
-    load(fullfile(export_import, 'shrinkFit_diameters.mat'), ...
-        'd_S1', 'd_B', 'd_C', 'd_12', 'd_S22', 'd_E', 'd_D', ...
-        'd_S21', 'd_45', 'd_78', 'd_F', 'd_G', 'd_S3')
-else
-    fprintf('Using diameters from shaftDesign\n')
-end
+% % --- Adrian ---
+% if exist(fullfile(export_import, "shrinkFit_diameters.mat"), 'file')
+%     load(fullfile(export_import, 'shrinkFit_diameters.mat'), ...
+%         'd_S1', 'd_B', 'd_C', 'd_12', 'd_S22', 'd_E', 'd_D', ...
+%         'd_S21', 'd_45', 'd_78', 'd_F', 'd_G', 'd_S3')
+% else
+%     fprintf('Using diameters from shaftDesign\n')
+% end
 
 % Import Cross sections lists
 % cs_ = [P (N), T (Nmm), M (Nmm), V_y (N), V_z (N), shaft diameter,...

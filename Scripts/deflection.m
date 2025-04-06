@@ -99,11 +99,21 @@ else
     warning("Deflection not good")
 end
 
-maxTheta = max(theta_corrected);
-checkThetaRequirement = tan(maxTheta) ;
+% Convert to degrees
+theta = theta * 180/pi; % [degrees]
+theta_corrected = theta_corrected * 180/pi; % [degrees]
+
+% maxTheta = max(theta_corrected);
+theta_B = theta_corrected(index_L_AB);
+theta_C = theta_corrected(index_L_AC);
+maxTheta = max(theta_B, theta_C);
+checkThetaRequirement = tand(maxTheta);
 
 if checkThetaRequirement < 0.001
-    fprintf("Theta Good, %2f [deg]\n",checkThetaRequirement)
+    fprintf("Theta Good: tan(theta) = %2f [-]\n",checkThetaRequirement)
+    fprintf("             theta_max = %2f [deg]\n", maxTheta)
+    fprintf("             theta_B = %2f [deg]\n", theta_B)
+    fprintf("             theta_C = %2f [deg]\n", theta_C)
 else
     disp("Theta Not Good")
 end
@@ -116,17 +126,12 @@ delta1 = plot(x_values, delta, '--r', 'LineWidth', lwDeflection);
 delta2 = plot(x_values, delta_corrected, 'r', 'LineWidth', lwDeflection);
 plot(x_values(index_L_AB), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
 plot(x_values(index_L_AC), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
-xlabel('Length [m]')
-ylabel('Deflection [m]')
-title('\textbf{Deflection $\delta$ of shaft 1}', 'interpreter', ...
+xlabel('Length [m]', 'interpreter', 'latex')
+ylabel('Deflection [m]', 'interpreter', 'latex')
+title('Deflection $\delta$ of shaft 1', 'interpreter', ...
         'latex', 'FontSize', sizeDeflectionText)
 legend([delta1, delta2], 'No Correction', 'Corrected', ...
             'location', 'northwest')
-
-
-% Convert to degrees
-theta = theta * 180/pi; % [degrees]
-theta_corrected = theta_corrected * 180/pi; % [degrees]
 
 % Beam Slope Plot
 subplot(1,2,2)
@@ -135,13 +140,14 @@ plot(x_values, theta, '--k', 'DisplayName', 'No correction', ...
     'LineWidth', lwDeflection)
 plot(x_values, theta_corrected, 'k', 'DisplayName', 'Corrected', ...
     'LineWidth', lwDeflection)
-xlabel('Length [m]')
-ylabel('Angle [degrees]')
-title('\textbf{Beam Slope $\theta$ of shaft 1}', 'interpreter', ...
+xlabel('Length [m]', 'interpreter', 'latex')
+ylabel('Angle [degrees]', 'interpreter', 'latex')
+title('Beam Slope $\theta$ of shaft 1', 'interpreter', ...
         'latex', 'FontSize', sizeDeflectionText)
 legend('location', 'northwest')
 
-sgtitle('Forced Deflection of Shaft 1')
+sgtitle('\textbf{Forced Deflection of Shaft 1}', 'interpreter', ...
+        'latex', 'FontSize', sizeDeflectionText)
 
 pos = get(fig, 'Position'); % [xPos yPos w h]
 pos(3) = pos(3)*2;
@@ -163,17 +169,15 @@ disp('===== Lateral Deflection Shaft 1 =====')
 
 % Test if n_shaft1 is outside [0.8*n_c, 1.25*n_c]
 if (n_1 < 0.8 * n_c) || (n_1 > 1.25 * n_c)
-    disp("Lateral vibration good");
+    fprintf("Lateral vibration good: n_c = %f [rpm]", n_c);
 else
     warning("Lateral vibration not good, adjusted diameter values");
     k = sqrt(  n_1*4   /    n_c     );
-
 
     d_B = d_B       *k;
     d_S1 = d_S1     *k;
     d_12 = d_12     *k;
     d_C = d_C       *k;
-    
 
 end
 
@@ -182,9 +186,10 @@ hold on; grid on
 plot(x_values, delta_G_corrected, 'r', 'LineWidth', lwDeflection);
 plot(x_values(index_L_AB), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
 plot(x_values(index_L_AC), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
-title('Lateral Deflection of Shaft 1')
-xlabel('Length [m]')
-ylabel('Deflection [m]')
+title('Lateral Deflection of Shaft 1', 'interpreter', ...
+        'latex', 'FontSize', sizeDeflectionText)
+xlabel('Length [m]', 'interpreter', 'latex')
+ylabel('Deflection [m]', 'interpreter', 'latex')
 
 
 % Export data w/o figures (https://stackoverflow.com/questions/
@@ -194,15 +199,6 @@ saveIndex = cellfun(@isempty, regexp({varData.class}, 'matlab.(graphics|ui)'));
 saveVars = {varData(saveIndex).name};
 save(fullfile(export_import, "deflection_shaft1.mat"), ...
     "d_C","d_12","d_S1","d_B", saveVars{:})
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Formula for calculating new diameter based on critical speed
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Needs to be done for every diameter of the shaft
-%n_c_new = n_1*4;
-%n_c_old = n_c
-%d_new = d_old * sqrt(  n_c_new   /    n_c_old     );
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Shaft 2 Deflection - Forced and Free %%
@@ -303,7 +299,7 @@ theta_corrected_G = theta_G - K_3_G;
 maxDeflection = max( abs(delta_corrected) );
 checkEmpiricalRequirement = maxDeflection / L_ED;
 
-disp('===== Forced Deflection Shaft 2 =====')
+fprintf('\n\n===== Forced Deflection Shaft 2 =====')
 
 if checkEmpiricalRequirement <= 1/3000
     disp("Deflection Good")
@@ -311,13 +307,23 @@ else
     warning("Deflection not good")
 end
 
-maxTheta = max(theta_corrected);
-checkThetaRequirement = tan(maxTheta) ;
+% Convert to degrees
+theta = theta * 180/pi; % [degrees]
+theta_corrected = theta_corrected * 180/pi; % [degrees]
+
+% maxTheta = max(theta_corrected);
+theta_E = theta_corrected(1);
+theta_D = theta_corrected(index_L_ED);
+maxTheta = max(theta_E, theta_D);
+checkThetaRequirement = tand(maxTheta);
 
 if checkThetaRequirement < 0.001
-    fprintf("Theta Good, %2f [deg]\n",checkThetaRequirement)
+    fprintf("Theta Good: tan(theta) = %2f [-]\n",checkThetaRequirement)
+    fprintf("             theta_max = %2f [deg]\n", maxTheta)
+    fprintf("             theta_E = %2f [deg]\n", theta_E)
+    fprintf("             theta_D = %2f [deg]\n", theta_D)
 else
-    warning("Theta Not Good")
+    disp("Theta Not Good")
 end
 
 % Forced Deflection Plot
@@ -328,16 +334,12 @@ delta1 = plot(x_values, delta, '--r', 'LineWidth', lwDeflection);
 delta2 = plot(x_values, delta_corrected, 'r', 'LineWidth', lwDeflection);
 plot(x_values(1), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
 plot(x_values(res), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
-xlabel('Length [m]')
-ylabel('Deflection [m]')
-title('\textbf{Deflection $\delta$ of shaft 2}', 'interpreter', ...
+xlabel('Length [m]', 'interpreter', 'latex')
+ylabel('Deflection [m]', 'interpreter', 'latex')
+title('Deflection $\delta$ of shaft 2', 'interpreter', ...
         'latex', 'FontSize', sizeDeflectionText)
 legend([delta1, delta2], 'No Correction', 'Corrected', ...
             'location', 'northwest')
-
-% Convert to degrees
-theta = theta * 180/pi; % [degrees]
-theta_corrected = theta_corrected * 180/pi; % [degrees]
 
 % Beam Slope Plot
 subplot(1,2,2)
@@ -346,13 +348,14 @@ plot(x_values, theta, '--k', 'DisplayName', 'No correction', ...
     'LineWidth', lwDeflection)
 plot(x_values, theta_corrected, 'k', 'DisplayName', 'Corrected', ...
     'LineWidth', lwDeflection)
-xlabel('Length [m]')
-ylabel('Angle [degrees]')
-title('\textbf{Beam Slope $\theta$ of shaft 2}', 'interpreter', ...
+xlabel('Length [m]', 'interpreter', 'latex')
+ylabel('Angle [degrees]', 'interpreter', 'latex')
+title('Beam Slope $\theta$ of shaft 2', 'interpreter', ...
         'latex', 'FontSize', sizeDeflectionText)
 legend('location', 'northwest')
 
-sgtitle('Forced Deflection of Shaft 2')
+sgtitle('\textbf{Forced Deflection of Shaft 2}', 'interpreter', ...
+        'latex', 'FontSize', sizeDeflectionText)
 
 pos = get(fig, 'Position'); % [xPos yPos w h]
 pos(3) = pos(3)*2;
@@ -378,7 +381,7 @@ disp('===== Lateral Deflection Shaft 2 =====')
 
 % Test if n_shaft2 is outside [0.8*n_c, 1.25*n_c]
 if (n_shaft2 < 0.8 * n_c) || (n_shaft2 > 1.25 * n_c)
-    disp("Lateral vibration good");
+    fprintf("Lateral vibration good: n_c = %f [rpm]", n_c);
 else
     warning("Lateral vibration not good, values adjusted");
     
@@ -389,7 +392,6 @@ else
     d_45= d_45*k;
     d_S21 = d_S21*k;
     d_D = d_D*k;
-    
 end
 
 % Export data w/o figures (https://stackoverflow.com/questions/
@@ -405,18 +407,10 @@ hold on; grid on
 plot(x_values, delta_corrected_G, 'r', 'LineWidth', lwDeflection);
 plot(x_values(1), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
 plot(x_values(res), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
-title('Lateral Deflection of Shaft 2')
+title('Lateral Deflection of Shaft 2', 'interpreter', ...
+        'latex', 'FontSize', sizeDeflectionText)
 xlabel('Length [m]')
 ylabel('Deflection [m]')
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Formula for calculating new diameter based on ciritcal speed%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Needs to be done for every diameter of the shaft
-%n_c_new = n_shaft2*4;
-%n_c_old = n_c
-%d_new = d_old * sqrt(  n_c_new   /    n_c_old     );
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Shaft 3 Deflection - Forced and Free %%
@@ -516,7 +510,7 @@ theta_corrected_G = theta_G - K_3_G;
 maxDeflection = max( abs(delta_corrected) );
 checkEmpiricalRequirement = maxDeflection / L_FH;
 
-disp('===== Forced Deflection Shaft 3 =====')
+fprintf('\n\n===== Forced Deflection Shaft 3 =====')
 
 if checkEmpiricalRequirement <= 1/3000
     disp("Deflection Good")
@@ -524,13 +518,23 @@ else
     warning("Deflection not good")
 end
 
-maxTheta = max(theta_corrected);
-checkThetaRequirement = tan(maxTheta) ;
+% Convert to degrees
+theta = theta * 180/pi; % [degrees]
+theta_corrected = theta_corrected * 180/pi; % [degrees]
+
+% maxTheta = max(theta_corrected);
+theta_F = theta_corrected(1);
+theta_G = theta_corrected(index_L_FG);
+maxTheta = max(theta_F, theta_G);
+checkThetaRequirement = tand(maxTheta);
 
 if checkThetaRequirement < 0.001
-    fprintf("Theta Good, %2f [deg]\n",checkThetaRequirement)
+    fprintf("Theta Good: tan(theta) = %2f [-]\n",checkThetaRequirement)
+    fprintf("             theta_max = %2f [deg]\n", maxTheta)
+    fprintf("             theta_F = %2f [deg]\n", theta_F)
+    fprintf("             theta_G = %2f [deg]\n", theta_G)
 else
-    warning("Theta Not Good")
+    disp("Theta Not Good")
 end
 
 % Forced Deflection Plot
@@ -543,14 +547,10 @@ plot(0, 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
 plot(x_values(index_L_FG), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
 xlabel('Length [m]')
 ylabel('Deflection [m]')
-title('\textbf{Deflection $\delta$ of shaft 3}', 'interpreter', ...
+title('Deflection $\delta$ of shaft 3', 'interpreter', ...
         'latex', 'FontSize', sizeDeflectionText)
 legend([delta1, delta2], 'No Correction', 'Corrected', ...
             'location', 'northwest')
-
-% Convert to degrees
-theta = theta * 180/pi; % [degrees]
-theta_corrected = theta_corrected * 180/pi; % [degrees]
 
 % Beam Slope Plot
 subplot(1,2,2)
@@ -561,11 +561,12 @@ plot(x_values, theta_corrected, 'k', 'DisplayName', 'Corrected', ...
     'LineWidth', lwDeflection)
 xlabel('Length [m]')
 ylabel('Angle [degrees]')
-title('\textbf{Beam Slope $\theta$ of shaft 3}', 'interpreter', ...
+title('Beam Slope $\theta$ of shaft 3', 'interpreter', ...
         'latex', 'FontSize', sizeDeflectionText)
 legend('location', 'northwest')
 
-sgtitle('Forced Deflection of Shaft 3')
+sgtitle('\textbf{Forced Deflection of Shaft 3}', 'interpreter', ...
+        'latex', 'FontSize', sizeDeflectionText)
 
 pos = get(fig, 'Position'); % [xPos yPos w h]
 pos(3) = pos(3)*2;
@@ -588,7 +589,7 @@ disp('===== Lateral Deflection Shaft 3 =====')
 
 % Test if n_shaft1 is outside [0.8*n_c, 1.25*n_c]
 if (n_shaft3 < 0.8 * n_c) || (n_shaft3 > 1.25 * n_c)
-    disp("Lateral vibration good");
+    fprintf("Lateral vibration good: n_c = %f [rpm]", n_c);
 else
     warning("Lateral vibration not good, values adjusted");
 
@@ -598,7 +599,6 @@ else
     d_78 = d_78*k;
     d_G = d_G*k;
     d_S3 = d_S3*k;
-
 end
 
 % Export data w/o figures (https://stackoverflow.com/questions/
@@ -614,9 +614,10 @@ hold on; grid on
 plot(x_values, delta_corrected_G, 'r', 'LineWidth', lwDeflection);
 plot(0, 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
 plot(x_values(index_L_FG), 0, 'ok', 'MarkerSize', ok, 'LineWidth',1.2)
-title('Lateral Deflection of Shaft 3')
-xlabel('Length [m]')
-ylabel('Deflection [m]')
+title('Lateral Deflection of Shaft 3', 'interpreter', ...
+        'latex', 'FontSize', sizeDeflectionText)
+xlabel('Length [m]', 'interpreter', 'latex')
+ylabel('Deflection [m]', 'interpreter', 'latex')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Formula for calculating new diameter based on ciritcal speed if nessesary%
