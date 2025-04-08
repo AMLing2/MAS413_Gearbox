@@ -1,3 +1,3 @@
 The data in this folder is taken from the SKF catalog of *Rolling bearings PUB BU/P1 17000/1*, found on the manufacturer's website. The .csv files generated from the python script requires manual editing for usage in MATLAB files.
 
-We do not guarantee the accuracy, completeness, or reliability of these files. Users should exercise caution and independently verify all data before making any decisions based on these CSV files. It is crucial to verify the information directly with the manufacturer. Specifications and details might change or be updated, and errors can occur during data transcription.
+We do not guarantee the accuracy, completeness, or reliability of these files. Users should exercise caution and independently verify all data before making any decisions based on these .csv files. It is crucial to verify the information directly with the manufacturer. Specifications and details might change or be updated, and errors can occur during data transcription.
