@@ -215,19 +215,19 @@ disp(bearing_tab_G);
 % Calculate shrink fits for each bearing
 % B C
 [d_B,h_B,s_B,temp_B,temp_shaft_B] = ...
-    shrinkFitBearing(b_data.D(b_index_B),b_data.d(b_index_B));
+    shrinkFitBearing(b_data.D(b_index_B),b_data.d(b_index_B),"h7p6");
 [d_C,h_C,s_C,temp_C,temp_shaft_C] = ...
-    shrinkFitBearing(b_data.D(b_index_C),b_data.d(b_index_C));
+    shrinkFitBearing(b_data.D(b_index_C),b_data.d(b_index_C),"h7p6");
 % E D
 [d_E,h_E,s_E,temp_E,temp_shaft_E] = ...
-    shrinkFitBearing(b_data.D(b_index_E),b_data.d(b_index_E));
+    shrinkFitBearing(b_data.D(b_index_E),b_data.d(b_index_E),"h7p6");
 [d_D,h_D,s_D,temp_D,temp_shaft_D] = ...
-    shrinkFitBearing(b_data.D(b_index_D),b_data.d(b_index_D));
+    shrinkFitBearing(b_data.D(b_index_D),b_data.d(b_index_D),"h7p6");
 % F G
 [d_F,h_F,s_F,temp_F,temp_shaft_F] = ...
-    shrinkFitBearing(b_data.D(b_index_F),b_data.d(b_index_F));
+    shrinkFitBearing(b_data.D(b_index_F),b_data.d(b_index_F),"h7p6");
 [d_G,h_G,s_G,temp_G,temp_shaft_G] = ...
-    shrinkFitBearing(b_data.D(b_index_G),b_data.d(b_index_G));
+    shrinkFitBearing(b_data.D(b_index_G),b_data.d(b_index_G),"h7p6");
 
 % print shaft diameters
 shaft_d = table(d_C,d_B,d_D,d_E,d_G,d_F)

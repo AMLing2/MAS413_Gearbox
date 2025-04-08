@@ -14,7 +14,7 @@
 % bearing_clearance : radial clearance in the bearing (likely incorrect) [um]
 
 function [d_s_c,h,s,heat_temp_bearing,temp_shaft,bearing_clearance] ...
-    = shrinkFitBearing(d_h_o,d_h_i)
+    = shrinkFitBearing(d_h_o,d_h_i,fit)
 
     % class 8 fit (h8), Appendix E-1 fundamentals of machine component design pg 854
     C_h = 0.0052;
@@ -22,10 +22,19 @@ function [d_s_c,h,s,heat_temp_bearing,temp_shaft,bearing_clearance] ...
     C_i_8 = 0.0010;
     C_i_7 = 0.0005;
     % find values for a k5 fit
-    i_7 = C_i_7 * d_h_i; % [mm] average interference h7
-    i_8 = C_i_8 * d_h_i; % [mm] average interference h8
+    if strcmp(fit,"h7s6")
+        i = C_i_8 * d_h_i; % [mm] average interference class 8, h7s6
+        % h7s6 from table 4.1a (Steinschaden Lecture 6 slide 12 of
+        % "078-Engineering-Drawings-Lecture-Linear-Fits-Tolerances.pdf")
+    elseif strcmp(fit,"h7p6")
+        i = C_i_7 * d_h_i; % [mm] average interference class 7, h7p6
+    else
+        error("select fit h7s6 or h7p6")
+    end
+    % i_7 = C_i_7 * d_h_i; % [mm] average interference h7
+    % i_8 = C_i_8 * d_h_i; % [mm] average interference h8
     
-    d_s_c = d_h_i + i_8; % [mm] new radius of shaft
+    d_s_c = d_h_i + i; % [mm] new radius of shaft
     h = C_h * d_h_i^(1/3); % gear hole diameter tolerence 
     s = C_s * d_s_c^(1/3); % shaft diameter tolerence 
 
@@ -34,7 +43,7 @@ function [d_s_c,h,s,heat_temp_bearing,temp_shaft,bearing_clearance] ...
     temp_shaft = temp_room;
     L_0 = 2*pi*(d_h_i/2); % initial circumference [mm]
     fit_tol = s+h; % extra radius for easier fit [mm]
-    L_heated = 2*pi*((d_h_i + i_8 + fit_tol)/2); % finishing length for fit [mm]
+    L_heated = 2*pi*((d_h_i + i + fit_tol)/2); % finishing length for fit [mm]
     alpha = 1.2e-5; % Coefficient of liear expansion [1/deg C], tab 17.1 pg 578
     heat_temp_bearing = ((L_heated - L_0) / (alpha * L_0)) + temp_room; % [deg C] eq 17.6 pg 576
 
@@ -51,7 +60,7 @@ function [d_s_c,h,s,heat_temp_bearing,temp_shaft,bearing_clearance] ...
     d_m = (d_h_o + d_h_i) / 2; % [mm] bearing mean diameter
     delta_r_temp = 0.012 * (working_temp - temp_outer) * d_m; % [um], converts to [um] in the datasheet
     f1 = 0.4773 * (d_h_i/d_h_o) + 0.5507; % reduction factor for inner ring, diagram 2 pg184 skf catalog assuming linear func
-    delta_r_fit = f1 * i_8 * 1e3; % [um] assuming loose fit on outer ring seat
+    delta_r_fit = f1 * i * 1e3; % [um] assuming loose fit on outer ring seat
     r_op = 0; % [um] required operating clearance, equal to 0 for ball bearings
     r = r_op + delta_r_temp + delta_r_fit; % pg 184 skf datasheet
     
@@ -60,7 +69,7 @@ function [d_s_c,h,s,heat_temp_bearing,temp_shaft,bearing_clearance] ...
     [~,i] = closest(bore_diam_list,d_h_i);
     min_clearance = clearance_list(i);
     bearing_clearance = min_clearance - r; % [um]
-    if bearing_clearance < 0
-        % warning("bad bearing clearance")
-    end
+    % if bearing_clearance < 0
+    %      warning("bad bearing clearance")
+    % end
 end
