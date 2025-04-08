@@ -20,9 +20,9 @@ The gearbox is driven by an electric motor and a requirement is that the piston 
 - Helix Angle: beta = 15 [degrees]
 
 # Scripts
-The iterative process described in the report follows quite directly from the code in the "Scripts" directory
+The iterative process described in the report follows quite directly the code in the "Scripts" directory
 
 # CAD
 - 3D models were made parameterized under the following file "Solidworks/SolidWorks_Variables_Equations.txt"
-- For compatibility issues with group members using Windows, Unix and Mac OS, the CAD files were shared through OneDrive and not here
-- To keep the system simple, these files are added in the .gitignore such that one can copy the files into the "SolidWorks" folder and compile them directly there
+- For compatibility issues with group members using Windows, Linux and Mac OS, the CAD files were shared through OneDrive and not here
+- To keep the system simple, these files are added in the .gitignore such that one can copy the files into the "SolidWorks" folder locally and compile them directly there, without pushing them to the repository
